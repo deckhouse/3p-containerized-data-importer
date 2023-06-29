@@ -516,6 +516,18 @@ func getExtraHeadersFromSecrets() ([]string, error) {
 	return secretExtraHeaders, err
 }
 
+func (hs *HTTPDataSource) ReadCloser() (io.ReadCloser, error) {
+	return hs.httpReader, nil
+}
+
+func (hs *HTTPDataSource) Length() (int, error) {
+	return int(hs.contentLength), nil
+}
+
+func (hs *HTTPDataSource) Filename() (string, error) {
+	return path.Base(hs.endpoint.Path), nil
+}
+
 func getServerInfo(ctx context.Context, infoURL string) (*common.ServerInfo, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, infoURL, nil)
 	if err != nil {

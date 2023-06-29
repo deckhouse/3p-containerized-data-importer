@@ -300,6 +300,21 @@ const (
 	// CDIControllerLeaderElectionHelperName is the name of the configmap that is used as a helper for controller leader election
 	CDIControllerLeaderElectionHelperName = "cdi-controller-leader-election-helper"
 
+	DestinationInsecureTLSVar = "DESTINATION_INSECURE_TLS"
+
+	ImporterSHA256Sum              = "IMPORTER_SHA256SUM"
+	ImporterMD5Sum                 = "IMPORTER_MD5SUM"
+	ImporterDestinationEndpoint    = "IMPORTER_DESTINATION_ENDPOINT"
+	ImporterDestinationAccessKeyID = "IMPORTER_DESTINATION_ACCESS_KEY_ID"
+	ImporterDestinationSecretKey   = "IMPORTER_DESTINATION_SECRET_KEY"
+	ImporterAuthConfig             = "IMPORTER_AUTH_CONFIG"
+	ImporterDestinationAuthConfig  = "IMPORTER_DESTINATION_AUTH_CONFIG"
+
+	UploaderDestinationEndpoint    = "UPLOADER_DESTINATION_ENDPOINT"
+	UploaderDestinationAccessKeyID = "UPLOADER_DESTINATION_ACCESS_KEY_ID"
+	UploaderDestinationSecretKey   = "UPLOADER_DESTINATION_SECRET_KEY"
+	UploaderDestinationAuthConfig  = "UPLOADER_DESTINATION_AUTH_CONFIG"
+
 	// ImagePullFailureText is the text of the ErrImagePullFailed error. We need it as a common constant because we're using
 	// both to create and to later check the error in the termination text of the importer pod.
 	ImagePullFailureText = "failed to pull image"
