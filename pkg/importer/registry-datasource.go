@@ -48,7 +48,7 @@ type RegistryDataSource struct {
 	certDir     string
 	insecureTLS bool
 	imageDir    string
-	//The discovered image file in scratch space.
+	// The discovered image file in scratch space.
 	url *url.URL
 	//The discovered image info from the registry.
 	info *types.ImageInspectInfo
@@ -93,7 +93,7 @@ func (rd *RegistryDataSource) Transfer(path string) (ProcessingPhase, error) {
 		return ProcessingPhaseError, err
 	}
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 
