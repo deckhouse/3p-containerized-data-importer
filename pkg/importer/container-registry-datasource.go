@@ -31,38 +31,35 @@ import (
 )
 
 func NewContainerRegistryDataSource(endpoint, accessKey, secKey, certDir string, insecureTLS bool) (*ContainerRegistryDataSource, error) {
-	rd := NewRegistryDataSource(endpoint, accessKey, secKey, certDir, insecureTLS)
+	// Certs dir always mount from secret.
 	rrc, err := NewRegistryReadCloser(endpoint, accessKey, secKey, certDir, insecureTLS)
 	if err != nil {
 		return nil, err
 	}
-	defer rrc.Close()
-	size := int(rrc.tarHeader.Size)
-	path := rrc.tarHeader.Name
 	return &ContainerRegistryDataSource{
-		RegistryDataSource: rd,
-		Size:               size,
-		Path:               path,
+		registryReadCloser: rrc,
 	}, nil
 }
 
 type ContainerRegistryDataSource struct {
-	*RegistryDataSource
-	Size int
-	Path string
+	registryReadCloser *registryReadCloser
 }
 
 func (crd *ContainerRegistryDataSource) ReadCloser() (io.ReadCloser, error) {
-	return NewRegistryReadCloser(crd.endpoint, crd.accessKey, crd.secKey, crd.certDir, crd.insecureTLS)
+	return crd.registryReadCloser, nil
 }
 
 func (crd *ContainerRegistryDataSource) Length() (int, error) {
-	return crd.Size, nil
+	return int(crd.registryReadCloser.tarHeader.Size), nil
 }
 
 func (crd *ContainerRegistryDataSource) Filename() (string, error) {
-	path := strings.Split(crd.Path, "/")
+	path := strings.Split(crd.registryReadCloser.tarHeader.Name, "/")
 	return path[len(path)-1], nil
+}
+
+func (r ContainerRegistryDataSource) Close() error {
+	return r.registryReadCloser.Close()
 }
 
 type registryReadCloser struct {
