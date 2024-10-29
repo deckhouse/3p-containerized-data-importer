@@ -27,10 +27,13 @@ import (
 	"errors"
 	"fmt"
 <<<<<<< HEAD
+<<<<<<< HEAD
 	"math"
 =======
 	"io"
 >>>>>>> b3ea800a0 (feat: add image exporter (#1))
+=======
+>>>>>>> 81f1cea8c (Migrating the DataSourceInterface (#3))
 	"net/url"
 	"os"
 	"regexp"
@@ -1091,16 +1094,4 @@ func (vs *VDDKDataSource) TransferFile(fileName string) (ProcessingPhase, error)
 	}
 
 	return ProcessingPhaseResize, nil
-}
-
-func (vs *VDDKDataSource) ReadCloser() (io.ReadCloser, error) {
-	panic("not implemented")
-}
-
-func (vs *VDDKDataSource) Length() (int, error) {
-	panic("not implemented")
-}
-
-func (vs *VDDKDataSource) Filename() (string, error) {
-	panic("not implemented")
 }

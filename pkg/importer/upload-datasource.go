@@ -1,11 +1,11 @@
 package importer
 
 import (
-	"github.com/google/uuid"
 	"io"
 	"net/url"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"k8s.io/klog/v2"
@@ -218,16 +218,4 @@ func (aud *AsyncUploadDataSource) GetTerminationMessage() *common.TerminationMes
 // GetResumePhase returns the next phase to process when resuming
 func (aud *AsyncUploadDataSource) GetResumePhase() ProcessingPhase {
 	return aud.ResumePhase
-}
-
-func (aud *AsyncUploadDataSource) ReadCloser() (io.ReadCloser, error) {
-	panic("not implemented")
-}
-
-func (aud *AsyncUploadDataSource) Length() (int, error) {
-	panic("not implemented")
-}
-
-func (aud *AsyncUploadDataSource) Filename() (string, error) {
-	panic("not implemented")
 }
