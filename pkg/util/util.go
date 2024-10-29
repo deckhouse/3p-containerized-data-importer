@@ -15,10 +15,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-<<<<<<< HEAD
-
-=======
->>>>>>> 6b7516817 (fix: could not build cdi-registry-importer on MacOS (#4))
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,13 +37,26 @@ type CountingReader struct {
 	Done    bool
 }
 
+// VddkInfo holds VDDK version and connection information returned by an importer pod
+type VddkInfo struct {
+	Version string
+	Host    string
+}
+
+// RegistryImporterInfo holds complete import report returned by a registry importer pod
+type RegistryImporterInfo struct {
+	SourceImageSize        int    `json:"source-image-size"`
+	SourceImageVirtualSize int    `json:"source-image-virtual-size"`
+	SourceImageFormat      string `json:"source-image-format"`
+}
+
 // RandAlphaNum provides an implementation to generate a random alpha numeric string of the specified length
 // This generator is not cryptographically secure.
 //
 //nolint:gosec // This is not a security-sensitive use case
 func RandAlphaNum(n int) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	letter := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letter[r.Intn(len(letter))]
@@ -243,9 +252,6 @@ func Md5sum(filePath string) (string, error) {
 	return hex.EncodeToString(hashInBytes), nil
 }
 
-<<<<<<< HEAD
-// GetUsableSpace calculates usable space to use taking file system overhead into account
-=======
 // Three functions for zeroing a range in the destination file:
 
 // AppendZeroWithTruncate resizes the file to append zeroes, meant only for newly-created (empty and zero-length) regular files.
@@ -298,7 +304,6 @@ func AppendZeroWithWrite(outFile *os.File, start, length int64) error {
 }
 
 // GetUsableSpace calculates space to use taking file system overhead into account
->>>>>>> 6b7516817 (fix: could not build cdi-registry-importer on MacOS (#4))
 func GetUsableSpace(filesystemOverhead float64, availableSpace int64) int64 {
 	// +1 always rounds up.
 	spaceWithOverhead := int64(math.Ceil((1 - filesystemOverhead) * float64(availableSpace)))
