@@ -301,19 +301,31 @@ const (
 	CDIControllerLeaderElectionHelperName = "cdi-controller-leader-election-helper"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// ImagePullFailureText is the text of the ErrImagePullFailed error. We need it as a common constant because we're using
 	// both to create and to later check the error in the termination text of the importer pod.
 	ImagePullFailureText = "failed to pull image"
 =======
+=======
+	DestinationInsecureTLSVar = "DESTINATION_INSECURE_TLS"
+
+>>>>>>> 071c5d94b (Feat/uploader (#9))
 	ImporterSHA256Sum              = "IMPORTER_SHA256SUM"
 	ImporterMD5Sum                 = "IMPORTER_MD5SUM"
 	ImporterDestinationEndpoint    = "IMPORTER_DESTINATION_ENDPOINT"
 	ImporterDestinationAccessKeyID = "IMPORTER_DESTINATION_ACCESS_KEY_ID"
 	ImporterDestinationSecretKey   = "IMPORTER_DESTINATION_SECRET_KEY"
-	DestinationInsecureTLSVar      = "DESTINATION_INSECURE_TLS"
 	ImporterAuthConfig             = "IMPORTER_AUTH_CONFIG"
 	ImporterDestinationAuthConfig  = "IMPORTER_DESTINATION_AUTH_CONFIG"
+<<<<<<< HEAD
 >>>>>>> b3ea800a0 (feat: add image exporter (#1))
+=======
+
+	UploaderDestinationEndpoint    = "UPLOADER_DESTINATION_ENDPOINT"
+	UploaderDestinationAccessKeyID = "UPLOADER_DESTINATION_ACCESS_KEY_ID"
+	UploaderDestinationSecretKey   = "UPLOADER_DESTINATION_SECRET_KEY"
+	UploaderDestinationAuthConfig  = "UPLOADER_DESTINATION_AUTH_CONFIG"
+>>>>>>> 071c5d94b (Feat/uploader (#9))
 )
 
 // ProxyPaths are all supported paths
