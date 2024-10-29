@@ -15,7 +15,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6b7516817 (fix: could not build cdi-registry-importer on MacOS (#4))
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -240,7 +243,62 @@ func Md5sum(filePath string) (string, error) {
 	return hex.EncodeToString(hashInBytes), nil
 }
 
+<<<<<<< HEAD
 // GetUsableSpace calculates usable space to use taking file system overhead into account
+=======
+// Three functions for zeroing a range in the destination file:
+
+// AppendZeroWithTruncate resizes the file to append zeroes, meant only for newly-created (empty and zero-length) regular files.
+func AppendZeroWithTruncate(outFile *os.File, start, length int64) error {
+	klog.Infof("Truncating %d-bytes from offset %d", length, start)
+	end, err := outFile.Seek(0, io.SeekEnd)
+	if err != nil {
+		return err
+	}
+	if start != end {
+		return errors.Errorf("starting offset %d does not match previous ending offset %d, cannot safely append zeroes to this file using truncate", start, end)
+	}
+	err = outFile.Truncate(start + length)
+	if err != nil {
+		return err
+	}
+	_, err = outFile.Seek(0, io.SeekEnd)
+	return err
+}
+
+var zeroBuffer []byte
+
+// AppendZeroWithWrite just does normal file writes to the destination, a slow but reliable fallback option.
+func AppendZeroWithWrite(outFile *os.File, start, length int64) error {
+	klog.Infof("Writing %d zero bytes at offset %d", length, start)
+	offset, err := outFile.Seek(0, io.SeekCurrent)
+	if err != nil {
+		return err
+	}
+	if start != offset {
+		return errors.Errorf("starting offset %d does not match previous ending offset %d, cannot safely append zeroes to this file using write", start, offset)
+	}
+	if zeroBuffer == nil { // No need to re-allocate this on every write
+		zeroBuffer = bytes.Repeat([]byte{0}, 32<<20)
+	}
+	count := int64(0)
+	for count < length {
+		blockSize := int64(len(zeroBuffer))
+		remaining := length - count
+		if remaining < blockSize {
+			blockSize = remaining
+		}
+		written, err := outFile.Write(zeroBuffer[:blockSize])
+		if err != nil {
+			return errors.Wrapf(err, "unable to write %d zeroes at offset %d: %v", length, start+count, err)
+		}
+		count += int64(written)
+	}
+	return nil
+}
+
+// GetUsableSpace calculates space to use taking file system overhead into account
+>>>>>>> 6b7516817 (fix: could not build cdi-registry-importer on MacOS (#4))
 func GetUsableSpace(filesystemOverhead float64, availableSpace int64) int64 {
 	// +1 always rounds up.
 	spaceWithOverhead := int64(math.Ceil((1 - filesystemOverhead) * float64(availableSpace)))
