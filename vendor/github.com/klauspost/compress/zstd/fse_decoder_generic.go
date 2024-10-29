@@ -20,9 +20,16 @@ func (s *fseDecoder) buildDtable() error {
 			if v == -1 {
 				s.dt[highThreshold].setAddBits(uint8(i))
 				highThreshold--
+<<<<<<< HEAD
 				v = 1
 			}
 			symbolNext[i] = uint16(v)
+=======
+				symbolNext[i] = 1
+			} else {
+				symbolNext[i] = uint16(v)
+			}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 	}
 
@@ -34,12 +41,19 @@ func (s *fseDecoder) buildDtable() error {
 		for ss, v := range s.norm[:s.symbolLen] {
 			for i := 0; i < int(v); i++ {
 				s.dt[position].setAddBits(uint8(ss))
+<<<<<<< HEAD
 				for {
 					// lowprob area
 					position = (position + step) & tableMask
 					if position <= highThreshold {
 						break
 					}
+=======
+				position = (position + step) & tableMask
+				for position > highThreshold {
+					// lowprob area
+					position = (position + step) & tableMask
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				}
 			}
 		}

@@ -148,7 +148,11 @@ func dial(ctx context.Context, insecure bool, o *internal.DialSettings) (*grpc.C
 	if o.GRPCConn != nil {
 		return o.GRPCConn, nil
 	}
+<<<<<<< HEAD
 	transportCreds, endpoint, err := internal.GetGRPCTransportConfigAndEndpoint(o)
+=======
+	clientCertSource, endpoint, err := internal.GetClientCertificateSourceAndEndpoint(o)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	if err != nil {
 		return nil, err
 	}
@@ -168,8 +172,22 @@ func dial(ctx context.Context, insecure bool, o *internal.DialSettings) (*grpc.C
 	// when dialing an insecure connection?
 	if !o.NoAuth && !insecure {
 		if o.APIKey != "" {
+<<<<<<< HEAD
 			grpcOpts = append(grpcOpts, grpc.WithPerRPCCredentials(grpcAPIKey{
 				apiKey:        o.APIKey,
+=======
+			log.Print("API keys are not supported for gRPC APIs. Remove the WithAPIKey option from your client-creating call.")
+		}
+		creds, err := internal.Creds(ctx, o)
+		if err != nil {
+			return nil, err
+		}
+
+		grpcOpts = append(grpcOpts,
+			grpc.WithPerRPCCredentials(grpcTokenSource{
+				TokenSource:   oauth.TokenSource{creds.TokenSource},
+				quotaProject:  internal.GetQuotaProject(creds, o.QuotaProject),
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				requestReason: o.RequestReason,
 			}))
 		} else {

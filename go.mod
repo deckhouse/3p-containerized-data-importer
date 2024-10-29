@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	cloud.google.com/go/storage v1.36.0
 	github.com/appscode/jsonpatch v1.0.1
+<<<<<<< HEAD
 	github.com/aws/aws-sdk-go v1.44.302
 	github.com/containers/image/v5 v5.32.0
 	github.com/coreos/go-semver v0.3.1
@@ -20,6 +21,25 @@ require (
 	github.com/gophercloud/utils/v2 v2.0.0-20240529145014-bdd9ea767dd2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.17.9
+=======
+	github.com/aws/aws-sdk-go v1.25.48
+	github.com/containers/image/v5 v5.19.1
+	github.com/coreos/go-semver v0.3.0
+	github.com/coreos/prometheus-operator v0.38.1-0.20200424145508-7e176fda06cc
+	github.com/djherbis/buffer v1.1.0
+	github.com/djherbis/nio/v3 v3.0.1
+	github.com/docker/cli v23.0.5+incompatible
+	github.com/docker/go-units v0.5.0
+	github.com/emicklei/go-restful/v3 v3.9.0
+	github.com/ghodss/yaml v1.0.0
+	github.com/go-logr/logr v1.2.3
+	github.com/golang/snappy v0.0.3
+	github.com/google/go-containerregistry v0.15.2
+	github.com/google/uuid v1.3.0
+	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
+	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/klauspost/compress v1.16.5
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	github.com/kubernetes-csi/external-snapshotter/client/v6 v6.0.1
 	github.com/kubernetes-csi/lib-volume-populator v1.2.1-0.20230316163120-b62a0eee2c56
 	github.com/kubevirt/monitoring/pkg/metrics/parser v0.0.0-20230627123556-81a891d4462a
@@ -42,9 +62,16 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/ulikunitz/xz v0.5.12
 	github.com/vmware/govmomi v0.23.1
+<<<<<<< HEAD
 	go.uber.org/zap v1.26.0
 	golang.org/x/sys v0.22.0
 	google.golang.org/api v0.155.0
+=======
+	go.uber.org/zap v1.24.0
+	golang.org/x/sync v0.1.0
+	golang.org/x/sys v0.7.0
+	google.golang.org/api v0.114.0
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	gopkg.in/fsnotify.v1 v1.4.7
 	k8s.io/api v0.30.2
 	k8s.io/apiextensions-apiserver v0.30.2
@@ -67,14 +94,24 @@ require (
 )
 
 require (
+<<<<<<< HEAD
 	cloud.google.com/go v0.112.0 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cloud.google.com/go/iam v1.1.5 // indirect
 	github.com/BurntSushi/toml v1.4.0 // indirect
+=======
+	cloud.google.com/go v0.110.0 // indirect
+	cloud.google.com/go/compute v1.19.1 // indirect
+	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/iam v0.13.0 // indirect
+	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/Microsoft/go-winio v0.6.1 // indirect
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+<<<<<<< HEAD
 	github.com/containers/libtrust v0.0.0-20230121012942-c1716e8a8d01 // indirect
 	github.com/containers/ocicrypt v1.2.0 // indirect
 	github.com/containers/storage v1.55.0 // indirect
@@ -109,11 +146,47 @@ require (
 	github.com/grafana/regexp v0.0.0-20221122212121-6b5c0a4cb7fd // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+=======
+	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
+	github.com/containers/libtrust v0.0.0-20190913040956-14b96171aa3b // indirect
+	github.com/containers/ocicrypt v1.1.2 // indirect
+	github.com/containers/storage v1.38.2 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/docker/distribution v2.8.1+incompatible // indirect
+	github.com/docker/docker v23.0.5+incompatible // indirect
+	github.com/docker/docker-credential-helpers v0.7.0 // indirect
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-metrics v0.0.1 // indirect
+	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
+	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/go-logr/zapr v1.2.3 // indirect
+	github.com/go-openapi/jsonpointer v0.19.5 // indirect
+	github.com/go-openapi/jsonreference v0.20.0 // indirect
+	github.com/go-openapi/swag v0.21.1 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/gnostic v0.5.7-v3refs // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
+	github.com/googleapis/gax-go/v2 v2.7.1 // indirect
+	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/jmespath/go-jmespath v0.0.0-20160803190731-bd40a432e4c7 // indirect
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+<<<<<<< HEAD
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+=======
+	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.7.2 // indirect
@@ -123,12 +196,19 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+<<<<<<< HEAD
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
+=======
+	github.com/opencontainers/image-spec v1.1.0-rc3 // indirect
+	github.com/opencontainers/runc v1.1.0 // indirect
+	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417 // indirect
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	github.com/ovirt/go-ovirt-client-log/v2 v2.2.0 // indirect
 	github.com/prometheus/common v0.51.1 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
+<<<<<<< HEAD
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
@@ -156,6 +236,30 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 	google.golang.org/grpc v1.64.1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
+=======
+	github.com/sirupsen/logrus v1.9.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
+	github.com/vbatts/tar-split v0.11.3 // indirect
+	go.etcd.io/bbolt v1.3.6 // indirect
+	go.opencensus.io v0.24.0 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/oauth2 v0.7.0 // indirect
+	golang.org/x/term v0.7.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/time v0.3.0 // indirect
+	golang.org/x/tools v0.8.0 // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto v0.0.0-20230323212658-478b75c54725 // indirect
+	google.golang.org/grpc v1.54.0 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

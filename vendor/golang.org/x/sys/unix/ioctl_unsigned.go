@@ -3,6 +3,10 @@
 // license that can be found in the LICENSE file.
 
 //go:build darwin || dragonfly || freebsd || hurd || linux || netbsd || openbsd
+<<<<<<< HEAD
+=======
+// +build darwin dragonfly freebsd hurd linux netbsd openbsd
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 package unix
 

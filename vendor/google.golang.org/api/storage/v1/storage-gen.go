@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // Copyright 2024 Google LLC.
+=======
+// Copyright 2023 Google LLC.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 

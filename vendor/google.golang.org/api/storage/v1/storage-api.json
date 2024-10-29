@@ -26,6 +26,7 @@
   "description": "Stores and retrieves potentially large, immutable data objects.",
   "discoveryVersion": "v1",
   "documentationLink": "https://developers.google.com/storage/docs/json_api/",
+<<<<<<< HEAD
   "endpoints": [
     {
       "description": "Regional Endpoint",
@@ -34,6 +35,9 @@
     }
   ],
   "etag": "\"3131373432363238303039393730353234383930\"",
+=======
+  "etag": "\"34333739363230323936363635393736363430\"",
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
   "icons": {
     "x16": "https://www.google.com/images/icons/product/cloud_storage-16.png",
     "x32": "https://www.google.com/images/icons/product/cloud_storage-32.png"
@@ -3806,7 +3810,11 @@
       }
     }
   },
+<<<<<<< HEAD
   "revision": "20231202",
+=======
+  "revision": "20230301",
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
   "rootUrl": "https://storage.googleapis.com/",
   "schemas": {
     "AnywhereCache": {

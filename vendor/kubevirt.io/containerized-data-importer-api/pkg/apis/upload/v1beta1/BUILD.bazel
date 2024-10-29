@@ -1,0 +1,27 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "doc.go",
+        "register.go",
+<<<<<<< HEAD:vendor/github.com/openshift/api/config/v1alpha1/BUILD.bazel
+        "types_backup.go",
+        "types_cluster_image_policy.go",
+        "types_image_policy.go",
+        "types_insights.go",
+=======
+        "types.go",
+        "types_swagger_generated.go",
+>>>>>>> b3ea800a0 (feat: add image exporter (#1)):vendor/kubevirt.io/containerized-data-importer-api/pkg/apis/upload/v1beta1/BUILD.bazel
+        "zz_generated.deepcopy.go",
+    ],
+    importpath = "kubevirt.io/containerized-data-importer-api/pkg/apis/upload/v1beta1",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//staging/src/kubevirt.io/containerized-data-importer-api/pkg/apis/upload:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/apis/meta/v1:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/runtime:go_default_library",
+        "//vendor/k8s.io/apimachinery/pkg/runtime/schema:go_default_library",
+    ],
+)

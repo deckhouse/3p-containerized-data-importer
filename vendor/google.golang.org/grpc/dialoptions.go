@@ -46,7 +46,10 @@ func init() {
 	internal.WithBinaryLogger = withBinaryLogger
 	internal.JoinDialOptions = newJoinDialOption
 	internal.DisableGlobalDialOptions = newDisableGlobalDialOptions
+<<<<<<< HEAD
 	internal.WithRecvBufferPool = withRecvBufferPool
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // dialOptions configure a Dial call. dialOptions are set by the DialOption
@@ -140,6 +143,7 @@ func newJoinDialOption(opts ...DialOption) DialOption {
 	return &joinDialOption{opts: opts}
 }
 
+<<<<<<< HEAD
 // WithSharedWriteBuffer allows reusing per-connection transport write buffer.
 // If this option is set to true every connection will release the buffer after
 // flushing the data on the wire.
@@ -157,6 +161,13 @@ func WithSharedWriteBuffer(val bool) DialOption {
 // WithWriteBufferSize determines how much data can be batched before doing a
 // write on the wire. The default value for this buffer is 32KB.
 //
+=======
+// WithWriteBufferSize determines how much data can be batched before doing a
+// write on the wire. The corresponding memory allocation for this buffer will
+// be twice the size to keep syscalls low. The default value for this buffer is
+// 32KB.
+//
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // Zero or negative values will disable the write buffer such that each write
 // will be on underlying connection. Note: A Send call may not directly
 // translate to a write.

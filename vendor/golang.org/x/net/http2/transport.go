@@ -613,7 +613,11 @@ func (t *Transport) RoundTripOpt(req *http.Request, opt RoundTripOpt) (*http.Res
 				d := time.Second * time.Duration(backoff)
 				tm := t.newTimer(d)
 				select {
+<<<<<<< HEAD
 				case <-tm.C():
+=======
+				case <-timer.C:
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 					t.vlogf("RoundTrip retrying after failure: %v", roundTripErr)
 					continue
 				case <-req.Context().Done():

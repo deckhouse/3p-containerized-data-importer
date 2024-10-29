@@ -324,10 +324,13 @@ func (w *bufWriter) Write(b []byte) (n int, err error) {
 	if w.batchSize == 0 { // Buffer has been disabled.
 		n, err = w.conn.Write(b)
 		return n, toIOError(err)
+<<<<<<< HEAD
 	}
 	if w.buf == nil {
 		b := w.pool.Get().(*[]byte)
 		w.buf = *b
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	for len(b) > 0 {
 		nn := copy(w.buf[w.offset:], b)

@@ -209,6 +209,7 @@ encodeLoop:
 
 		// Set m to a match at offset if it looks like that will improve compression.
 		improve := func(m *match, offset int32, s int32, first uint32, rep int32) {
+<<<<<<< HEAD
 			delta := s - offset
 			if delta >= e.maxMatchOff || delta <= 0 || load3232(src, offset) != first {
 				return
@@ -235,6 +236,39 @@ encodeLoop:
 				// Extend candidate match backwards as far as possible.
 				// Do not extend repeats as we can assume they are optimal
 				// and offsets change if s == nextEmit.
+=======
+			if s-offset >= e.maxMatchOff || load3232(src, offset) != first {
+				return
+			}
+			if debugAsserts {
+				if offset <= 0 {
+					panic(offset)
+				}
+				if !bytes.Equal(src[s:s+4], src[offset:offset+4]) {
+					panic(fmt.Sprintf("first match mismatch: %v != %v, first: %08x", src[s:s+4], src[offset:offset+4], first))
+				}
+			}
+			// Try to quick reject if we already have a long match.
+			if m.length > 16 {
+				left := len(src) - int(m.s+m.length)
+				// If we are too close to the end, keep as is.
+				if left <= 0 {
+					return
+				}
+				checkLen := m.length - (s - m.s) - 8
+				if left > 2 && checkLen > 4 {
+					// Check 4 bytes, 4 bytes from the end of the current match.
+					a := load3232(src, offset+checkLen)
+					b := load3232(src, s+checkLen)
+					if a != b {
+						return
+					}
+				}
+			}
+			l := 4 + e.matchlen(s+4, offset+4, src)
+			if rep < 0 {
+				// Extend candidate match backwards as far as possible.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				tMin := s - e.maxMatchOff
 				if tMin < 0 {
 					tMin = 0
@@ -245,6 +279,7 @@ encodeLoop:
 					l++
 				}
 			}
+<<<<<<< HEAD
 			if debugAsserts {
 				if offset >= s {
 					panic(fmt.Sprintf("offset: %d - s:%d - rep: %d - cur :%d - max: %d", offset, s, rep, e.cur, e.maxMatchOff))
@@ -253,6 +288,9 @@ encodeLoop:
 					panic(fmt.Sprintf("second match mismatch: %v != %v, first: %08x", src[s:s+4], src[offset:offset+4], first))
 				}
 			}
+=======
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			cand := match{offset: offset, s: s, length: l, rep: rep}
 			cand.estBits(bitsPerByte)
 			if m.est >= highScore || cand.est-m.est+(cand.s-m.s)*bitsPerByte>>10 < 0 {
@@ -368,6 +406,12 @@ encodeLoop:
 		if best.rep > 0 {
 			var seq seq
 			seq.matchLen = uint32(best.length - zstdMinMatch)
+<<<<<<< HEAD
+=======
+			if debugAsserts && s <= nextEmit {
+				panic("s <= nextEmit")
+			}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			addLiterals(&seq, best.s)
 
 			// Repeat. If bit 4 is set, this is a non-lit repeat.
@@ -378,16 +422,33 @@ encodeLoop:
 			blk.sequences = append(blk.sequences, seq)
 
 			// Index old s + 1 -> s - 1
+<<<<<<< HEAD
+=======
+			index0 := s + 1
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			s = best.s + best.length
 			nextEmit = s
+<<<<<<< HEAD
 
+=======
+			if s >= sLimit {
+				if debugEncoder {
+					println("repeat ended", s, best.length)
+				}
+				break encodeLoop
+			}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			// Index skipped...
 			end := s
 			if s > sLimit+4 {
 				end = sLimit + 4
 			}
 			off := index0 + e.cur
+<<<<<<< HEAD
 			for index0 < end {
+=======
+			for index0 < s {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				cv0 := load6432(src, index0)
 				h0 := hashLen(cv0, bestLongTableBits, bestLongLen)
 				h1 := hashLen(cv0, bestShortTableBits, bestShortLen)
@@ -404,18 +465,26 @@ encodeLoop:
 				offset1, offset2, offset3 = offset3, offset1, offset2
 			case 4 | 3:
 				offset1, offset2, offset3 = offset1-1, offset1, offset2
+<<<<<<< HEAD
 			}
 			if s >= sLimit {
 				if debugEncoder {
 					println("repeat ended", s, best.length)
 				}
 				break encodeLoop
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 			continue
 		}
 
 		// A 4-byte match has been found. Update recent offsets.
 		// We'll later see if more than 4 bytes.
+<<<<<<< HEAD
+=======
+		index0 := s + 1
+		s = best.s
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		t := best.offset
 		offset1, offset2, offset3 = s-t, offset1, offset2
 
@@ -449,8 +518,13 @@ encodeLoop:
 			end = sLimit - 4
 		}
 
+<<<<<<< HEAD
 		off := index0 + e.cur
 		for index0 < end {
+=======
+		// Index old s + 1 -> s - 1
+		for index0 < s {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			cv0 := load6432(src, index0)
 			h0 := hashLen(cv0, bestLongTableBits, bestLongLen)
 			h1 := hashLen(cv0, bestShortTableBits, bestShortLen)
@@ -459,9 +533,12 @@ encodeLoop:
 			index0++
 			off++
 		}
+<<<<<<< HEAD
 		if s >= sLimit {
 			break encodeLoop
 		}
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 
 	if int(nextEmit) < len(src) {

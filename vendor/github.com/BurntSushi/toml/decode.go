@@ -24,7 +24,11 @@ type Unmarshaler interface {
 // Unmarshal decodes the contents of data in TOML format into a pointer v.
 //
 // See [Decoder] for a description of the decoding process.
+<<<<<<< HEAD
 func Unmarshal(data []byte, v any) error {
+=======
+func Unmarshal(data []byte, v interface{}) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	_, err := NewDecoder(bytes.NewReader(data)).Decode(v)
 	return err
 }
@@ -32,12 +36,20 @@ func Unmarshal(data []byte, v any) error {
 // Decode the TOML data in to the pointer v.
 //
 // See [Decoder] for a description of the decoding process.
+<<<<<<< HEAD
 func Decode(data string, v any) (MetaData, error) {
+=======
+func Decode(data string, v interface{}) (MetaData, error) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	return NewDecoder(strings.NewReader(data)).Decode(v)
 }
 
 // DecodeFile reads the contents of a file and decodes it with [Decode].
+<<<<<<< HEAD
 func DecodeFile(path string, v any) (MetaData, error) {
+=======
+func DecodeFile(path string, v interface{}) (MetaData, error) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	fp, err := os.Open(path)
 	if err != nil {
 		return MetaData{}, err
@@ -46,6 +58,7 @@ func DecodeFile(path string, v any) (MetaData, error) {
 	return NewDecoder(fp).Decode(v)
 }
 
+<<<<<<< HEAD
 // DecodeFS reads the contents of a file from [fs.FS] and decodes it with
 // [Decode].
 func DecodeFS(fsys fs.FS, path string, v any) (MetaData, error) {
@@ -57,6 +70,8 @@ func DecodeFS(fsys fs.FS, path string, v any) (MetaData, error) {
 	return NewDecoder(fp).Decode(v)
 }
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // Primitive is a TOML value that hasn't been decoded into a Go value.
 //
 // This type can be used for any value, which will cause decoding to be delayed.
@@ -102,7 +117,11 @@ const (
 // UnmarshalText method. See the Unmarshaler example for a demonstration with
 // email addresses.
 //
+<<<<<<< HEAD
 // # Key mapping
+=======
+// ### Key mapping
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 //
 // TOML keys can map to either keys in a Go map or field names in a Go struct.
 // The special `toml` struct tag can be used to map TOML keys to struct fields
@@ -190,7 +209,11 @@ func (dec *Decoder) Decode(v any) (MetaData, error) {
 // will only reflect keys that were decoded. Namely, any keys hidden behind a
 // Primitive will be considered undecoded. Executing this method will update the
 // undecoded keys in the meta data. (See the example.)
+<<<<<<< HEAD
 func (md *MetaData) PrimitiveDecode(primValue Primitive, v any) error {
+=======
+func (md *MetaData) PrimitiveDecode(primValue Primitive, v interface{}) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	md.context = primValue.context
 	defer func() { md.context = nil }()
 	return md.unify(primValue.undecoded, rvalue(v))
@@ -218,11 +241,15 @@ func (md *MetaData) unify(data any, rv reflect.Value) error {
 
 	rvi := rv.Interface()
 	if v, ok := rvi.(Unmarshaler); ok {
+<<<<<<< HEAD
 		err := v.UnmarshalTOML(data)
 		if err != nil {
 			return md.parseErr(err)
 		}
 		return nil
+=======
+		return v.UnmarshalTOML(data)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	if v, ok := rvi.(encoding.TextUnmarshaler); ok {
 		return md.unifyText(data, v)
@@ -255,7 +282,11 @@ func (md *MetaData) unify(data any, rv reflect.Value) error {
 	case reflect.Bool:
 		return md.unifyBool(data, rv)
 	case reflect.Interface:
+<<<<<<< HEAD
 		if rv.NumMethod() > 0 { /// Only empty interfaces are supported.
+=======
+		if rv.NumMethod() > 0 { // Only support empty interfaces are supported.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			return md.e("unsupported type %s", rv.Type())
 		}
 		return md.unifyAnything(data, rv)
@@ -271,7 +302,12 @@ func (md *MetaData) unifyStruct(mapping any, rv reflect.Value) error {
 		if mapping == nil {
 			return nil
 		}
+<<<<<<< HEAD
 		return md.e("type mismatch for %s: expected table but found %s", rv.Type().String(), fmtType(mapping))
+=======
+		return md.e("type mismatch for %s: expected table but found %T",
+			rv.Type().String(), mapping)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 
 	for key, datum := range tmap {
@@ -310,7 +346,11 @@ func (md *MetaData) unifyStruct(mapping any, rv reflect.Value) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func (md *MetaData) unifyMap(mapping any, rv reflect.Value) error {
+=======
+func (md *MetaData) unifyMap(mapping interface{}, rv reflect.Value) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	keyType := rv.Type().Key().Kind()
 	if keyType != reflect.String && keyType != reflect.Interface {
 		return fmt.Errorf("toml: cannot decode to a map with non-string key type (%s in %q)",
@@ -394,7 +434,11 @@ func (md *MetaData) unifySliceArray(data, rv reflect.Value) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func (md *MetaData) unifyString(data any, rv reflect.Value) error {
+=======
+func (md *MetaData) unifyString(data interface{}, rv reflect.Value) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	_, ok := rv.Interface().(json.Number)
 	if ok {
 		if i, ok := data.(int64); ok {
@@ -414,7 +458,11 @@ func (md *MetaData) unifyString(data any, rv reflect.Value) error {
 	return md.badtype("string", data)
 }
 
+<<<<<<< HEAD
 func (md *MetaData) unifyFloat64(data any, rv reflect.Value) error {
+=======
+func (md *MetaData) unifyFloat64(data interface{}, rv reflect.Value) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	rvk := rv.Kind()
 
 	if num, ok := data.(float64); ok {
@@ -435,7 +483,11 @@ func (md *MetaData) unifyFloat64(data any, rv reflect.Value) error {
 	if num, ok := data.(int64); ok {
 		if (rvk == reflect.Float32 && (num < -maxSafeFloat32Int || num > maxSafeFloat32Int)) ||
 			(rvk == reflect.Float64 && (num < -maxSafeFloat64Int || num > maxSafeFloat64Int)) {
+<<<<<<< HEAD
 			return md.parseErr(errUnsafeFloat{i: num, size: rvk.String()})
+=======
+			return md.parseErr(errParseRange{i: num, size: rvk.String()})
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		rv.SetFloat(float64(num))
 		return nil
@@ -444,7 +496,11 @@ func (md *MetaData) unifyFloat64(data any, rv reflect.Value) error {
 	return md.badtype("float", data)
 }
 
+<<<<<<< HEAD
 func (md *MetaData) unifyInt(data any, rv reflect.Value) error {
+=======
+func (md *MetaData) unifyInt(data interface{}, rv reflect.Value) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	_, ok := rv.Interface().(time.Duration)
 	if ok {
 		// Parse as string duration, and fall back to regular integer parsing
@@ -534,8 +590,13 @@ func (md *MetaData) unifyText(data any, v encoding.TextUnmarshaler) error {
 	return nil
 }
 
+<<<<<<< HEAD
 func (md *MetaData) badtype(dst string, data any) error {
 	return md.e("incompatible types: TOML value has type %s; destination has type %s", fmtType(data), dst)
+=======
+func (md *MetaData) badtype(dst string, data interface{}) error {
+	return md.e("incompatible types: TOML value has type %T; destination has type %s", data, dst)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 func (md *MetaData) parseErr(err error) error {
@@ -549,7 +610,11 @@ func (md *MetaData) parseErr(err error) error {
 	}
 }
 
+<<<<<<< HEAD
 func (md *MetaData) e(format string, args ...any) error {
+=======
+func (md *MetaData) e(format string, args ...interface{}) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	f := "toml: "
 	if len(md.context) > 0 {
 		f = fmt.Sprintf("toml: (last key %q): ", md.context)
@@ -606,8 +671,11 @@ func isUnifiable(rv reflect.Value) bool {
 	}
 	return false
 }
+<<<<<<< HEAD
 
 // fmt %T with "interface {}" replaced with "any", which is far more readable.
 func fmtType(t any) string {
 	return strings.ReplaceAll(fmt.Sprintf("%T", t), "interface {}", "any")
 }
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))

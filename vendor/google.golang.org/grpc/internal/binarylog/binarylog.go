@@ -32,9 +32,12 @@ var grpclogLogger = grpclog.Component("binarylog")
 
 // Logger specifies MethodLoggers for method names with a Log call that
 // takes a context.
+<<<<<<< HEAD
 //
 // This is used in the 1.0 release of gcp/observability, and thus must not be
 // deleted or changed.
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 type Logger interface {
 	GetMethodLogger(methodName string) MethodLogger
 }

@@ -30,4 +30,8 @@
 package internal
 
 // Version is the current tagged release of the library.
+<<<<<<< HEAD
 const Version = "2.12.0"
+=======
+const Version = "2.7.1"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))

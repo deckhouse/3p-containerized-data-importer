@@ -1639,7 +1639,11 @@ func Setregid(rgid int, egid int) (err error) {
 func Setreuid(ruid int, euid int) (err error) {
 	_, _, e1 := rawSysvicall6(uintptr(unsafe.Pointer(&procSetreuid)), 2, uintptr(ruid), uintptr(euid), 0, 0, 0, 0)
 	if e1 != 0 {
+<<<<<<< HEAD
 		err = errnoErr(e1)
+=======
+		err = e1
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	return
 }

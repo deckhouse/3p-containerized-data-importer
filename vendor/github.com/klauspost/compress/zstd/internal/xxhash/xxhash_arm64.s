@@ -162,7 +162,11 @@ finalize:
 	MOVD h, ret+24(FP)
 	RET
 
+<<<<<<< HEAD
 // func writeBlocks(s *Digest, b []byte) int
+=======
+// func writeBlocks(d *Digest, b []byte) int
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 TEXT ·writeBlocks(SB), NOSPLIT|NOFRAME, $0-40
 	LDP ·primes+0(SB), (prime1, prime2)
 

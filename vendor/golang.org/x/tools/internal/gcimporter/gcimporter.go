@@ -29,6 +29,10 @@ import (
 	"go/token"
 	"go/types"
 	"io"
+<<<<<<< HEAD
+=======
+	"io/ioutil"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -220,7 +224,11 @@ func Import(packages map[string]*types.Package, path, srcDir string, lookup func
 	switch hdr {
 	case "$$B\n":
 		var data []byte
+<<<<<<< HEAD
 		data, err = io.ReadAll(buf)
+=======
+		data, err = ioutil.ReadAll(buf)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		if err != nil {
 			break
 		}
@@ -229,6 +237,7 @@ func Import(packages map[string]*types.Package, path, srcDir string, lookup func
 		// Or, define a new standard go/types/gcexportdata package.
 		fset := token.NewFileSet()
 
+<<<<<<< HEAD
 		// Select appropriate importer.
 		if len(data) > 0 {
 			switch data[0] {
@@ -240,6 +249,22 @@ func Import(packages map[string]*types.Package, path, srcDir string, lookup func
 				return pkg, err
 
 			case 'u': // unified, from go1.20
+=======
+		// The indexed export format starts with an 'i'; the older
+		// binary export format starts with a 'c', 'd', or 'v'
+		// (from "version"). Select appropriate importer.
+		if len(data) > 0 {
+			switch data[0] {
+			case 'i':
+				_, pkg, err := IImportData(fset, packages, data[1:], id)
+				return pkg, err
+
+			case 'v', 'c', 'd':
+				_, pkg, err := BImportData(fset, packages, data, id)
+				return pkg, err
+
+			case 'u':
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				_, pkg, err := UImportData(fset, packages, data[1:size], id)
 				return pkg, err
 
@@ -259,6 +284,16 @@ func Import(packages map[string]*types.Package, path, srcDir string, lookup func
 	return
 }
 
+<<<<<<< HEAD
+=======
+func deref(typ types.Type) types.Type {
+	if p, _ := typ.(*types.Pointer); p != nil {
+		return p.Elem()
+	}
+	return typ
+}
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 type byPath []*types.Package
 
 func (a byPath) Len() int           { return len(a) }

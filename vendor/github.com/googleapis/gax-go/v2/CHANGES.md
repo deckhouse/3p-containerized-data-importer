@@ -1,5 +1,6 @@
 # Changelog
 
+<<<<<<< HEAD
 ## [2.12.0](https://github.com/googleapis/gax-go/compare/v2.11.0...v2.12.0) (2023-06-26)
 
 
@@ -53,6 +54,8 @@
 
 * **v2:** add WithTimeout option ([#259](https://github.com/googleapis/gax-go/issues/259)) ([9a8da43](https://github.com/googleapis/gax-go/commit/9a8da43693002448b1e8758023699387481866d1))
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 ## [2.7.1](https://github.com/googleapis/gax-go/compare/v2.7.0...v2.7.1) (2023-03-06)
 
 

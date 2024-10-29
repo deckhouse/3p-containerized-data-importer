@@ -17,6 +17,11 @@ limitations under the License.
 package importer
 
 import (
+<<<<<<< HEAD
+=======
+	"fmt"
+	"io"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"net/url"
 	"os"
 
@@ -79,6 +84,10 @@ type DataSourceInterface interface {
 	GetTerminationMessage() *common.TerminationMessage
 	// Close closes any readers or other open resources.
 	Close() error
+
+	Filename() (string, error)
+	Length() (int, error)
+	ReadCloser() (io.ReadCloser, error)
 }
 
 // ResumableDataSource is the interface all resumeable data sources should implement

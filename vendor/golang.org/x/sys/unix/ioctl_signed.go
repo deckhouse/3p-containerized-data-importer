@@ -3,6 +3,10 @@
 // license that can be found in the LICENSE file.
 
 //go:build aix || solaris
+<<<<<<< HEAD
+=======
+// +build aix solaris
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 package unix
 

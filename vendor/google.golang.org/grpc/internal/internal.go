@@ -61,6 +61,7 @@ var (
 	// GetServerCredentials returns the transport credentials configured on a
 	// gRPC server. An xDS-enabled server needs to know what type of credentials
 	// is configured on the underlying gRPC server. This is set by server.go.
+<<<<<<< HEAD
 	GetServerCredentials any // func (*grpc.Server) credentials.TransportCredentials
 	// CanonicalString returns the canonical string of the code defined here:
 	// https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
@@ -73,6 +74,17 @@ var (
 	IsRegisteredMethod any // func(*grpc.Server, string) bool
 	// ServerFromContext returns the server from the context.
 	ServerFromContext any // func(context.Context) *grpc.Server
+=======
+	GetServerCredentials interface{} // func (*grpc.Server) credentials.TransportCredentials
+	// CanonicalString returns the canonical string of the code defined here:
+	// https://github.com/grpc/grpc/blob/master/doc/statuscodes.md.
+	CanonicalString interface{} // func (codes.Code) string
+	// DrainServerTransports initiates a graceful close of existing connections
+	// on a gRPC server accepted on the provided listener address. An
+	// xDS-enabled server invokes this method on a grpc.Server when a particular
+	// listener moves to "not-serving" mode.
+	DrainServerTransports interface{} // func(*grpc.Server, string)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// AddGlobalServerOptions adds an array of ServerOption that will be
 	// effective globally for newly created servers. The priority will be: 1.
 	// user-provided; 2. this method; 3. default values.
@@ -89,6 +101,7 @@ var (
 	// AddGlobalDialOptions adds an array of DialOption that will be effective
 	// globally for newly created client channels. The priority will be: 1.
 	// user-provided; 2. this method; 3. default values.
+<<<<<<< HEAD
 	//
 	// This is used in the 1.0 release of gcp/observability, and thus must not be
 	// deleted or changed.
@@ -100,6 +113,13 @@ var (
 	// This is used in the 1.0 release of gcp/observability, and thus must not be
 	// deleted or changed.
 	DisableGlobalDialOptions any // func() grpc.DialOption
+=======
+	AddGlobalDialOptions interface{} // func(opt ...DialOption)
+	// DisableGlobalDialOptions returns a DialOption that prevents the
+	// ClientConn from applying the global DialOptions (set via
+	// AddGlobalDialOptions).
+	DisableGlobalDialOptions interface{} // func() grpc.DialOption
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// ClearGlobalDialOptions clears the array of extra DialOption. This
 	// method is useful in testing and benchmarking.
 	//
@@ -108,7 +128,11 @@ var (
 	ClearGlobalDialOptions func()
 	// JoinDialOptions combines the dial options passed as arguments into a
 	// single dial option.
+<<<<<<< HEAD
 	JoinDialOptions any // func(...grpc.DialOption) grpc.DialOption
+=======
+	JoinDialOptions interface{} // func(...grpc.DialOption) grpc.DialOption
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// JoinServerOptions combines the server options passed as arguments into a
 	// single server option.
 	JoinServerOptions any // func(...grpc.ServerOption) grpc.ServerOption
@@ -170,6 +194,7 @@ var (
 	UnregisterRBACHTTPFilterForTesting func()
 
 	// ORCAAllowAnyMinReportingInterval is for examples/orca use ONLY.
+<<<<<<< HEAD
 	ORCAAllowAnyMinReportingInterval any // func(so *orca.ServiceOptions)
 
 	// GRPCResolverSchemeExtraMetadata determines when gRPC will add extra
@@ -200,6 +225,9 @@ var (
 
 	// UserSetDefaultScheme is set to true if the user has overridden the default resolver scheme.
 	UserSetDefaultScheme bool = false
+=======
+	ORCAAllowAnyMinReportingInterval interface{} // func(so *orca.ServiceOptions)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 )
 
 // HealthChecker defines the signature of the client-side LB channel health checking function.

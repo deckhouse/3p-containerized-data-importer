@@ -5,4 +5,8 @@
 package internal
 
 // Version is the current tagged release of the library.
+<<<<<<< HEAD
 const Version = "0.155.0"
+=======
+const Version = "0.114.0"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))

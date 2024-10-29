@@ -262,6 +262,13 @@ type ClientConn interface {
 // (i.e. no corresponding resolver available to resolve the endpoint), we will
 // apply the default scheme, and will attempt to reparse it.
 type Target struct {
+<<<<<<< HEAD
+=======
+	// Deprecated: use URL.Scheme instead.
+	Scheme string
+	// Deprecated: use URL.Host instead.
+	Authority string
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// URL contains the parsed dial target with an optional default scheme added
 	// to it if the original dial target contained no scheme or contained an
 	// unregistered scheme. Any query params specified in the original dial
@@ -287,11 +294,14 @@ func (t Target) Endpoint() string {
 	return strings.TrimPrefix(endpoint, "/")
 }
 
+<<<<<<< HEAD
 // String returns the canonical string representation of Target.
 func (t Target) String() string {
 	return t.URL.Scheme + "://" + t.URL.Host + "/" + t.Endpoint()
 }
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // Builder creates a resolver that will be used to watch name resolution updates.
 type Builder interface {
 	// Build creates a new resolver for the given target.

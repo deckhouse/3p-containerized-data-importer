@@ -87,6 +87,7 @@ type advancedState struct {
 	maxInsertIndex int
 	chainHead      int
 	hashOffset     int
+<<<<<<< HEAD
 
 	ii uint16 // position of last match, intended to overflow to reset.
 
@@ -94,6 +95,16 @@ type advancedState struct {
 	index     int
 	hashMatch [maxMatchLength + minMatchLength]uint32
 
+=======
+
+	ii uint16 // position of last match, intended to overflow to reset.
+
+	// input window: unprocessed data is window[index:windowEnd]
+	index          int
+	estBitsPerByte int
+	hashMatch      [maxMatchLength + minMatchLength]uint32
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// Input hash chains
 	// hashHead[hashValue] contains the largest inputIndex with the specified hash value
 	// If hashHead[hashValue] is within the current window, then

@@ -75,7 +75,11 @@ func NewGZIPCompressorWithLevel(level int) (Compressor, error) {
 	}
 	return &gzipCompressor{
 		pool: sync.Pool{
+<<<<<<< HEAD
 			New: func() any {
+=======
+			New: func() interface{} {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				w, err := gzip.NewWriterLevel(io.Discard, level)
 				if err != nil {
 					panic(err)
@@ -752,7 +756,14 @@ func recvAndDecompress(p *parser, s *transport.Stream, dc Decompressor, maxRecei
 ) (uncompressedBuf []byte, cancel func(), err error) {
 	pf, compressedBuf, err := p.recvMsg(maxReceiveMessageSize)
 	if err != nil {
+<<<<<<< HEAD
 		return nil, nil, err
+=======
+		return nil, err
+	}
+	if payInfo != nil {
+		payInfo.compressedLength = len(d)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 
 	if st := checkRecvPayload(pf, s.RecvCompress(), compressor != nil || dc != nil); st != nil {
@@ -770,7 +781,11 @@ func recvAndDecompress(p *parser, s *transport.Stream, dc Decompressor, maxRecei
 			uncompressedBuf, size, err = decompress(compressor, compressedBuf, maxReceiveMessageSize)
 		}
 		if err != nil {
+<<<<<<< HEAD
 			return nil, nil, status.Errorf(codes.Internal, "grpc: failed to decompress the received message: %v", err)
+=======
+			return nil, status.Errorf(codes.Internal, "grpc: failed to decompress the received message: %v", err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		if size > maxReceiveMessageSize {
 			// TODO: Revisit the error code. Currently keep it consistent with java
@@ -834,10 +849,18 @@ func recv(p *parser, c baseCodec, s *transport.Stream, dc Decompressor, m any, m
 	if err != nil {
 		return err
 	}
+<<<<<<< HEAD
 	defer cancel()
 
 	if err := c.Unmarshal(buf, m); err != nil {
 		return status.Errorf(codes.Internal, "grpc: failed to unmarshal the received message: %v", err)
+=======
+	if err := c.Unmarshal(d, m); err != nil {
+		return status.Errorf(codes.Internal, "grpc: failed to unmarshal the received message: %v", err)
+	}
+	if payInfo != nil {
+		payInfo.uncompressedBytes = d
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	return nil
 }

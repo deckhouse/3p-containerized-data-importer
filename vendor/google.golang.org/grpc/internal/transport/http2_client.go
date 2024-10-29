@@ -247,7 +247,11 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr resolver.Address, opts
 		if err := connectCtx.Err(); err != nil {
 			// connectCtx expired before exiting the function.  Hard close the connection.
 			if logger.V(logLevel) {
+<<<<<<< HEAD
 				logger.Infof("Aborting due to connect deadline expiring: %v", err)
+=======
+				logger.Infof("newClientTransport: aborting due to connectCtx: %v", err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 			conn.Close()
 		}
@@ -345,6 +349,10 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr resolver.Address, opts
 		maxConcurrentStreams:  defaultMaxStreamsClient,
 		streamQuota:           defaultMaxStreamsClient,
 		streamsQuotaAvailable: make(chan struct{}, 1),
+<<<<<<< HEAD
+=======
+		czData:                new(channelzData),
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		keepaliveEnabled:      keepaliveEnabled,
 		bufferPool:            newBufferPool(),
 		onClose:               onClose,
@@ -463,6 +471,7 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr resolver.Address, opts
 		return nil, err
 	}
 	go func() {
+<<<<<<< HEAD
 		t.loopy = newLoopyWriter(clientSide, t.framer, t.controlBuf, t.bdpEst, t.conn, t.logger, t.outgoingGoAwayHandler)
 		if err := t.loopy.run(); !isIOError(err) {
 			// Immediately close the connection, as the loopy writer returns
@@ -471,6 +480,10 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr resolver.Address, opts
 			// after draining any remaining incoming data.
 			t.conn.Close()
 		}
+=======
+		t.loopy = newLoopyWriter(clientSide, t.framer, t.controlBuf, t.bdpEst, t.conn)
+		t.loopy.run()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		close(t.writerDone)
 	}()
 	return t, nil
@@ -796,7 +809,11 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (*Stream,
 	firstTry := true
 	var ch chan struct{}
 	transportDrainRequired := false
+<<<<<<< HEAD
 	checkForStreamQuota := func() bool {
+=======
+	checkForStreamQuota := func(it interface{}) bool {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		if t.streamQuota <= 0 { // Can go negative if server decreases it.
 			if firstTry {
 				t.waitingStreams++
@@ -808,7 +825,20 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (*Stream,
 			t.waitingStreams--
 		}
 		t.streamQuota--
+<<<<<<< HEAD
 
+=======
+		h := it.(*headerFrame)
+		h.streamID = t.nextID
+		t.nextID += 2
+
+		// Drain client transport if nextID > MaxStreamID which signals gRPC that
+		// the connection is closed and a new one must be created for subsequent RPCs.
+		transportDrainRequired = t.nextID > MaxStreamID
+
+		s.id = h.streamID
+		s.fc = &inFlow{limit: uint32(t.initialWindowSize)}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		t.mu.Lock()
 		if t.state == draining || t.activeStreams == nil { // Can be niled from Close().
 			t.mu.Unlock()
@@ -896,8 +926,13 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (*Stream,
 		}
 	}
 	if transportDrainRequired {
+<<<<<<< HEAD
 		if t.logger.V(logLevel) {
 			t.logger.Infof("Draining transport: t.nextID > MaxStreamID")
+=======
+		if logger.V(logLevel) {
+			logger.Infof("transport: t.nextID > MaxStreamID. Draining")
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		t.GracefulClose()
 	}
@@ -989,8 +1024,13 @@ func (t *http2Client) Close(err error) {
 		t.mu.Unlock()
 		return
 	}
+<<<<<<< HEAD
 	if t.logger.V(logLevel) {
 		t.logger.Infof("Closing: %v", err)
+=======
+	if logger.V(logLevel) {
+		logger.Infof("transport: closing: %v", err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	// Call t.onClose ASAP to prevent the client from attempting to create new
 	// streams.
@@ -1049,8 +1089,13 @@ func (t *http2Client) GracefulClose() {
 		t.mu.Unlock()
 		return
 	}
+<<<<<<< HEAD
 	if t.logger.V(logLevel) {
 		t.logger.Infof("GracefulClose called")
+=======
+	if logger.V(logLevel) {
+		logger.Infof("transport: GracefulClose called")
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	t.onClose(GoAwayInvalid)
 	t.state = draining
@@ -1214,8 +1259,13 @@ func (t *http2Client) handleRSTStream(f *http2.RSTStreamFrame) {
 	}
 	statusCode, ok := http2ErrConvTab[f.ErrCode]
 	if !ok {
+<<<<<<< HEAD
 		if t.logger.V(logLevel) {
 			t.logger.Infof("Received a RST_STREAM frame with code %q, but found no mapped gRPC status", f.ErrCode)
+=======
+		if logger.V(logLevel) {
+			logger.Warningf("transport: http2Client.handleRSTStream found no mapped gRPC status for the received http2 error: %v", f.ErrCode)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		statusCode = codes.Unknown
 	}

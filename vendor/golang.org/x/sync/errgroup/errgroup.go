@@ -4,9 +4,12 @@
 
 // Package errgroup provides synchronization, error propagation, and Context
 // cancelation for groups of goroutines working on subtasks of a common task.
+<<<<<<< HEAD
 //
 // [errgroup.Group] is related to [sync.WaitGroup] but adds handling of tasks
 // returning errors.
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 package errgroup
 
 import (
@@ -23,7 +26,11 @@ type token struct{}
 // A zero Group is valid, has no limit on the number of active goroutines,
 // and does not cancel on error.
 type Group struct {
+<<<<<<< HEAD
 	cancel func(error)
+=======
+	cancel func()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 	wg sync.WaitGroup
 
@@ -46,7 +53,11 @@ func (g *Group) done() {
 // returns a non-nil error or the first time Wait returns, whichever occurs
 // first.
 func WithContext(ctx context.Context) (*Group, context.Context) {
+<<<<<<< HEAD
 	ctx, cancel := withCancelCause(ctx)
+=======
+	ctx, cancel := context.WithCancel(ctx)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	return &Group{cancel: cancel}, ctx
 }
 
@@ -55,7 +66,11 @@ func WithContext(ctx context.Context) (*Group, context.Context) {
 func (g *Group) Wait() error {
 	g.wg.Wait()
 	if g.cancel != nil {
+<<<<<<< HEAD
 		g.cancel(g.err)
+=======
+		g.cancel()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	return g.err
 }
@@ -79,7 +94,11 @@ func (g *Group) Go(f func() error) {
 			g.errOnce.Do(func() {
 				g.err = err
 				if g.cancel != nil {
+<<<<<<< HEAD
 					g.cancel(g.err)
+=======
+					g.cancel()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				}
 			})
 		}
@@ -108,7 +127,11 @@ func (g *Group) TryGo(f func() error) bool {
 			g.errOnce.Do(func() {
 				g.err = err
 				if g.cancel != nil {
+<<<<<<< HEAD
 					g.cancel(g.err)
+=======
+					g.cancel()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				}
 			})
 		}

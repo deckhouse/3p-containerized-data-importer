@@ -5,6 +5,7 @@
 /*
 Package packages loads Go packages for inspection and analysis.
 
+<<<<<<< HEAD
 The [Load] function takes as input a list of patterns and returns a
 list of [Package] values describing individual packages matched by those
 patterns.
@@ -19,6 +20,14 @@ Other build systems may be supported by providing a "driver";
 see [The driver protocol].
 
 All patterns with the prefix "query=", where query is a
+=======
+The Load function takes as input a list of patterns and return a list of Package
+structs describing individual packages matched by those patterns.
+The LoadMode controls the amount of detail in the loaded packages.
+
+Load passes most patterns directly to the underlying build tool,
+but all patterns with the prefix "query=", where query is a
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 non-empty string of letters from [a-z], are reserved and may be
 interpreted as query operators.
 
@@ -43,7 +52,11 @@ The Package struct provides basic information about the package, including
   - Imports, a map from source import strings to the Packages they name;
   - Types, the type information for the package's exported symbols;
   - Syntax, the parsed syntax trees for the package's source code; and
+<<<<<<< HEAD
   - TypesInfo, the result of a complete type-check of the package syntax trees.
+=======
+  - TypeInfo, the result of a complete type-check of the package syntax trees.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 (See the documentation for type Package for the complete list of fields
 and more detailed descriptions.)
@@ -72,6 +85,7 @@ reported about the loaded packages. See the documentation for type LoadMode
 for details.
 
 Most tools should pass their command-line arguments (after any flags)
+<<<<<<< HEAD
 uninterpreted to [Load], so that it can interpret them
 according to the conventions of the underlying build system.
 
@@ -97,6 +111,11 @@ JSON-encoded [DriverRequest] message providing additional information
 is written to the driver's standard input. The driver must write a
 JSON-encoded [DriverResponse] message to its standard output. (This
 message differs from the JSON schema produced by 'go list'.)
+=======
+uninterpreted to the loader, so that the loader can interpret them
+according to the conventions of the underlying build system.
+See the Example function for typical usage.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 */
 package packages // import "golang.org/x/tools/go/packages"
 
@@ -198,6 +217,17 @@ Instead, ssadump no longer requests the runtime package,
 but seeks it among the dependencies of the user-specified packages,
 and emits an error if it is not found.
 
+<<<<<<< HEAD
+=======
+Overlays: The Overlay field in the Config allows providing alternate contents
+for Go source files, by providing a mapping from file path to contents.
+go/packages will pull in new imports added in overlay files when go/packages
+is run in LoadImports mode or greater.
+Overlay support for the go list driver isn't complete yet: if the file doesn't
+exist on disk, it will only be recognized in an overlay if it is a non-test file
+and the package would be reported even without the overlay.
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 Questions & Tasks
 
 - Add GOARCH/GOOS?

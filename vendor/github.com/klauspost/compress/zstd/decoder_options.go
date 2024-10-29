@@ -107,7 +107,11 @@ func WithDecoderDicts(dicts ...[]byte) DOption {
 	}
 }
 
+<<<<<<< HEAD
 // WithDecoderDictRaw registers a dictionary that may be used by the decoder.
+=======
+// WithEncoderDictRaw registers a dictionary that may be used by the decoder.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // The slice content can be arbitrary data.
 func WithDecoderDictRaw(id uint32, content []byte) DOption {
 	return func(o *decoderOptions) error {

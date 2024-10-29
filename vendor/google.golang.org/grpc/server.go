@@ -233,6 +233,7 @@ func newJoinServerOption(opts ...ServerOption) ServerOption {
 	return &joinServerOption{opts: opts}
 }
 
+<<<<<<< HEAD
 // SharedWriteBuffer allows reusing per-connection transport write buffer.
 // If this option is set to true every connection will release the buffer after
 // flushing the data on the wire.
@@ -251,6 +252,14 @@ func SharedWriteBuffer(val bool) ServerOption {
 // on the wire. The default value for this buffer is 32KB. Zero or negative
 // values will disable the write buffer such that each write will be on underlying
 // connection. Note: A Send call may not directly translate to a write.
+=======
+// WriteBufferSize determines how much data can be batched before doing a write
+// on the wire. The corresponding memory allocation for this buffer will be
+// twice the size to keep syscalls low. The default value for this buffer is
+// 32KB. Zero or negative values will disable the write buffer such that each
+// write will be on underlying connection.
+// Note: A Send call may not directly translate to a write.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 func WriteBufferSize(s int) ServerOption {
 	return newFuncServerOption(func(o *serverOptions) {
 		o.writeBufferSize = s
@@ -1001,6 +1010,7 @@ func (s *Server) newHTTP2Transport(c net.Conn) transport.ServerTransport {
 	return st
 }
 
+<<<<<<< HEAD
 func (s *Server) serveStreams(ctx context.Context, st transport.ServerTransport, rawConn net.Conn) {
 	ctx = transport.SetConnection(ctx, rawConn)
 	ctx = peer.NewContext(ctx, st.Peer())
@@ -1028,6 +1038,11 @@ func (s *Server) serveStreams(ctx context.Context, st transport.ServerTransport,
 			defer s.handlersWG.Done()
 			s.handleStream(st, stream)
 		}
+=======
+func (s *Server) serveStreams(st transport.ServerTransport) {
+	defer st.Close(errors.New("finished serving streams for the server transport"))
+	var wg sync.WaitGroup
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		if s.opts.numServerWorkers > 0 {
 			select {
@@ -1183,8 +1198,22 @@ func chainUnaryServerInterceptors(s *Server) {
 }
 
 func chainUnaryInterceptors(interceptors []UnaryServerInterceptor) UnaryServerInterceptor {
+<<<<<<< HEAD
 	return func(ctx context.Context, req any, info *UnaryServerInfo, handler UnaryHandler) (any, error) {
 		return interceptors[0](ctx, req, info, getChainUnaryHandler(interceptors, 0, info, handler))
+=======
+	return func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (interface{}, error) {
+		return interceptors[0](ctx, req, info, getChainUnaryHandler(interceptors, 0, info, handler))
+	}
+}
+
+func getChainUnaryHandler(interceptors []UnaryServerInterceptor, curr int, info *UnaryServerInfo, finalHandler UnaryHandler) UnaryHandler {
+	if curr == len(interceptors)-1 {
+		return finalHandler
+	}
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return interceptors[curr+1](ctx, req, info, getChainUnaryHandler(interceptors, curr+1, info, finalHandler))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 }
 
@@ -1339,7 +1368,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 	d, cancel, err := recvAndDecompress(&parser{r: stream, recvBufferPool: s.opts.recvBufferPool}, stream, dc, s.opts.maxReceiveMessageSize, payInfo, decomp)
 	if err != nil {
 		if e := t.WriteStatus(stream, status.Convert(err)); e != nil {
+<<<<<<< HEAD
 			channelz.Warningf(logger, s.channelz, "grpc: Server.processUnaryRPC failed to write status: %v", e)
+=======
+			channelz.Warningf(logger, s.channelzID, "grpc: Server.processUnaryRPC failed to write status: %v", e)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		return err
 	}
@@ -1353,7 +1386,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 			return status.Errorf(codes.Internal, "grpc: error unmarshalling request: %v", err)
 		}
 		for _, sh := range shs {
+<<<<<<< HEAD
 			sh.HandleRPC(ctx, &stats.InPayload{
+=======
+			sh.HandleRPC(stream.Context(), &stats.InPayload{
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				RecvTime:         time.Now(),
 				Payload:          v,
 				Length:           len(d),
@@ -1367,7 +1404,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 				Message: d,
 			}
 			for _, binlog := range binlogs {
+<<<<<<< HEAD
 				binlog.Log(ctx, cm)
+=======
+				binlog.Log(stream.Context(), cm)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 		}
 		if trInfo != nil {
@@ -1400,7 +1441,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 					Header: h,
 				}
 				for _, binlog := range binlogs {
+<<<<<<< HEAD
 					binlog.Log(ctx, sh)
+=======
+					binlog.Log(stream.Context(), sh)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				}
 			}
 			st := &binarylog.ServerTrailer{
@@ -1408,7 +1453,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 				Err:     appErr,
 			}
 			for _, binlog := range binlogs {
+<<<<<<< HEAD
 				binlog.Log(ctx, st)
+=======
+				binlog.Log(stream.Context(), st)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 		}
 		return appErr
@@ -1423,7 +1472,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 	if stream.SendCompress() != sendCompressorName {
 		comp = encoding.GetCompressor(stream.SendCompress())
 	}
+<<<<<<< HEAD
 	if err := s.sendResponse(ctx, t, stream, reply, cp, opts, comp); err != nil {
+=======
+	if err := s.sendResponse(t, stream, reply, cp, opts, comp); err != nil {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		if err == io.EOF {
 			// The entire stream is done (for unary RPC only).
 			return err
@@ -1450,8 +1503,13 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 				Err:     appErr,
 			}
 			for _, binlog := range binlogs {
+<<<<<<< HEAD
 				binlog.Log(ctx, sh)
 				binlog.Log(ctx, st)
+=======
+				binlog.Log(stream.Context(), sh)
+				binlog.Log(stream.Context(), st)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 		}
 		return err
@@ -1465,8 +1523,13 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 			Message: reply,
 		}
 		for _, binlog := range binlogs {
+<<<<<<< HEAD
 			binlog.Log(ctx, sh)
 			binlog.Log(ctx, sm)
+=======
+			binlog.Log(stream.Context(), sh)
+			binlog.Log(stream.Context(), sm)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 	}
 	if channelz.IsOn() {
@@ -1484,7 +1547,11 @@ func (s *Server) processUnaryRPC(ctx context.Context, t transport.ServerTranspor
 			Err:     appErr,
 		}
 		for _, binlog := range binlogs {
+<<<<<<< HEAD
 			binlog.Log(ctx, st)
+=======
+			binlog.Log(stream.Context(), st)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 	}
 	return t.WriteStatus(stream, statusOK)
@@ -1512,8 +1579,22 @@ func chainStreamServerInterceptors(s *Server) {
 }
 
 func chainStreamInterceptors(interceptors []StreamServerInterceptor) StreamServerInterceptor {
+<<<<<<< HEAD
 	return func(srv any, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error {
 		return interceptors[0](srv, ss, info, getChainStreamHandler(interceptors, 0, info, handler))
+=======
+	return func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error {
+		return interceptors[0](srv, ss, info, getChainStreamHandler(interceptors, 0, info, handler))
+	}
+}
+
+func getChainStreamHandler(interceptors []StreamServerInterceptor, curr int, info *StreamServerInfo, finalHandler StreamHandler) StreamHandler {
+	if curr == len(interceptors)-1 {
+		return finalHandler
+	}
+	return func(srv interface{}, stream ServerStream) error {
+		return interceptors[curr+1](srv, stream, info, getChainStreamHandler(interceptors, curr+1, info, finalHandler))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 }
 
@@ -1621,7 +1702,11 @@ func (s *Server) processStreamingRPC(ctx context.Context, t transport.ServerTran
 			logEntry.PeerAddr = peer.Addr
 		}
 		for _, binlog := range ss.binlogs {
+<<<<<<< HEAD
 			binlog.Log(ctx, logEntry)
+=======
+			binlog.Log(stream.Context(), logEntry)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 	}
 
@@ -1699,7 +1784,11 @@ func (s *Server) processStreamingRPC(ctx context.Context, t transport.ServerTran
 				Err:     appErr,
 			}
 			for _, binlog := range ss.binlogs {
+<<<<<<< HEAD
 				binlog.Log(ctx, st)
+=======
+				binlog.Log(stream.Context(), st)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 		}
 		t.WriteStatus(ss.s, appStatus)
@@ -1717,7 +1806,11 @@ func (s *Server) processStreamingRPC(ctx context.Context, t transport.ServerTran
 			Err:     appErr,
 		}
 		for _, binlog := range ss.binlogs {
+<<<<<<< HEAD
 			binlog.Log(ctx, st)
+=======
+			binlog.Log(stream.Context(), st)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 	}
 	return t.WriteStatus(ss.s, statusOK)
@@ -1873,7 +1966,46 @@ func ServerTransportStreamFromContext(ctx context.Context) ServerTransportStream
 // pending RPCs on the client side will get notified by connection
 // errors.
 func (s *Server) Stop() {
+<<<<<<< HEAD
 	s.stop(false)
+=======
+	s.quit.Fire()
+
+	defer func() {
+		s.serveWG.Wait()
+		s.done.Fire()
+	}()
+
+	s.channelzRemoveOnce.Do(func() { channelz.RemoveEntry(s.channelzID) })
+
+	s.mu.Lock()
+	listeners := s.lis
+	s.lis = nil
+	conns := s.conns
+	s.conns = nil
+	// interrupt GracefulStop if Stop and GracefulStop are called concurrently.
+	s.cv.Broadcast()
+	s.mu.Unlock()
+
+	for lis := range listeners {
+		lis.Close()
+	}
+	for _, cs := range conns {
+		for st := range cs {
+			st.Close(errors.New("Server.Stop called"))
+		}
+	}
+	if s.opts.numServerWorkers > 0 {
+		s.stopServerWorkers()
+	}
+
+	s.mu.Lock()
+	if s.events != nil {
+		s.events.Finish()
+		s.events = nil
+	}
+	s.mu.Unlock()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // GracefulStop stops the gRPC server gracefully. It stops the server from
@@ -2112,7 +2244,11 @@ func ClientSupportedCompressors(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("failed to fetch the stream from the given context %v", ctx)
 	}
 
+<<<<<<< HEAD
 	return stream.ClientAdvertisedCompressors(), nil
+=======
+	return strings.Split(stream.ClientAdvertisedCompressors(), ","), nil
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // SetTrailer sets the trailer metadata that will be sent when an RPC returns.
@@ -2190,4 +2326,23 @@ func newHandlerQuota(n uint32) *atomicSemaphore {
 	a := &atomicSemaphore{wait: make(chan struct{}, 1)}
 	a.n.Store(int64(n))
 	return a
+}
+
+// validateSendCompressor returns an error when given compressor name cannot be
+// handled by the server or the client based on the advertised compressors.
+func validateSendCompressor(name, clientCompressors string) error {
+	if name == encoding.Identity {
+		return nil
+	}
+
+	if !grpcutil.IsCompressorNameRegistered(name) {
+		return fmt.Errorf("compressor not registered %q", name)
+	}
+
+	for _, c := range strings.Split(clientCompressors, ",") {
+		if c == name {
+			return nil // found match
+		}
+	}
+	return fmt.Errorf("client does not support compressor %q", name)
 }

@@ -1,5 +1,6 @@
 # Changes
 
+<<<<<<< HEAD
 
 ## [1.1.5](https://github.com/googleapis/google-cloud-go/compare/iam/v1.1.4...iam/v1.1.5) (2023-11-01)
 
@@ -57,6 +58,8 @@
 
 * **iam:** Promote to GA ([#7627](https://github.com/googleapis/google-cloud-go/issues/7627)) ([b351906](https://github.com/googleapis/google-cloud-go/commit/b351906a10e17a02d7f7e2551bc1585fd9dc3742))
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 ## [0.13.0](https://github.com/googleapis/google-cloud-go/compare/iam/v0.12.0...iam/v0.13.0) (2023-03-15)
 
 

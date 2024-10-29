@@ -4,16 +4,28 @@
 
 // Derived from go/internal/gcimporter/ureader.go
 
+<<<<<<< HEAD
 package gcimporter
 
 import (
 	"fmt"
+=======
+//go:build go1.18
+// +build go1.18
+
+package gcimporter
+
+import (
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"go/token"
 	"go/types"
 	"sort"
 	"strings"
 
+<<<<<<< HEAD
 	"golang.org/x/tools/internal/aliases"
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"golang.org/x/tools/internal/pkgbits"
 )
 
@@ -26,7 +38,10 @@ type pkgReader struct {
 
 	ctxt    *types.Context
 	imports map[string]*types.Package // previously imported packages, indexed by path
+<<<<<<< HEAD
 	aliases bool                      // create types.Alias nodes
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 	// lazily initialized arrays corresponding to the unified IR
 	// PosBase, Pkg, and Type sections, respectively.
@@ -63,6 +78,7 @@ type typeInfo struct {
 }
 
 func UImportData(fset *token.FileSet, imports map[string]*types.Package, data []byte, path string) (_ int, pkg *types.Package, err error) {
+<<<<<<< HEAD
 	if !debug {
 		defer func() {
 			if x := recover(); x != nil {
@@ -71,6 +87,8 @@ func UImportData(fset *token.FileSet, imports map[string]*types.Package, data []
 		}()
 	}
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	s := string(data)
 	s = s[:strings.LastIndex(s, "\n$$\n")]
 	input := pkgbits.NewPkgDecoder(path, s)
@@ -100,7 +118,10 @@ func readUnifiedPackage(fset *token.FileSet, ctxt *types.Context, imports map[st
 
 		ctxt:    ctxt,
 		imports: imports,
+<<<<<<< HEAD
 		aliases: aliases.Enabled(),
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		posBases: make([]string, input.NumElems(pkgbits.RelocPosBase)),
 		pkgs:     make([]*types.Package, input.NumElems(pkgbits.RelocPkg)),
@@ -526,7 +547,11 @@ func (pr *pkgReader) objIdx(idx pkgbits.Index) (*types.Package, string) {
 		case pkgbits.ObjAlias:
 			pos := r.pos()
 			typ := r.typ()
+<<<<<<< HEAD
 			declare(aliases.NewAlias(r.p.aliases, pos, objPkg, objName, typ))
+=======
+			declare(types.NewTypeName(pos, objPkg, objName, typ))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		case pkgbits.ObjConst:
 			pos := r.pos()
@@ -553,7 +578,11 @@ func (pr *pkgReader) objIdx(idx pkgbits.Index) (*types.Package, string) {
 				// If the underlying type is an interface, we need to
 				// duplicate its methods so we can replace the receiver
 				// parameter's type (#49906).
+<<<<<<< HEAD
 				if iface, ok := aliases.Unalias(underlying).(*types.Interface); ok && iface.NumExplicitMethods() != 0 {
+=======
+				if iface, ok := underlying.(*types.Interface); ok && iface.NumExplicitMethods() != 0 {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 					methods := make([]*types.Func, iface.NumExplicitMethods())
 					for i := range methods {
 						fn := iface.ExplicitMethod(i)

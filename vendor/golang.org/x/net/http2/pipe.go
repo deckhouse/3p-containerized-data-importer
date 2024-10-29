@@ -94,12 +94,15 @@ func (p *pipe) Write(d []byte) (n int, err error) {
 	if p.err != nil || p.breakErr != nil {
 		return 0, errClosedPipeWrite
 	}
+<<<<<<< HEAD
 	// pipe.setBuffer is never invoked, leaving the buffer uninitialized.
 	// We shouldn't try to write to an uninitialized pipe,
 	// but returning an error is better than panicking.
 	if p.b == nil {
 		return 0, errUninitializedPipeWrite
 	}
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	return p.b.Write(d)
 }
 

@@ -204,6 +204,10 @@ func List(helper Helper, writer io.Writer) error {
 
 // PrintVersion outputs the current version.
 func PrintVersion(writer io.Writer) error {
+<<<<<<< HEAD
 	_, _ = fmt.Fprintf(writer, "%s (%s) %s\n", Name, Package, Version)
+=======
+	fmt.Fprintf(writer, "%s (%s) %s\n", Name, Package, Version)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	return nil
 }

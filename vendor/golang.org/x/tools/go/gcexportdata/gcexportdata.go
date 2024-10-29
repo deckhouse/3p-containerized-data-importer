@@ -47,7 +47,11 @@ import (
 func Find(importPath, srcDir string) (filename, path string) {
 	cmd := exec.Command("go", "list", "-json", "-export", "--", importPath)
 	cmd.Dir = srcDir
+<<<<<<< HEAD
 	out, err := cmd.Output()
+=======
+	out, err := cmd.CombinedOutput()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	if err != nil {
 		return "", ""
 	}
@@ -128,6 +132,7 @@ func Read(in io.Reader, fset *token.FileSet, imports map[string]*types.Package, 
 	// (from "version"). Select appropriate importer.
 	if len(data) > 0 {
 		switch data[0] {
+<<<<<<< HEAD
 		case 'v', 'c', 'd': // binary, till go1.10
 			return nil, fmt.Errorf("binary (%c) import format is no longer supported", data[0])
 
@@ -136,6 +141,17 @@ func Read(in io.Reader, fset *token.FileSet, imports map[string]*types.Package, 
 			return pkg, err
 
 		case 'u': // unified, from go1.20
+=======
+		case 'i':
+			_, pkg, err := gcimporter.IImportData(fset, imports, data[1:], path)
+			return pkg, err
+
+		case 'v', 'c', 'd':
+			_, pkg, err := gcimporter.BImportData(fset, imports, data, path)
+			return pkg, err
+
+		case 'u':
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			_, pkg, err := gcimporter.UImportData(fset, imports, data[1:], path)
 			return pkg, err
 

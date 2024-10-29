@@ -459,6 +459,15 @@
     "release_level": "stable",
     "library_type": "GAPIC_AUTO"
   },
+  "cloud.google.com/go/bigquery/datapolicies/apiv1": {
+    "distribution_name": "cloud.google.com/go/bigquery/datapolicies/apiv1",
+    "description": "BigQuery Data Policy API",
+    "language": "Go",
+    "client_library_type": "generated",
+    "docs_url": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/bigquery/latest/datapolicies/apiv1",
+    "release_level": "beta",
+    "library_type": "GAPIC_AUTO"
+  },
   "cloud.google.com/go/bigquery/datapolicies/apiv1beta1": {
     "api_shortname": "bigquerydatapolicy",
     "distribution_name": "cloud.google.com/go/bigquery/datapolicies/apiv1beta1",
@@ -819,6 +828,15 @@
     "release_level": "stable",
     "library_type": "GAPIC_AUTO"
   },
+  "cloud.google.com/go/datacatalog/lineage/apiv1": {
+    "distribution_name": "cloud.google.com/go/datacatalog/lineage/apiv1",
+    "description": "Data Lineage API",
+    "language": "Go",
+    "client_library_type": "generated",
+    "docs_url": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/datacatalog/latest/lineage/apiv1",
+    "release_level": "beta",
+    "library_type": "GAPIC_AUTO"
+  },
   "cloud.google.com/go/dataflow/apiv1beta3": {
     "api_shortname": "dataflow",
     "distribution_name": "cloud.google.com/go/dataflow/apiv1beta3",
@@ -1027,6 +1045,15 @@
     "client_library_type": "generated",
     "client_documentation": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/discoveryengine/latest/apiv1beta",
     "release_level": "preview",
+    "library_type": "GAPIC_AUTO"
+  },
+  "cloud.google.com/go/discoveryengine/apiv1beta": {
+    "distribution_name": "cloud.google.com/go/discoveryengine/apiv1beta",
+    "description": "Discovery Engine API",
+    "language": "Go",
+    "client_library_type": "generated",
+    "docs_url": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/discoveryengine/latest/apiv1beta",
+    "release_level": "beta",
     "library_type": "GAPIC_AUTO"
   },
   "cloud.google.com/go/dlp/apiv2": {
@@ -1280,6 +1307,7 @@
     "library_type": "CORE"
   },
   "cloud.google.com/go/iam/apiv1": {
+<<<<<<< HEAD
     "api_shortname": "iam-meta-api",
     "distribution_name": "cloud.google.com/go/iam/apiv1",
     "description": "IAM Meta API",
@@ -1287,6 +1315,14 @@
     "client_library_type": "generated",
     "client_documentation": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/iam/latest/apiv1",
     "release_level": "stable",
+=======
+    "distribution_name": "cloud.google.com/go/iam/apiv1",
+    "description": "IAM Meta API",
+    "language": "Go",
+    "client_library_type": "generated",
+    "docs_url": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/iam/latest/apiv1",
+    "release_level": "beta",
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
     "library_type": "GAPIC_AUTO"
   },
   "cloud.google.com/go/iam/apiv2": {
@@ -1487,6 +1523,15 @@
     "client_library_type": "generated",
     "client_documentation": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/maps/latest/places/apiv1",
     "release_level": "stable",
+    "library_type": "GAPIC_AUTO"
+  },
+  "cloud.google.com/go/maps/mapsplatformdatasets/apiv1alpha": {
+    "distribution_name": "cloud.google.com/go/maps/mapsplatformdatasets/apiv1alpha",
+    "description": "Maps Platform Datasets API",
+    "language": "Go",
+    "client_library_type": "generated",
+    "docs_url": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/maps/latest/mapsplatformdatasets/apiv1alpha",
+    "release_level": "alpha",
     "library_type": "GAPIC_AUTO"
   },
   "cloud.google.com/go/maps/routing/apiv2": {
@@ -2547,6 +2592,15 @@
     "client_library_type": "generated",
     "client_documentation": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/vmwareengine/latest/apiv1",
     "release_level": "stable",
+    "library_type": "GAPIC_AUTO"
+  },
+  "cloud.google.com/go/vmwareengine/apiv1": {
+    "distribution_name": "cloud.google.com/go/vmwareengine/apiv1",
+    "description": "VMware Engine API",
+    "language": "Go",
+    "client_library_type": "generated",
+    "docs_url": "https://cloud.google.com/go/docs/reference/cloud.google.com/go/vmwareengine/latest/apiv1",
+    "release_level": "beta",
     "library_type": "GAPIC_AUTO"
   },
   "cloud.google.com/go/vpcaccess/apiv1": {

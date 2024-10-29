@@ -106,6 +106,7 @@ individual HTML tokens, only the parser constructs the DOM tree from the
 tokenized HTML, as described in the tree construction stage of the
 specification, dynamically modifying or extending the document's DOM tree.
 
+<<<<<<< HEAD
 If your use case requires semantically well-formed HTML documents, as defined by
 the WHATWG specification, the parser should be used rather than the tokenizer.
 
@@ -113,6 +114,10 @@ In security contexts, if trust decisions are being made using the tokenized or
 parsed content, the input must be re-serialized (for instance by using Render or
 Token.String) in order for those trust decisions to hold, as the process of
 tokenization or parsing may alter the content.
+=======
+If your use case requires semantically well-formed HTML, as defined by the
+WHATWG specification, the parser should be used rather than the tokenizer.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 */
 package html // import "golang.org/x/net/html"
 

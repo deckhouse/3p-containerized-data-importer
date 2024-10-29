@@ -51,7 +51,11 @@ import (
 //  10. Send out the CL for review and submit it.
 const (
 	Major      = 1
+<<<<<<< HEAD
 	Minor      = 33
+=======
+	Minor      = 30
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	Patch      = 0
 	PreRelease = ""
 )

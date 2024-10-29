@@ -134,7 +134,10 @@ func NewClient(target string, opts ...DialOption) (conn *ClientConn, err error) 
 	cc.safeConfigSelector.UpdateConfigSelector(&defaultConfigSelector{nil})
 	cc.ctx, cc.cancel = context.WithCancel(context.Background())
 
+<<<<<<< HEAD
 	// Apply dial options.
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	disableGlobalOpts := false
 	for _, opt := range opts {
 		if _, ok := opt.(*disableGlobalDialOptions); ok {
@@ -267,6 +270,7 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		if s == connectivity.Idle {
 			cc.Connect()
 		}
+<<<<<<< HEAD
 		if s == connectivity.Ready {
 			return cc, nil
 		} else if cc.dopts.copts.FailOnNonTempDialError && s == connectivity.TransientFailure {
@@ -283,6 +287,31 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 			// ctx got timeout or canceled.
 			if err = cc.connectionError(); err != nil && cc.dopts.returnLastError {
 				return nil, err
+=======
+	}
+	if cc.dopts.bs == nil {
+		cc.dopts.bs = backoff.DefaultExponential
+	}
+
+	// Determine the resolver to use.
+	resolverBuilder, err := cc.parseTargetAndFindResolver()
+	if err != nil {
+		return nil, err
+	}
+	cc.authority, err = determineAuthority(cc.parsedTarget.Endpoint(), cc.target, cc.dopts)
+	if err != nil {
+		return nil, err
+	}
+	channelz.Infof(logger, cc.channelzID, "Channel authority set to %q", cc.authority)
+
+	if cc.dopts.scChan != nil && !scSet {
+		// Blocking wait for the initial service config.
+		select {
+		case sc, ok := <-cc.dopts.scChan:
+			if ok {
+				cc.sc = &sc
+				cc.safeConfigSelector.UpdateConfigSelector(&defaultConfigSelector{&sc})
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 			return nil, ctx.Err()
 		}
@@ -1055,7 +1084,11 @@ func (cc *ClientConn) healthCheckConfig() *healthCheckConfig {
 }
 
 func (cc *ClientConn) getTransport(ctx context.Context, failfast bool, method string) (transport.ClientTransport, balancer.PickResult, error) {
+<<<<<<< HEAD
 	return cc.pickerWrapper.pick(ctx, failfast, balancer.PickInfo{
+=======
+	return cc.blockingpicker.pick(ctx, failfast, balancer.PickInfo{
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		Ctx:            ctx,
 		FullMethodName: method,
 	})
@@ -1205,6 +1238,7 @@ func (ac *addrConn) updateConnectivityState(s connectivity.State, lastErr error)
 	close(ac.stateChan)
 	ac.stateChan = make(chan struct{})
 	ac.state = s
+<<<<<<< HEAD
 	ac.channelz.ChannelMetrics.State.Store(&s)
 	if lastErr == nil {
 		channelz.Infof(logger, ac.channelz, "Subchannel Connectivity change to %v", s)
@@ -1212,6 +1246,14 @@ func (ac *addrConn) updateConnectivityState(s connectivity.State, lastErr error)
 		channelz.Infof(logger, ac.channelz, "Subchannel Connectivity change to %v, last error: %s", s, lastErr)
 	}
 	ac.acbw.updateState(s, lastErr)
+=======
+	if lastErr == nil {
+		channelz.Infof(logger, ac.channelzID, "Subchannel Connectivity change to %v", s)
+	} else {
+		channelz.Infof(logger, ac.channelzID, "Subchannel Connectivity change to %v, last error: %s", s, lastErr)
+	}
+	ac.cc.handleSubConnStateChange(ac.acbw, s, lastErr)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // adjustParams updates parameters used to create transports upon
@@ -1351,11 +1393,18 @@ func (ac *addrConn) createTransport(ctx context.Context, addr resolver.Address, 
 		defer ac.mu.Unlock()
 		// adjust params based on GoAwayReason
 		ac.adjustParams(r)
+<<<<<<< HEAD
 		if ctx.Err() != nil {
 			// Already shut down or connection attempt canceled.  tearDown() or
 			// updateAddrs() already cleared the transport and canceled hctx
 			// via ac.ctx, and we expected this connection to be closed, so do
 			// nothing here.
+=======
+		if ac.state == connectivity.Shutdown {
+			// Already shut down.  tearDown() already cleared the transport and
+			// canceled hctx via ac.ctx, and we expected this connection to be
+			// closed, so do nothing here.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			return
 		}
 		hcancel()
@@ -1489,7 +1538,11 @@ func (ac *addrConn) startHealthCheck(ctx context.Context) {
 			if status.Code(err) == codes.Unimplemented {
 				channelz.Error(logger, ac.channelz, "Subchannel health check is unimplemented at server side, thus health check is disabled")
 			} else {
+<<<<<<< HEAD
 				channelz.Errorf(logger, ac.channelz, "Health checking failed: %v", err)
+=======
+				channelz.Errorf(logger, ac.channelzID, "Health checking failed: %v", err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 		}
 	}()
@@ -1726,14 +1779,20 @@ func (cc *ClientConn) parseTargetAndFindResolver() error {
 }
 
 // parseTarget uses RFC 3986 semantics to parse the given target into a
+<<<<<<< HEAD
 // resolver.Target struct containing url. Query params are stripped from the
 // endpoint.
+=======
+// resolver.Target struct containing scheme, authority and url. Query
+// params are stripped from the endpoint.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 func parseTarget(target string) (resolver.Target, error) {
 	u, err := url.Parse(target)
 	if err != nil {
 		return resolver.Target{}, err
 	}
 
+<<<<<<< HEAD
 	return resolver.Target{URL: *u}, nil
 }
 
@@ -1792,6 +1851,13 @@ func encodeAuthority(authority string) string {
 		}
 	}
 	return string(t)
+=======
+	return resolver.Target{
+		Scheme:    u.Scheme,
+		Authority: u.Host,
+		URL:       *u,
+	}, nil
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // Determine channel authority. The order of precedence is as follows:

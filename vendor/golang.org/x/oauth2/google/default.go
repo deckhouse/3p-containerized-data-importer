@@ -12,7 +12,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+<<<<<<< HEAD
 	"sync"
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"time"
 
 	"cloud.google.com/go/compute/metadata"
@@ -20,10 +23,14 @@ import (
 	"golang.org/x/oauth2/authhandler"
 )
 
+<<<<<<< HEAD
 const (
 	adcSetupURL           = "https://cloud.google.com/docs/authentication/external/set-up-adc"
 	defaultUniverseDomain = "googleapis.com"
 )
+=======
+const adcSetupURL = "https://cloud.google.com/docs/authentication/external/set-up-adc"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 // Credentials holds Google credentials, including "Application Default Credentials".
 // For more details, see:
@@ -138,12 +145,15 @@ type CredentialsParams struct {
 	// Note: This option is currently only respected when using credentials
 	// fetched from the GCE metadata server.
 	EarlyTokenRefresh time.Duration
+<<<<<<< HEAD
 
 	// UniverseDomain is the default service domain for a given Cloud universe.
 	// Only supported in authentication flows that support universe domains.
 	// This value takes precedence over a universe domain explicitly specified
 	// in a credentials config file or by the GCE metadata server. Optional.
 	UniverseDomain string
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 func (params CredentialsParams) deepCopy() CredentialsParams {
@@ -211,6 +221,7 @@ func FindDefaultCredentialsWithParams(ctx context.Context, params CredentialsPar
 		return CredentialsFromJSONWithParams(ctx, b, params)
 	}
 
+<<<<<<< HEAD
 	// Third, if we're on Google Compute Engine, an App Engine standard second generation runtime,
 	// or App Engine flexible, use the metadata server.
 	if metadata.OnGCE() {
@@ -232,6 +243,25 @@ func FindDefaultCredentialsWithParams(ctx context.Context, params CredentialsPar
 			TokenSource:            computeTokenSource("", params.EarlyTokenRefresh, params.Scopes...),
 			UniverseDomainProvider: universeDomainProvider,
 			universeDomain:         params.UniverseDomain,
+=======
+	// Third, if we're on a Google App Engine standard first generation runtime (<= Go 1.9)
+	// use those credentials. App Engine standard second generation runtimes (>= Go 1.11)
+	// and App Engine flexible use ComputeTokenSource and the metadata server.
+	if appengineTokenFunc != nil {
+		return &Credentials{
+			ProjectID:   appengineAppIDFunc(ctx),
+			TokenSource: AppEngineTokenSource(ctx, params.Scopes...),
+		}, nil
+	}
+
+	// Fourth, if we're on Google Compute Engine, an App Engine standard second generation runtime,
+	// or App Engine flexible, use the metadata server.
+	if metadata.OnGCE() {
+		id, _ := metadata.ProjectID()
+		return &Credentials{
+			ProjectID:   id,
+			TokenSource: computeTokenSource("", params.EarlyTokenRefresh, params.Scopes...),
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}, nil
 	}
 
@@ -286,10 +316,16 @@ func CredentialsFromJSONWithParams(ctx context.Context, jsonData []byte, params 
 	}
 	ts = newErrWrappingTokenSource(ts)
 	return &Credentials{
+<<<<<<< HEAD
 		ProjectID:      f.ProjectID,
 		TokenSource:    ts,
 		JSON:           jsonData,
 		universeDomain: universeDomain,
+=======
+		ProjectID:   f.ProjectID,
+		TokenSource: ts,
+		JSON:        jsonData,
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}, nil
 }
 
@@ -309,7 +345,11 @@ func wellKnownFile() string {
 }
 
 func readCredentialsFile(ctx context.Context, filename string, params CredentialsParams) (*Credentials, error) {
+<<<<<<< HEAD
 	b, err := os.ReadFile(filename)
+=======
+	b, err := ioutil.ReadFile(filename)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	if err != nil {
 		return nil, err
 	}

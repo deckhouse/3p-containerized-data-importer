@@ -21,9 +21,20 @@ type parser struct {
 
 	ordered []Key // List of keys in the order that they appear in the TOML data.
 
+<<<<<<< HEAD
 	keyInfo   map[string]keyInfo  // Map keyname → info about the TOML key.
 	mapping   map[string]any      // Map keyname → key value.
 	implicits map[string]struct{} // Record implicit keys (e.g. "key.group.names").
+}
+
+type keyInfo struct {
+	pos      Position
+	tomlType tomlType
+=======
+	keyInfo   map[string]keyInfo     // Map keyname → info about the TOML key.
+	mapping   map[string]interface{} // Map keyname → key value.
+	implicits map[string]struct{}    // Record implicit keys (e.g. "key.group.names").
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 type keyInfo struct {
@@ -73,8 +84,13 @@ func parse(data string) (p *parser, err error) {
 
 	p = &parser{
 		keyInfo:   make(map[string]keyInfo),
+<<<<<<< HEAD
 		mapping:   make(map[string]any),
 		lx:        lex(data, tomlNext),
+=======
+		mapping:   make(map[string]interface{}),
+		lx:        lex(data),
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		ordered:   make([]Key, 0),
 		implicits: make(map[string]struct{}),
 		tomlNext:  tomlNext,
@@ -99,7 +115,11 @@ func (p *parser) panicErr(it item, err error) {
 	})
 }
 
+<<<<<<< HEAD
 func (p *parser) panicItemf(it item, format string, v ...any) {
+=======
+func (p *parser) panicItemf(it item, format string, v ...interface{}) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	panic(ParseError{
 		Message:  fmt.Sprintf(format, v...),
 		Position: it.pos,
@@ -209,8 +229,13 @@ func (p *parser) topLevel(item item) {
 		/// Set value.
 		vItem := p.next()
 		val, typ := p.value(vItem, false)
+<<<<<<< HEAD
 		p.setValue(p.currentKey, val)
 		p.setType(p.currentKey, typ, vItem.pos)
+=======
+		p.set(p.currentKey, val, typ, vItem.pos)
+		p.ordered = append(p.ordered, p.context.add(p.currentKey))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		/// Remove the context we added (preserving any context from [tbl] lines).
 		p.context = outerContext
@@ -249,7 +274,11 @@ func (p *parser) value(it item, parentIsArray bool) (any, tomlType) {
 	case itemStringEsc:
 		return p.replaceEscapes(it, it.val), p.typeOfPrimitive(it)
 	case itemMultilineString:
+<<<<<<< HEAD
 		return p.replaceEscapes(it, p.stripEscapedNewlines(stripFirstNewline(it.val))), p.typeOfPrimitive(it)
+=======
+		return p.replaceEscapes(it, stripFirstNewline(p.stripEscapedNewlines(it.val))), p.typeOfPrimitive(it)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	case itemRawString:
 		return it.val, p.typeOfPrimitive(it)
 	case itemRawMultilineString:
@@ -388,6 +417,7 @@ func (p *parser) valueDatetime(it item) (any, tomlType) {
 	return t, p.typeOfPrimitive(it)
 }
 
+<<<<<<< HEAD
 // Go's time.Parse() will accept numbers without a leading zero; there isn't any
 // way to require it. https://github.com/golang/go/issues/29911
 //
@@ -406,6 +436,9 @@ func missingLeadingZero(d, l string) bool {
 }
 
 func (p *parser) valueArray(it item) (any, tomlType) {
+=======
+func (p *parser) valueArray(it item) (interface{}, tomlType) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	p.setType(p.currentKey, tomlArray, it.pos)
 
 	var (
@@ -475,6 +508,7 @@ func (p *parser) valueInlineTable(it item, parentIsArray bool) (any, tomlType) {
 
 		/// Set the value.
 		val, typ := p.value(p.next(), false)
+<<<<<<< HEAD
 		p.setValue(p.currentKey, val)
 		p.setType(p.currentKey, typ, it.pos)
 
@@ -490,6 +524,10 @@ func (p *parser) valueInlineTable(it item, parentIsArray bool) (any, tomlType) {
 				p.panicf("%q is not a table", p.context)
 			}
 		}
+=======
+		p.set(p.currentKey, val, typ, it.pos)
+		p.ordered = append(p.ordered, p.context.add(p.currentKey))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		hash[p.currentKey] = val
 
 		/// Restore context.
@@ -601,7 +639,18 @@ func (p *parser) addContext(key Key, array bool) {
 	} else {
 		p.setValue(key.last(), make(map[string]any))
 	}
+<<<<<<< HEAD
 	p.context = append(p.context, key.last())
+=======
+	p.context = append(p.context, key[len(key)-1])
+}
+
+// set calls setValue and setType.
+func (p *parser) set(key string, val interface{}, typ tomlType, pos Position) {
+	p.setValue(key, val)
+	p.setType(key, typ, pos)
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // setValue sets the given key to the given value in the current context.
@@ -681,11 +730,22 @@ func (p *parser) setType(key string, typ tomlType, pos Position) {
 
 // Implicit keys need to be created when tables are implied in "a.b.c.d = 1" and
 // "[a.b.c]" (the "a", "b", and "c" hashes are never created explicitly).
+<<<<<<< HEAD
 func (p *parser) addImplicit(key Key)        { p.implicits[key.String()] = struct{}{} }
 func (p *parser) removeImplicit(key Key)     { delete(p.implicits, key.String()) }
 func (p *parser) isImplicit(key Key) bool    { _, ok := p.implicits[key.String()]; return ok }
 func (p *parser) isArray(key Key) bool       { return p.keyInfo[key.String()].tomlType == tomlArray }
 func (p *parser) addImplicitContext(key Key) { p.addImplicit(key); p.addContext(key, false) }
+=======
+func (p *parser) addImplicit(key Key)     { p.implicits[key.String()] = struct{}{} }
+func (p *parser) removeImplicit(key Key)  { delete(p.implicits, key.String()) }
+func (p *parser) isImplicit(key Key) bool { _, ok := p.implicits[key.String()]; return ok }
+func (p *parser) isArray(key Key) bool    { return p.keyInfo[key.String()].tomlType == tomlArray }
+func (p *parser) addImplicitContext(key Key) {
+	p.addImplicit(key)
+	p.addContext(key, false)
+}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 // current returns the full key name of the current context.
 func (p *parser) current() string {
@@ -708,6 +768,7 @@ func stripFirstNewline(s string) string {
 	return s
 }
 
+<<<<<<< HEAD
 // stripEscapedNewlines removes whitespace after line-ending backslashes in
 // multiline strings.
 //
@@ -727,6 +788,14 @@ func (p *parser) stripEscapedNewlines(s string) string {
 			return b.String()
 		}
 		i += ix
+=======
+// Remove newlines inside triple-quoted strings if a line ends with "\".
+func (p *parser) stripEscapedNewlines(s string) string {
+	split := strings.Split(s, "\n")
+	if len(split) < 1 {
+		return s
+	}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		if len(s) > i+1 && s[i+1] == '\\' {
 			// Escaped backslash.
@@ -754,9 +823,21 @@ func (p *parser) stripEscapedNewlines(s string) string {
 			i++
 			continue
 		}
+<<<<<<< HEAD
 		b.WriteString(s[:i])
 		s = s[j:]
 		i = 0
+=======
+
+		if i == len(split)-1 {
+			p.panicf("invalid escape: '\\ '")
+		}
+
+		split[i] = line[:len(line)-1] // Remove \
+		if len(split)-1 > i {
+			split[i+1] = strings.TrimLeft(split[i+1], " \t\r")
+		}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 }
 
@@ -782,9 +863,15 @@ func (p *parser) replaceEscapes(it item, str string) string {
 		}
 		switch str[i+1] {
 		default:
+<<<<<<< HEAD
 			p.bug("Expected valid escape code after \\, but got %q.", str[i+1])
 		case ' ', '\t':
 			p.panicItemf(it, "invalid escape: '\\%c'", str[i+1])
+=======
+			p.bug("Expected valid escape code after \\, but got %q.", s[r])
+		case ' ', '\t':
+			p.panicItemf(it, "invalid escape: '\\%c'", s[r])
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		case 'b':
 			b.WriteByte(0x08)
 			skip = 1

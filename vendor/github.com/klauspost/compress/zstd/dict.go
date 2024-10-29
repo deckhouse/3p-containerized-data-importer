@@ -1,7 +1,6 @@
 package zstd
 
 import (
-	"bytes"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -161,6 +160,7 @@ func InspectDictionary(b []byte) (interface {
 	d, err := loadDict(b)
 	return d, err
 }
+<<<<<<< HEAD
 
 type BuildDictOptions struct {
 	// Dictionary ID.
@@ -563,3 +563,5 @@ func BuildDict(o BuildDictOptions) ([]byte, error) {
 	}
 	return out.Bytes(), nil
 }
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))

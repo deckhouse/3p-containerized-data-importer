@@ -22,13 +22,19 @@ import (
 	"strconv"
 	"strings"
 
+<<<<<<< HEAD
 	"golang.org/x/tools/go/types/objectpath"
 	"golang.org/x/tools/internal/aliases"
 	"golang.org/x/tools/internal/tokeninternal"
+=======
+	"golang.org/x/tools/internal/tokeninternal"
+	"golang.org/x/tools/internal/typeparams"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 )
 
 // IExportShallow encodes "shallow" export data for the specified package.
 //
+<<<<<<< HEAD
 // No promises are made about the encoding other than that it can be decoded by
 // the same version of IIExportShallow. If you plan to save export data in the
 // file system, be sure to include a cryptographic digest of the executable in
@@ -39,6 +45,13 @@ import (
 // TODO(rfindley): remove reportf when we are confident enough in the new
 // objectpath encoding.
 func IExportShallow(fset *token.FileSet, pkg *types.Package, reportf ReportFunc) ([]byte, error) {
+=======
+// No promises are made about the encoding other than that it can be
+// decoded by the same version of IIExportShallow. If you plan to save
+// export data in the file system, be sure to include a cryptographic
+// digest of the executable in the key to avoid version skew.
+func IExportShallow(fset *token.FileSet, pkg *types.Package) ([]byte, error) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// In principle this operation can only fail if out.Write fails,
 	// but that's impossible for bytes.Buffer---and as a matter of
 	// fact iexportCommon doesn't even check for I/O errors.
@@ -53,6 +66,7 @@ func IExportShallow(fset *token.FileSet, pkg *types.Package, reportf ReportFunc)
 // IImportShallow decodes "shallow" types.Package data encoded by
 // IExportShallow in the same executable. This function cannot import data from
 // cmd/compile or gcexportdata.Write.
+<<<<<<< HEAD
 //
 // The importer calls getPackages to obtain package symbols for all
 // packages mentioned in the export data, including the one being
@@ -66,14 +80,26 @@ func IImportShallow(fset *token.FileSet, getPackages GetPackagesFunc, data []byt
 	const bundle = false
 	const shallow = true
 	pkgs, err := iimportCommon(fset, getPackages, data, bundle, path, shallow, reportf)
+=======
+func IImportShallow(fset *token.FileSet, getPackage GetPackageFunc, data []byte, path string, insert InsertType) (*types.Package, error) {
+	const bundle = false
+	pkgs, err := iimportCommon(fset, getPackage, data, bundle, path, insert)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	if err != nil {
 		return nil, err
 	}
 	return pkgs[0], nil
 }
 
+<<<<<<< HEAD
 // ReportFunc is the type of a function used to report formatted bugs.
 type ReportFunc = func(string, ...interface{})
+=======
+// InsertType is the type of a function that creates a types.TypeName
+// object for a named type and inserts it into the scope of the
+// specified Package.
+type InsertType = func(pkg *types.Package, name string)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 // Current bundled export format version. Increase with each format change.
 // 0: initial implementation
@@ -327,9 +353,14 @@ type iexporter struct {
 	out     *bytes.Buffer
 	version int
 
+<<<<<<< HEAD
 	shallow    bool                // don't put types from other packages in the index
 	objEncoder *objectpath.Encoder // encodes objects from other packages in shallow mode; lazily allocated
 	localpkg   *types.Package      // (nil in bundle mode)
+=======
+	shallow  bool           // don't put types from other packages in the index
+	localpkg *types.Package // (nil in bundle mode)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 	// allPkgs tracks all packages that have been referenced by
 	// the export data, so we can ensure to include them in the
@@ -369,6 +400,7 @@ func (p *iexporter) trace(format string, args ...interface{}) {
 	fmt.Printf(strings.Repeat("..", p.indent)+format+"\n", args...)
 }
 
+<<<<<<< HEAD
 // objectpathEncoder returns the lazily allocated objectpath.Encoder to use
 // when encoding objects in other packages during shallow export.
 //
@@ -380,6 +412,8 @@ func (p *iexporter) objectpathEncoder() *objectpath.Encoder {
 	return p.objEncoder
 }
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // stringOff returns the offset of s within the string section.
 // If not already present, it's added to the end.
 func (p *iexporter) stringOff(s string) uint64 {
@@ -439,6 +473,10 @@ type exportWriter struct {
 	p *iexporter
 
 	data       intWriter
+<<<<<<< HEAD
+=======
+	currPkg    *types.Package
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	prevFile   string
 	prevLine   int64
 	prevColumn int64
@@ -461,10 +499,18 @@ func (p *iexporter) doDecl(obj types.Object) {
 		}()
 	}
 	w := p.newWriter()
+<<<<<<< HEAD
 
 	switch obj := obj.(type) {
 	case *types.Var:
 		w.tag(varTag)
+=======
+	w.setPkg(obj.Pkg(), false)
+
+	switch obj := obj.(type) {
+	case *types.Var:
+		w.tag('V')
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		w.pos(obj.Pos())
 		w.typ(obj.Type(), obj.Pkg())
 
@@ -481,10 +527,17 @@ func (p *iexporter) doDecl(obj types.Object) {
 		}
 
 		// Function.
+<<<<<<< HEAD
 		if sig.TypeParams().Len() == 0 {
 			w.tag(funcTag)
 		} else {
 			w.tag(genericFuncTag)
+=======
+		if typeparams.ForSignature(sig).Len() == 0 {
+			w.tag('F')
+		} else {
+			w.tag('G')
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		w.pos(obj.Pos())
 		// The tparam list of the function type is the declaration of the type
@@ -494,27 +547,45 @@ func (p *iexporter) doDecl(obj types.Object) {
 		//
 		// While importing the type parameters, tparamList computes and records
 		// their export name, so that it can be later used when writing the index.
+<<<<<<< HEAD
 		if tparams := sig.TypeParams(); tparams.Len() > 0 {
+=======
+		if tparams := typeparams.ForSignature(sig); tparams.Len() > 0 {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			w.tparamList(obj.Name(), tparams, obj.Pkg())
 		}
 		w.signature(sig)
 
 	case *types.Const:
+<<<<<<< HEAD
 		w.tag(constTag)
+=======
+		w.tag('C')
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		w.pos(obj.Pos())
 		w.value(obj.Type(), obj.Val())
 
 	case *types.TypeName:
 		t := obj.Type()
 
+<<<<<<< HEAD
 		if tparam, ok := aliases.Unalias(t).(*types.TypeParam); ok {
 			w.tag(typeParamTag)
+=======
+		if tparam, ok := t.(*typeparams.TypeParam); ok {
+			w.tag('P')
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			w.pos(obj.Pos())
 			constraint := tparam.Constraint()
 			if p.version >= iexportVersionGo1_18 {
 				implicit := false
+<<<<<<< HEAD
 				if iface, _ := aliases.Unalias(constraint).(*types.Interface); iface != nil {
 					implicit = iface.IsImplicit()
+=======
+				if iface, _ := constraint.(*types.Interface); iface != nil {
+					implicit = typeparams.IsImplicit(iface)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				}
 				w.bool(implicit)
 			}
@@ -523,6 +594,7 @@ func (p *iexporter) doDecl(obj types.Object) {
 		}
 
 		if obj.IsAlias() {
+<<<<<<< HEAD
 			w.tag(aliasTag)
 			w.pos(obj.Pos())
 			if alias, ok := t.(*aliases.Alias); ok {
@@ -530,6 +602,10 @@ func (p *iexporter) doDecl(obj types.Object) {
 				// even of non-exported types.
 				t = aliases.Rhs(alias)
 			}
+=======
+			w.tag('A')
+			w.pos(obj.Pos())
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			w.typ(t, obj.Pkg())
 			break
 		}
@@ -540,6 +616,7 @@ func (p *iexporter) doDecl(obj types.Object) {
 			panic(internalErrorf("%s is not a defined type", t))
 		}
 
+<<<<<<< HEAD
 		if named.TypeParams().Len() == 0 {
 			w.tag(typeTag)
 		} else {
@@ -554,6 +631,22 @@ func (p *iexporter) doDecl(obj types.Object) {
 		}
 
 		underlying := named.Underlying()
+=======
+		if typeparams.ForNamed(named).Len() == 0 {
+			w.tag('T')
+		} else {
+			w.tag('U')
+		}
+		w.pos(obj.Pos())
+
+		if typeparams.ForNamed(named).Len() > 0 {
+			// While importing the type parameters, tparamList computes and records
+			// their export name, so that it can be later used when writing the index.
+			w.tparamList(obj.Name(), typeparams.ForNamed(named), obj.Pkg())
+		}
+
+		underlying := obj.Type().Underlying()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		w.typ(underlying, obj.Pkg())
 
 		if types.IsInterface(t) {
@@ -570,7 +663,11 @@ func (p *iexporter) doDecl(obj types.Object) {
 
 			// Receiver type parameters are type arguments of the receiver type, so
 			// their name must be qualified before exporting recv.
+<<<<<<< HEAD
 			if rparams := sig.RecvTypeParams(); rparams.Len() > 0 {
+=======
+			if rparams := typeparams.RecvTypeParams(sig); rparams.Len() > 0 {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				prefix := obj.Name() + "." + m.Name()
 				for i := 0; i < rparams.Len(); i++ {
 					rparam := rparams.At(i)
@@ -702,9 +799,12 @@ func (w *exportWriter) qualifiedType(obj *types.TypeName) {
 	w.pkg(obj.Pkg())
 }
 
+<<<<<<< HEAD
 // TODO(rfindley): what does 'pkg' even mean here? It would be better to pass
 // it in explicitly into signatures and structs that may use it for
 // constructing fields.
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 func (w *exportWriter) typ(t types.Type, pkg *types.Package) {
 	w.data.uint64(w.p.typOff(t, pkg))
 }
@@ -744,6 +844,7 @@ func (w *exportWriter) doTyp(t types.Type, pkg *types.Package) {
 		}()
 	}
 	switch t := t.(type) {
+<<<<<<< HEAD
 	case *aliases.Alias:
 		// TODO(adonovan): support parameterized aliases, following *types.Named.
 		w.startType(aliasType)
@@ -751,18 +852,30 @@ func (w *exportWriter) doTyp(t types.Type, pkg *types.Package) {
 
 	case *types.Named:
 		if targs := t.TypeArgs(); targs.Len() > 0 {
+=======
+	case *types.Named:
+		if targs := typeparams.NamedTypeArgs(t); targs.Len() > 0 {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			w.startType(instanceType)
 			// TODO(rfindley): investigate if this position is correct, and if it
 			// matters.
 			w.pos(t.Obj().Pos())
 			w.typeList(targs, pkg)
+<<<<<<< HEAD
 			w.typ(t.Origin(), pkg)
+=======
+			w.typ(typeparams.NamedTypeOrigin(t), pkg)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			return
 		}
 		w.startType(definedType)
 		w.qualifiedType(t.Obj())
 
+<<<<<<< HEAD
 	case *types.TypeParam:
+=======
+	case *typeparams.TypeParam:
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		w.startType(typeParamType)
 		w.qualifiedType(t.Obj())
 
@@ -801,12 +914,17 @@ func (w *exportWriter) doTyp(t types.Type, pkg *types.Package) {
 
 	case *types.Signature:
 		w.startType(signatureType)
+<<<<<<< HEAD
 		w.pkg(pkg)
+=======
+		w.setPkg(pkg, true)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		w.signature(t)
 
 	case *types.Struct:
 		w.startType(structType)
 		n := t.NumFields()
+<<<<<<< HEAD
 		// Even for struct{} we must emit some qualifying package, because that's
 		// what the compiler does, and thus that's what the importer expects.
 		fieldPkg := pkg
@@ -841,20 +959,41 @@ func (w *exportWriter) doTyp(t types.Type, pkg *types.Package) {
 			w.pos(f.Pos())
 			w.string(f.Name()) // unexported fields implicitly qualified by prior setPkg
 			w.typ(f.Type(), fieldPkg)
+=======
+		if n > 0 {
+			w.setPkg(t.Field(0).Pkg(), true) // qualifying package for field objects
+		} else {
+			w.setPkg(pkg, true)
+		}
+		w.uint64(uint64(n))
+		for i := 0; i < n; i++ {
+			f := t.Field(i)
+			w.pos(f.Pos())
+			w.string(f.Name()) // unexported fields implicitly qualified by prior setPkg
+			w.typ(f.Type(), pkg)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			w.bool(f.Anonymous())
 			w.string(t.Tag(i)) // note (or tag)
 		}
 
 	case *types.Interface:
 		w.startType(interfaceType)
+<<<<<<< HEAD
 		w.pkg(pkg)
+=======
+		w.setPkg(pkg, true)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		n := t.NumEmbeddeds()
 		w.uint64(uint64(n))
 		for i := 0; i < n; i++ {
 			ft := t.EmbeddedType(i)
 			tPkg := pkg
+<<<<<<< HEAD
 			if named, _ := aliases.Unalias(ft).(*types.Named); named != nil {
+=======
+			if named, _ := ft.(*types.Named); named != nil {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				w.pos(named.Obj().Pos())
 			} else {
 				w.pos(token.NoPos)
@@ -862,23 +1001,33 @@ func (w *exportWriter) doTyp(t types.Type, pkg *types.Package) {
 			w.typ(ft, tPkg)
 		}
 
+<<<<<<< HEAD
 		// See comment for struct fields. In shallow mode we change the encoding
 		// for interface methods that are promoted from other packages.
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		n = t.NumExplicitMethods()
 		w.uint64(uint64(n))
 		for i := 0; i < n; i++ {
 			m := t.ExplicitMethod(i)
+<<<<<<< HEAD
 			if w.p.shallow {
 				w.objectPath(m)
 			}
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			w.pos(m.Pos())
 			w.string(m.Name())
 			sig, _ := m.Type().(*types.Signature)
 			w.signature(sig)
 		}
 
+<<<<<<< HEAD
 	case *types.Union:
+=======
+	case *typeparams.Union:
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		w.startType(unionType)
 		nt := t.Len()
 		w.uint64(uint64(nt))
@@ -893,6 +1042,7 @@ func (w *exportWriter) doTyp(t types.Type, pkg *types.Package) {
 	}
 }
 
+<<<<<<< HEAD
 // objectPath writes the package and objectPath to use to look up obj in a
 // different package, when encoding in "shallow" mode.
 //
@@ -948,6 +1098,14 @@ func (w *exportWriter) objectPath(obj types.Object) {
 	}
 	w.string(string(objectPath))
 	w.pkg(obj.Pkg())
+=======
+func (w *exportWriter) setPkg(pkg *types.Package, write bool) {
+	if write {
+		w.pkg(pkg)
+	}
+
+	w.currPkg = pkg
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 func (w *exportWriter) signature(sig *types.Signature) {
@@ -958,14 +1116,22 @@ func (w *exportWriter) signature(sig *types.Signature) {
 	}
 }
 
+<<<<<<< HEAD
 func (w *exportWriter) typeList(ts *types.TypeList, pkg *types.Package) {
+=======
+func (w *exportWriter) typeList(ts *typeparams.TypeList, pkg *types.Package) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	w.uint64(uint64(ts.Len()))
 	for i := 0; i < ts.Len(); i++ {
 		w.typ(ts.At(i), pkg)
 	}
 }
 
+<<<<<<< HEAD
 func (w *exportWriter) tparamList(prefix string, list *types.TypeParamList, pkg *types.Package) {
+=======
+func (w *exportWriter) tparamList(prefix string, list *typeparams.TypeParamList, pkg *types.Package) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	ll := uint64(list.Len())
 	w.uint64(ll)
 	for i := 0; i < list.Len(); i++ {
@@ -983,7 +1149,11 @@ const blankMarker = "$"
 // differs from its actual object name: it is prefixed with a qualifier, and
 // blank type parameter names are disambiguated by their index in the type
 // parameter list.
+<<<<<<< HEAD
 func tparamExportName(prefix string, tparam *types.TypeParam) string {
+=======
+func tparamExportName(prefix string, tparam *typeparams.TypeParam) string {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	assert(prefix != "")
 	name := tparam.Obj().Name()
 	if name == "_" {
@@ -1028,6 +1198,7 @@ func (w *exportWriter) value(typ types.Type, v constant.Value) {
 		w.int64(int64(v.Kind()))
 	}
 
+<<<<<<< HEAD
 	if v.Kind() == constant.Unknown {
 		// golang/go#60605: treat unknown constant values as if they have invalid type
 		//
@@ -1039,6 +1210,8 @@ func (w *exportWriter) value(typ types.Type, v constant.Value) {
 		return
 	}
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	switch b := typ.Underlying().(*types.Basic); b.Info() & types.IsConstType {
 	case types.IsBoolean:
 		w.bool(constant.BoolVal(v))
@@ -1095,6 +1268,7 @@ func constantToFloat(x constant.Value) *big.Float {
 	return &f
 }
 
+<<<<<<< HEAD
 func valueToRat(x constant.Value) *big.Rat {
 	// Convert little-endian to big-endian.
 	// I can't believe this is necessary.
@@ -1105,6 +1279,8 @@ func valueToRat(x constant.Value) *big.Rat {
 	return new(big.Rat).SetInt(new(big.Int).SetBytes(bytes))
 }
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // mpint exports a multi-precision integer.
 //
 // For unsigned types, small values are written out as a single
@@ -1314,6 +1490,7 @@ func (q *objQueue) popHead() types.Object {
 	q.head++
 	return obj
 }
+<<<<<<< HEAD
 
 // internalError represents an error generated inside this package.
 type internalError string
@@ -1330,3 +1507,5 @@ func (e internalError) Error() string { return "gcimporter: " + string(e) }
 func internalErrorf(format string, args ...interface{}) error {
 	return internalError(fmt.Sprintf(format, args...))
 }
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))

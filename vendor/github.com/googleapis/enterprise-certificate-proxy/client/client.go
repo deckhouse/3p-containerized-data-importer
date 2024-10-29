@@ -124,6 +124,7 @@ func (k *Key) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) (signed [
 	return
 }
 
+<<<<<<< HEAD
 // Encrypt encrypts a plaintext msg into ciphertext, using the specified encrypt opts.
 func (k *Key) Encrypt(_ io.Reader, msg []byte, opts any) (ciphertext []byte, err error) {
 	err = k.client.Call(encryptAPI, EncryptArgs{Plaintext: msg, Opts: opts}, &ciphertext)
@@ -136,6 +137,8 @@ func (k *Key) Decrypt(_ io.Reader, msg []byte, opts crypto.DecrypterOpts) (plain
 	return
 }
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // ErrCredUnavailable is a sentinel error that indicates ECP Cred is unavailable,
 // possibly due to missing config or missing binary path.
 var ErrCredUnavailable = errors.New("Cred is unavailable")

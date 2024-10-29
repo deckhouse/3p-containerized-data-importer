@@ -323,7 +323,11 @@ func (enc *Encoder) eElement(rv reflect.Value) {
 	case reflect.Interface:
 		enc.eElement(rv.Elem())
 	default:
+<<<<<<< HEAD
 		encPanic(fmt.Errorf("unexpected type: %s", fmtType(rv.Interface())))
+=======
+		encPanic(fmt.Errorf("unexpected type: %T", rv.Interface()))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 }
 
@@ -476,6 +480,7 @@ func (enc *Encoder) eStruct(key Key, rv reflect.Value, inline bool) {
 			}
 
 			frv := eindirect(rv.Field(i))
+<<<<<<< HEAD
 
 			if is32Bit {
 				// Copy so it works correct on 32bit archs; not clear why this
@@ -486,6 +491,8 @@ func (enc *Encoder) eStruct(key Key, rv reflect.Value, inline bool) {
 				copy(copyStart, start)
 				start = copyStart
 			}
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 			// Treat anonymous struct fields with tag names as though they are
 			// not anonymous, like encoding/json does.
@@ -510,7 +517,7 @@ func (enc *Encoder) eStruct(key Key, rv reflect.Value, inline bool) {
 	writeFields := func(fields [][]int) {
 		for _, fieldIndex := range fields {
 			fieldType := rt.FieldByIndex(fieldIndex)
-			fieldVal := rv.FieldByIndex(fieldIndex)
+			fieldVal := eindirect(rv.FieldByIndex(fieldIndex))
 
 			opts := getOptions(fieldType.Tag)
 			if opts.skip {
@@ -531,6 +538,12 @@ func (enc *Encoder) eStruct(key Key, rv reflect.Value, inline bool) {
 				keyName = opts.name
 			}
 
+<<<<<<< HEAD
+=======
+			if opts.omitempty && enc.isEmpty(fieldVal) {
+				continue
+			}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			if opts.omitzero && isZero(fieldVal) {
 				continue
 			}
@@ -672,7 +685,7 @@ func isZero(rv reflect.Value) bool {
 	return false
 }
 
-func isEmpty(rv reflect.Value) bool {
+func (enc *Encoder) isEmpty(rv reflect.Value) bool {
 	switch rv.Kind() {
 	case reflect.Array, reflect.Slice, reflect.Map, reflect.String:
 		return rv.Len() == 0
@@ -687,7 +700,11 @@ func isEmpty(rv reflect.Value) bool {
 		//   type b struct{ s []string }
 		//   s := a{field: b{s: []string{"AAA"}}}
 		for i := 0; i < rv.NumField(); i++ {
+<<<<<<< HEAD
 			if !isEmpty(rv.Field(i)) {
+=======
+			if !enc.isEmpty(rv.Field(i)) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				return false
 			}
 		}

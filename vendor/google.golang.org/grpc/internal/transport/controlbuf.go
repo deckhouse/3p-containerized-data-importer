@@ -193,7 +193,11 @@ type goAway struct {
 	code      http2.ErrCode
 	debugData []byte
 	headsUp   bool
+<<<<<<< HEAD
 	closeConn error // if set, loopyWriter will exit with this error
+=======
+	closeConn error // if set, loopyWriter will exit, resulting in conn closure
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 func (*goAway) isTransportResponseFrame() bool { return false }
@@ -489,12 +493,16 @@ type loopyWriter struct {
 	bdpEst        *bdpEstimator
 	draining      bool
 	conn          net.Conn
+<<<<<<< HEAD
 	logger        *grpclog.PrefixLogger
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 	// Side-specific handlers
 	ssGoAwayHandler func(*goAway) (bool, error)
 }
 
+<<<<<<< HEAD
 func newLoopyWriter(s side, fr *framer, cbuf *controlBuffer, bdpEst *bdpEstimator, conn net.Conn, logger *grpclog.PrefixLogger, goAwayHandler func(*goAway) (bool, error)) *loopyWriter {
 	var buf bytes.Buffer
 	l := &loopyWriter{
@@ -511,6 +519,22 @@ func newLoopyWriter(s side, fr *framer, cbuf *controlBuffer, bdpEst *bdpEstimato
 		conn:            conn,
 		logger:          logger,
 		ssGoAwayHandler: goAwayHandler,
+=======
+func newLoopyWriter(s side, fr *framer, cbuf *controlBuffer, bdpEst *bdpEstimator, conn net.Conn) *loopyWriter {
+	var buf bytes.Buffer
+	l := &loopyWriter{
+		side:          s,
+		cbuf:          cbuf,
+		sendQuota:     defaultWindowSize,
+		oiws:          defaultWindowSize,
+		estdStreams:   make(map[uint32]*outStream),
+		activeStreams: newOutStreamList(),
+		framer:        fr,
+		hBuf:          &buf,
+		hEnc:          hpack.NewEncoder(&buf),
+		bdpEst:        bdpEst,
+		conn:          conn,
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	return l
 }
@@ -536,6 +560,7 @@ const minBatchSize = 1000
 // size is too low to give stream goroutines a chance to fill it up.
 //
 // Upon exiting, if the error causing the exit is not an I/O error, run()
+<<<<<<< HEAD
 // flushes the underlying connection.  The connection is always left open to
 // allow different closing behavior on the client and server.
 func (l *loopyWriter) run() (err error) {
@@ -545,6 +570,18 @@ func (l *loopyWriter) run() (err error) {
 		}
 		if !isIOError(err) {
 			l.framer.writer.Flush()
+=======
+// flushes and closes the underlying connection.  Otherwise, the connection is
+// left open to allow the I/O error to be encountered by the reader instead.
+func (l *loopyWriter) run() (err error) {
+	defer func() {
+		if logger.V(logLevel) {
+			logger.Infof("transport: loopyWriter exiting with error: %v", err)
+		}
+		if !isIOError(err) {
+			l.framer.writer.Flush()
+			l.conn.Close()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		l.cbuf.finish()
 	}()

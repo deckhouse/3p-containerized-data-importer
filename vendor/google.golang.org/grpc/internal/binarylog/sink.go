@@ -25,8 +25,13 @@ import (
 	"sync"
 	"time"
 
+<<<<<<< HEAD
 	binlogpb "google.golang.org/grpc/binarylog/grpc_binarylog_v1"
 	"google.golang.org/protobuf/proto"
+=======
+	"github.com/golang/protobuf/proto"
+	binlogpb "google.golang.org/grpc/binarylog/grpc_binarylog_v1"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 )
 
 var (

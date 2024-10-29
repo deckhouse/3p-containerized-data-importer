@@ -115,7 +115,11 @@ func (h *Header) DecodeAndStrip(in []byte) (remain []byte, err error) {
 	b, in := in[:4], in[4:]
 	if string(b) != frameMagic {
 		if string(b[1:4]) != skippableFrameMagic || b[0]&0xf0 != 0x50 {
+<<<<<<< HEAD
 			return nil, ErrMagicMismatch
+=======
+			return ErrMagicMismatch
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 		if len(in) < 4 {
 			return nil, io.ErrUnexpectedEOF

@@ -138,9 +138,19 @@ func (b *dnsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts 
 		disableServiceConfig: opts.DisableServiceConfig,
 	}
 
+<<<<<<< HEAD
 	d.resolver, err = internal.NewNetResolver(target.URL.Host)
 	if err != nil {
 		return nil, err
+=======
+	if target.URL.Host == "" {
+		d.resolver = defaultResolver
+	} else {
+		d.resolver, err = customAuthorityResolver(target.URL.Host)
+		if err != nil {
+			return nil, err
+		}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 
 	d.wg.Add(1)

@@ -172,7 +172,11 @@ func parseServiceConfig(js string) *serviceconfig.ParseResult {
 	var rsc jsonSC
 	err := json.Unmarshal([]byte(js), &rsc)
 	if err != nil {
+<<<<<<< HEAD
 		logger.Warningf("grpc: unmarshalling service config %s: %v", js, err)
+=======
+		logger.Warningf("grpc: unmarshaling service config %s: %v", js, err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		return &serviceconfig.ParseResult{Err: err}
 	}
 	sc := ServiceConfig{
@@ -213,13 +217,25 @@ func parseServiceConfig(js string) *serviceconfig.ParseResult {
 		if m.Name == nil {
 			continue
 		}
+<<<<<<< HEAD
+=======
+		d, err := parseDuration(m.Timeout)
+		if err != nil {
+			logger.Warningf("grpc: unmarshaling service config %s: %v", js, err)
+			return &serviceconfig.ParseResult{Err: err}
+		}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 		mc := MethodConfig{
 			WaitForReady: m.WaitForReady,
 			Timeout:      (*time.Duration)(m.Timeout),
 		}
 		if mc.RetryPolicy, err = convertRetryPolicy(m.RetryPolicy); err != nil {
+<<<<<<< HEAD
 			logger.Warningf("grpc: unmarshalling service config %s: %v", js, err)
+=======
+			logger.Warningf("grpc: unmarshaling service config %s: %v", js, err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			return &serviceconfig.ParseResult{Err: err}
 		}
 		if m.MaxRequestMessageBytes != nil {
@@ -239,13 +255,21 @@ func parseServiceConfig(js string) *serviceconfig.ParseResult {
 		for i, n := range *m.Name {
 			path, err := n.generatePath()
 			if err != nil {
+<<<<<<< HEAD
 				logger.Warningf("grpc: error unmarshalling service config %s due to methodConfig[%d]: %v", js, i, err)
+=======
+				logger.Warningf("grpc: error unmarshaling service config %s due to methodConfig[%d]: %v", js, i, err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				return &serviceconfig.ParseResult{Err: err}
 			}
 
 			if _, ok := paths[path]; ok {
 				err = errDuplicatedName
+<<<<<<< HEAD
 				logger.Warningf("grpc: error unmarshalling service config %s due to methodConfig[%d]: %v", js, i, err)
+=======
+				logger.Warningf("grpc: error unmarshaling service config %s due to methodConfig[%d]: %v", js, i, err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				return &serviceconfig.ParseResult{Err: err}
 			}
 			paths[path] = struct{}{}

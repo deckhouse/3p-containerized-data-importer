@@ -2265,7 +2265,10 @@ const (
 	JobObjectExtendedLimitInformation           = 9
 	JobObjectGroupInformation                   = 11
 	JobObjectGroupInformationEx                 = 14
+<<<<<<< HEAD
 	JobObjectLimitViolationInformation          = 13
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	JobObjectLimitViolationInformation2         = 34
 	JobObjectNetRateControlInformation          = 32
 	JobObjectNotificationLimitInformation       = 12

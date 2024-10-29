@@ -13,7 +13,11 @@ type MetaData struct {
 	context Key // Used only during decoding.
 
 	keyInfo map[string]keyInfo
+<<<<<<< HEAD
 	mapping map[string]any
+=======
+	mapping map[string]interface{}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	keys    []Key
 	decoded map[string]struct{}
 	data    []byte // Input file; for errors.

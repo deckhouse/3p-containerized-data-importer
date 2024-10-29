@@ -16,7 +16,10 @@ import (
 	"time"
 
 	"go.opencensus.io/plugin/ochttp"
+<<<<<<< HEAD
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"golang.org/x/net/http2"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/googleapi/transport"
@@ -34,7 +37,11 @@ func NewClient(ctx context.Context, opts ...option.ClientOption) (*http.Client, 
 	if err != nil {
 		return nil, "", err
 	}
+<<<<<<< HEAD
 	clientCertSource, dialTLSContext, endpoint, err := internal.GetHTTPTransportConfigAndEndpoint(settings)
+=======
+	clientCertSource, endpoint, err := internal.GetClientCertificateSourceAndEndpoint(settings)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	if err != nil {
 		return nil, "", err
 	}

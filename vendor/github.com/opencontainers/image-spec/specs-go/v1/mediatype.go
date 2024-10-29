@@ -82,4 +82,13 @@ const (
 	// layers.
 	// https://github.com/opencontainers/image-spec/pull/965
 	MediaTypeImageLayerNonDistributableZstd = "application/vnd.oci.image.layer.nondistributable.v1.tar+zstd"
+<<<<<<< HEAD
+=======
+
+	// MediaTypeImageConfig specifies the media type for the image configuration.
+	MediaTypeImageConfig = "application/vnd.oci.image.config.v1+json"
+
+	// MediaTypeScratch specifies the media type for an unused blob containing the value `{}`
+	MediaTypeScratch = "application/vnd.oci.scratch.v1+json"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 )

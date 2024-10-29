@@ -20,6 +20,13 @@ How to get your contributions merged smoothly and quickly.
   both author's & review's time is wasted. Create more PRs to address different
   concerns and everyone will be happy.
 
+<<<<<<< HEAD
+=======
+- For speculative changes, consider opening an issue and discussing it first. If
+  you are suggesting a behavioral or API change, consider starting with a [gRFC 
+  proposal](https://github.com/grpc/proposal).
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 - If you are searching for features to work on, issues labeled [Status: Help
   Wanted](https://github.com/grpc/grpc-go/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22Status%3A+Help+Wanted%22)
   is a great place to start. These issues are well-documented and usually can be

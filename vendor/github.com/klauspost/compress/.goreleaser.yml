@@ -3,6 +3,10 @@
 before:
   hooks:
     - ./gen.sh
+<<<<<<< HEAD
+=======
+    - go install mvdan.cc/garble@v0.9.3
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 builds:
   -

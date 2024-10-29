@@ -282,6 +282,49 @@ type awsRequest struct {
 	Headers []awsRequestHeader `json:"headers"`
 }
 
+func (cs awsCredentialSource) validateMetadataServers() error {
+	if err := cs.validateMetadataServer(cs.RegionURL, "region_url"); err != nil {
+		return err
+	}
+	if err := cs.validateMetadataServer(cs.CredVerificationURL, "url"); err != nil {
+		return err
+	}
+	return cs.validateMetadataServer(cs.IMDSv2SessionTokenURL, "imdsv2_session_token_url")
+}
+
+var validHostnames []string = []string{"169.254.169.254", "fd00:ec2::254"}
+
+func (cs awsCredentialSource) isValidMetadataServer(metadataUrl string) bool {
+	if metadataUrl == "" {
+		// Zero value means use default, which is valid.
+		return true
+	}
+
+	u, err := url.Parse(metadataUrl)
+	if err != nil {
+		// Unparseable URL means invalid
+		return false
+	}
+
+	for _, validHostname := range validHostnames {
+		if u.Hostname() == validHostname {
+			// If it's one of the valid hostnames, everything is good
+			return true
+		}
+	}
+
+	// hostname not found in our allowlist, so not valid
+	return false
+}
+
+func (cs awsCredentialSource) validateMetadataServer(metadataUrl, urlName string) error {
+	if !cs.isValidMetadataServer(metadataUrl) {
+		return fmt.Errorf("oauth2/google: invalid hostname %s for %s", metadataUrl, urlName)
+	}
+
+	return nil
+}
+
 func (cs awsCredentialSource) doRequest(req *http.Request) (*http.Response, error) {
 	if cs.client == nil {
 		cs.client = oauth2.NewClient(cs.ctx, nil)
@@ -300,6 +343,7 @@ func canRetrieveSecurityCredentialFromEnvironment() bool {
 	return getenv(awsAccessKeyId) != "" && getenv(awsSecretAccessKey) != ""
 }
 
+<<<<<<< HEAD:vendor/golang.org/x/oauth2/google/externalaccount/aws.go
 func (cs awsCredentialSource) shouldUseMetadataServer() bool {
 	return cs.awsSecurityCredentialsSupplier == nil && (!canRetrieveRegionFromEnvironment() || !canRetrieveSecurityCredentialFromEnvironment())
 }
@@ -319,6 +363,16 @@ func (cs awsCredentialSource) subjectToken() (string, error) {
 	if cs.requestSigner == nil {
 		headers := make(map[string]string)
 		if cs.shouldUseMetadataServer() {
+=======
+func shouldUseMetadataServer() bool {
+	return !canRetrieveRegionFromEnvironment() || !canRetrieveSecurityCredentialFromEnvironment()
+}
+
+func (cs awsCredentialSource) subjectToken() (string, error) {
+	if cs.requestSigner == nil {
+		headers := make(map[string]string)
+		if shouldUseMetadataServer() {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1)):vendor/golang.org/x/oauth2/google/internal/externalaccount/aws.go
 			awsSessionToken, err := cs.getAWSSessionToken()
 			if err != nil {
 				return "", err
@@ -432,12 +486,17 @@ func (cs *awsCredentialSource) getAWSSessionToken() (string, error) {
 }
 
 func (cs *awsCredentialSource) getRegion(headers map[string]string) (string, error) {
+<<<<<<< HEAD:vendor/golang.org/x/oauth2/google/externalaccount/aws.go
 	if cs.awsSecurityCredentialsSupplier != nil {
 		return cs.awsSecurityCredentialsSupplier.AwsRegion(cs.ctx, cs.supplierOptions)
 	}
 	if canRetrieveRegionFromEnvironment() {
 		if envAwsRegion := getenv(awsRegion); envAwsRegion != "" {
 			cs.region = envAwsRegion
+=======
+	if canRetrieveRegionFromEnvironment() {
+		if envAwsRegion := getenv(awsRegion); envAwsRegion != "" {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1)):vendor/golang.org/x/oauth2/google/internal/externalaccount/aws.go
 			return envAwsRegion, nil
 		}
 		return getenv("AWS_DEFAULT_REGION"), nil
@@ -480,6 +539,7 @@ func (cs *awsCredentialSource) getRegion(headers map[string]string) (string, err
 	return string(respBody[:respBodyEnd]), nil
 }
 
+<<<<<<< HEAD:vendor/golang.org/x/oauth2/google/externalaccount/aws.go
 func (cs *awsCredentialSource) getSecurityCredentials(headers map[string]string) (result *AwsSecurityCredentials, err error) {
 	if cs.awsSecurityCredentialsSupplier != nil {
 		return cs.awsSecurityCredentialsSupplier.AwsSecurityCredentials(cs.ctx, cs.supplierOptions)
@@ -489,6 +549,14 @@ func (cs *awsCredentialSource) getSecurityCredentials(headers map[string]string)
 			AccessKeyID:     getenv(awsAccessKeyId),
 			SecretAccessKey: getenv(awsSecretAccessKey),
 			SessionToken:    getenv(awsSessionToken),
+=======
+func (cs *awsCredentialSource) getSecurityCredentials(headers map[string]string) (result awsSecurityCredentials, err error) {
+	if canRetrieveSecurityCredentialFromEnvironment() {
+		return awsSecurityCredentials{
+			AccessKeyID:     getenv(awsAccessKeyId),
+			SecretAccessKey: getenv(awsSecretAccessKey),
+			SecurityToken:   getenv(awsSessionToken),
+>>>>>>> b3ea800a0 (feat: add image exporter (#1)):vendor/golang.org/x/oauth2/google/internal/externalaccount/aws.go
 		}, nil
 	}
 

@@ -175,6 +175,7 @@ func NewClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 }
 
 func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, method string, opts ...CallOption) (_ ClientStream, err error) {
+<<<<<<< HEAD
 	// Start tracking the RPC for idleness purposes. This is where a stream is
 	// created for both streaming and unary RPCs, and hence is a good place to
 	// track active RPC count.
@@ -186,6 +187,9 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 	opts = append([]CallOption{OnFinish(func(error) { cc.idlenessMgr.OnCallEnd() })}, opts...)
 
 	if md, added, ok := metadataFromOutgoingContextRaw(ctx); ok {
+=======
+	if md, added, ok := metadata.FromOutgoingContextRaw(ctx); ok {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		// validate md
 		if err := imetadata.Validate(md); err != nil {
 			return nil, status.Error(codes.Internal, err.Error())
@@ -442,7 +446,11 @@ func (cs *clientStream) newAttemptLocked(isTransparent bool) (*csAttempt, error)
 		ctx = newTraceContext(ctx, trInfo.tr)
 	}
 
+<<<<<<< HEAD
 	if cs.cc.parsedTarget.URL.Scheme == internal.GRPCResolverSchemeExtraMetadata {
+=======
+	if cs.cc.parsedTarget.URL.Scheme == "xds" {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		// Add extra metadata (metadata that will be added by transport) to context
 		// so the balancer can see them.
 		ctx = grpcutil.WithExtraMetadata(ctx, metadata.Pairs(
@@ -486,7 +494,11 @@ func (a *csAttempt) newStream() error {
 	// It is safe to overwrite the csAttempt's context here, since all state
 	// maintained in it are local to the attempt. When the attempt has to be
 	// retried, a new instance of csAttempt will be created.
+<<<<<<< HEAD
 	if a.pickResult.Metadata != nil {
+=======
+	if a.pickResult.Metatada != nil {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		// We currently do not have a function it the metadata package which
 		// merges given metadata with existing metadata in a context. Existing
 		// function `AppendToOutgoingContext()` takes a variadic argument of key
@@ -496,7 +508,11 @@ func (a *csAttempt) newStream() error {
 		// in a form passable to AppendToOutgoingContext(), or create a version
 		// of AppendToOutgoingContext() that accepts a metadata.MD.
 		md, _ := metadata.FromOutgoingContext(a.ctx)
+<<<<<<< HEAD
 		md = metadata.Join(md, a.pickResult.Metadata)
+=======
+		md = metadata.Join(md, a.pickResult.Metatada)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		a.ctx = metadata.NewOutgoingContext(a.ctx, md)
 	}
 
@@ -940,6 +956,27 @@ func (cs *clientStream) RecvMsg(m any) error {
 	if err != nil || !cs.desc.ServerStreams {
 		// err != nil or non-server-streaming indicates end of stream.
 		cs.finish(err)
+<<<<<<< HEAD
+=======
+
+		if len(cs.binlogs) != 0 {
+			// finish will not log Trailer. Log Trailer here.
+			logEntry := &binarylog.ServerTrailer{
+				OnClientSide: true,
+				Trailer:      cs.Trailer(),
+				Err:          err,
+			}
+			if logEntry.Err == io.EOF {
+				logEntry.Err = nil
+			}
+			if peer, ok := peer.FromContext(cs.Context()); ok {
+				logEntry.PeerAddr = peer.Addr
+			}
+			for _, binlog := range cs.binlogs {
+				binlog.Log(cs.ctx, logEntry)
+			}
+		}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	return err
 }
@@ -997,6 +1034,7 @@ func (cs *clientStream) finish(err error) {
 	}
 
 	cs.mu.Unlock()
+<<<<<<< HEAD
 	// Only one of cancel or trailer needs to be logged.
 	if len(cs.binlogs) != 0 {
 		switch err {
@@ -1019,6 +1057,19 @@ func (cs *clientStream) finish(err error) {
 			for _, binlog := range cs.binlogs {
 				binlog.Log(cs.ctx, logEntry)
 			}
+=======
+	// For binary logging. only log cancel in finish (could be caused by RPC ctx
+	// canceled or ClientConn closed). Trailer will be logged in RecvMsg.
+	//
+	// Only one of cancel or trailer needs to be logged. In the cases where
+	// users don't call RecvMsg, users must have already canceled the RPC.
+	if len(cs.binlogs) != 0 && status.Code(err) == codes.Canceled {
+		c := &binarylog.Cancel{
+			OnClientSide: true,
+		}
+		for _, binlog := range cs.binlogs {
+			binlog.Log(cs.ctx, c)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		}
 	}
 	if err == nil {
@@ -1518,7 +1569,11 @@ type ServerStream interface {
 	//
 	// It is not safe to modify the message after calling SendMsg. Tracing
 	// libraries and stats handlers may use the message lazily.
+<<<<<<< HEAD
 	SendMsg(m any) error
+=======
+	SendMsg(m interface{}) error
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// RecvMsg blocks until it receives a message into m or the stream is
 	// done. It returns io.EOF when the client has performed a CloseSend. On
 	// any non-EOF error, the stream is aborted and the error contains the

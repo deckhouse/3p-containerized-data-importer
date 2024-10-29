@@ -330,6 +330,7 @@ func NewServerTransport(conn net.Conn, config *ServerConfig) (_ ServerTransport,
 	t.handleSettings(sf)
 
 	go func() {
+<<<<<<< HEAD
 		t.loopy = newLoopyWriter(serverSide, t.framer, t.controlBuf, t.bdpEst, t.conn, t.logger, t.outgoingGoAwayHandler)
 		err := t.loopy.run()
 		close(t.loopyWriterDone)
@@ -351,6 +352,12 @@ func NewServerTransport(conn net.Conn, config *ServerConfig) (_ ServerTransport,
 			}
 			t.conn.Close()
 		}
+=======
+		t.loopy = newLoopyWriter(serverSide, t.framer, t.controlBuf, t.bdpEst, t.conn)
+		t.loopy.ssGoAwayHandler = t.outgoingGoAwayHandler
+		t.loopy.run()
+		close(t.writerDone)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}()
 	go t.keepalive()
 	return t, nil
@@ -358,7 +365,11 @@ func NewServerTransport(conn net.Conn, config *ServerConfig) (_ ServerTransport,
 
 // operateHeaders takes action on the decoded headers. Returns an error if fatal
 // error encountered and transport needs to close, otherwise returns nil.
+<<<<<<< HEAD
 func (t *http2Server) operateHeaders(ctx context.Context, frame *http2.MetaHeadersFrame, handle func(*Stream)) error {
+=======
+func (t *http2Server) operateHeaders(frame *http2.MetaHeadersFrame, handle func(*Stream), traceCtx func(context.Context, string) context.Context) error {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// Acquire max stream ID lock for entire duration
 	t.maxStreamMu.Lock()
 	defer t.maxStreamMu.Unlock()
@@ -453,7 +464,11 @@ func (t *http2Server) operateHeaders(ctx context.Context, frame *http2.MetaHeade
 			v, err := decodeMetadataHeader(hf.Name, hf.Value)
 			if err != nil {
 				headerError = status.Newf(codes.Internal, "malformed binary metadata %q in header %q: %v", hf.Value, hf.Name, err)
+<<<<<<< HEAD
 				t.logger.Warningf("Failed to decode metadata header (%q, %q): %v", hf.Name, hf.Value, err)
+=======
+				logger.Warningf("Failed to decode metadata header (%q, %q): %v", hf.Name, hf.Value, err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				break
 			}
 			mdata[hf.Name] = append(mdata[hf.Name], v)
@@ -609,6 +624,22 @@ func (t *http2Server) operateHeaders(ctx context.Context, frame *http2.MetaHeade
 	s.requestRead = func(n int) {
 		t.adjustWindow(s, uint32(n))
 	}
+<<<<<<< HEAD
+=======
+	s.ctx = traceCtx(s.ctx, s.method)
+	for _, sh := range t.stats {
+		s.ctx = sh.TagRPC(s.ctx, &stats.RPCTagInfo{FullMethodName: s.method})
+		inHeader := &stats.InHeader{
+			FullMethod:  s.method,
+			RemoteAddr:  t.remoteAddr,
+			LocalAddr:   t.localAddr,
+			Compression: s.recvCompress,
+			WireLength:  int(frame.Header().Length),
+			Header:      mdata.Copy(),
+		}
+		sh.HandleRPC(s.ctx, inHeader)
+	}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	s.ctxDone = s.ctx.Done()
 	s.wq = newWriteQuota(defaultWriteQuota, s.ctxDone)
 	s.trReader = &transportReader{
@@ -663,11 +694,19 @@ func (t *http2Server) HandleStreams(ctx context.Context, handle func(*Stream)) {
 				}
 				continue
 			}
+<<<<<<< HEAD
+=======
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
+				t.Close(err)
+				return
+			}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			t.Close(err)
 			return
 		}
 		switch frame := frame.(type) {
 		case *http2.MetaHeadersFrame:
+<<<<<<< HEAD
 			if err := t.operateHeaders(ctx, frame, handle); err != nil {
 				// Any error processing client headers, e.g. invalid stream ID,
 				// is considered a protocol violation.
@@ -677,6 +716,11 @@ func (t *http2Server) HandleStreams(ctx context.Context, handle func(*Stream)) {
 					closeConn: err,
 				})
 				continue
+=======
+			if err := t.operateHeaders(frame, handle, traceCtx); err != nil {
+				t.Close(err)
+				break
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			}
 		case *http2.DataFrame:
 			t.handleData(frame)
@@ -1208,7 +1252,11 @@ func (t *http2Server) keepalive() {
 				continue
 			}
 			if outstandingPing && kpTimeoutLeft <= 0 {
+<<<<<<< HEAD
 				t.Close(fmt.Errorf("keepalive ping not acked within timeout %s", t.kp.Timeout))
+=======
+				t.Close(fmt.Errorf("keepalive ping not acked within timeout %s", t.kp.Time))
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				return
 			}
 			if !outstandingPing {
@@ -1241,8 +1289,13 @@ func (t *http2Server) Close(err error) {
 		t.mu.Unlock()
 		return
 	}
+<<<<<<< HEAD
 	if t.logger.V(logLevel) {
 		t.logger.Infof("Closing: %v", err)
+=======
+	if logger.V(logLevel) {
+		logger.Infof("transport: closing: %v", err)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	t.state = closing
 	streams := t.activeStreams
@@ -1330,7 +1383,11 @@ func (t *http2Server) Drain(debugData string) {
 		return
 	}
 	t.drainEvent = grpcsync.NewEvent()
+<<<<<<< HEAD
 	t.controlBuf.put(&goAway{code: http2.ErrCodeNo, debugData: []byte(debugData), headsUp: true})
+=======
+	t.controlBuf.put(&goAway{code: http2.ErrCodeNo, debugData: []byte{}, headsUp: true})
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 var goAwayPing = &ping{data: [8]byte{1, 6, 1, 8, 0, 3, 3, 9}}
@@ -1359,7 +1416,10 @@ func (t *http2Server) outgoingGoAwayHandler(g *goAway) (bool, error) {
 		if err := t.framer.fr.WriteGoAway(sid, g.code, g.debugData); err != nil {
 			return false, err
 		}
+<<<<<<< HEAD
 		t.framer.writer.Flush()
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		if retErr != nil {
 			return false, retErr
 		}

@@ -69,8 +69,15 @@ func (pw *pickerWrapper) updatePicker(p balancer.Picker) {
 //   - wraps the done function in the passed in result to increment the calls
 //     failed or calls succeeded channelz counter before invoking the actual
 //     done function.
+<<<<<<< HEAD
 func doneChannelzWrapper(acbw *acBalancerWrapper, result *balancer.PickResult) {
 	ac := acbw.ac
+=======
+func doneChannelzWrapper(acw *acBalancerWrapper, result *balancer.PickResult) {
+	acw.mu.Lock()
+	ac := acw.ac
+	acw.mu.Unlock()
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	ac.incrCallsStarted()
 	done := result.Done
 	result.Done = func(b balancer.DoneInfo) {
@@ -178,7 +185,11 @@ func (pw *pickerWrapper) pick(ctx context.Context, failfast bool, info balancer.
 		}
 		if t := acbw.ac.getReadyTransport(); t != nil {
 			if channelz.IsOn() {
+<<<<<<< HEAD
 				doneChannelzWrapper(acbw, &pickResult)
+=======
+				doneChannelzWrapper(acw, &pickResult)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 				return t, pickResult, nil
 			}
 			return t, pickResult, nil

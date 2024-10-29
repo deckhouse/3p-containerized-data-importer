@@ -2,6 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+<<<<<<< HEAD
+=======
+//go:build go1.18
+// +build go1.18
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 package gcimporter
 
 import "go/types"

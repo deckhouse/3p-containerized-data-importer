@@ -9,7 +9,10 @@ package packages
 import (
 	"context"
 	"encoding/json"
+<<<<<<< HEAD
 	"errors"
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -17,6 +20,10 @@ import (
 	"go/token"
 	"go/types"
 	"io"
+<<<<<<< HEAD
+=======
+	"io/ioutil"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"log"
 	"os"
 	"path/filepath"
@@ -25,6 +32,7 @@ import (
 	"sync"
 	"time"
 
+<<<<<<< HEAD
 	"golang.org/x/sync/errgroup"
 
 	"golang.org/x/tools/go/gcexportdata"
@@ -32,11 +40,19 @@ import (
 	"golang.org/x/tools/internal/packagesinternal"
 	"golang.org/x/tools/internal/typesinternal"
 	"golang.org/x/tools/internal/versions"
+=======
+	"golang.org/x/tools/go/gcexportdata"
+	"golang.org/x/tools/internal/gocommand"
+	"golang.org/x/tools/internal/packagesinternal"
+	"golang.org/x/tools/internal/typeparams"
+	"golang.org/x/tools/internal/typesinternal"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 )
 
 // A LoadMode controls the amount of detail to return when loading.
 // The bits below can be combined to specify which fields should be
 // filled in the result packages.
+<<<<<<< HEAD
 //
 // The zero value is a special case, equivalent to combining
 // the NeedName, NeedFiles, and NeedCompiledGoFiles bits.
@@ -51,6 +67,12 @@ import (
 // - https://github.com/golang/go/issues/56677
 // - https://github.com/golang/go/issues/58726
 // - https://github.com/golang/go/issues/63517
+=======
+// The zero value is a special case, equivalent to combining
+// the NeedName, NeedFiles, and NeedCompiledGoFiles bits.
+// ID and Errors (if present) will always be filled.
+// Load may return more information than requested.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 type LoadMode int
 
 const (
@@ -133,6 +155,7 @@ const (
 
 // A Config specifies details about how packages should be loaded.
 // The zero value is a valid configuration.
+<<<<<<< HEAD
 //
 // Calls to Load do not modify this struct.
 //
@@ -141,13 +164,22 @@ const (
 // may modify hidden fields, so concurrent calls to [Load] must not
 // use the same Config. But perhaps we should reestablish the
 // documented invariant.
+=======
+// Calls to Load do not modify this struct.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 type Config struct {
 	// Mode controls the level of information returned for each package.
 	Mode LoadMode
 
 	// Context specifies the context for the load operation.
+<<<<<<< HEAD
 	// Cancelling the context may cause [Load] to abort and
 	// return an error.
+=======
+	// If the context is cancelled, the loader may stop early
+	// and return an ErrCancelled error.
+	// If Context is nil, the load cannot be cancelled.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	Context context.Context
 
 	// Logf is the logger for the config.
@@ -216,6 +248,7 @@ type Config struct {
 	// setting Tests may have no effect.
 	Tests bool
 
+<<<<<<< HEAD
 	// Overlay is a mapping from absolute file paths to file contents.
 	//
 	// For each map entry, [Load] uses the alternative file
@@ -233,6 +266,50 @@ type Config struct {
 	// goListOverlayFile is the JSON file that encodes the Overlay
 	// mapping, used by 'go list -overlay=...'
 	goListOverlayFile string
+=======
+	// Overlay provides a mapping of absolute file paths to file contents.
+	// If the file with the given path already exists, the parser will use the
+	// alternative file contents provided by the map.
+	//
+	// Overlays provide incomplete support for when a given file doesn't
+	// already exist on disk. See the package doc above for more details.
+	Overlay map[string][]byte
+}
+
+// driver is the type for functions that query the build system for the
+// packages named by the patterns.
+type driver func(cfg *Config, patterns ...string) (*driverResponse, error)
+
+// driverResponse contains the results for a driver query.
+type driverResponse struct {
+	// NotHandled is returned if the request can't be handled by the current
+	// driver. If an external driver returns a response with NotHandled, the
+	// rest of the driverResponse is ignored, and go/packages will fallback
+	// to the next driver. If go/packages is extended in the future to support
+	// lists of multiple drivers, go/packages will fall back to the next driver.
+	NotHandled bool
+
+	// Sizes, if not nil, is the types.Sizes to use when type checking.
+	Sizes *types.StdSizes
+
+	// Roots is the set of package IDs that make up the root packages.
+	// We have to encode this separately because when we encode a single package
+	// we cannot know if it is one of the roots as that requires knowledge of the
+	// graph it is part of.
+	Roots []string `json:",omitempty"`
+
+	// Packages is the full set of packages in the graph.
+	// The packages are not connected into a graph.
+	// The Imports if populated will be stubs that only have their ID set.
+	// Imports will be connected and then type and syntax information added in a
+	// later pass (see refine).
+	Packages []*Package
+
+	// GoVersion is the minor version number used by the driver
+	// (e.g. the go command on the PATH) when selecting .go files.
+	// Zero means unknown.
+	GoVersion int
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // Load loads and returns the Go packages named by the given patterns.
@@ -240,6 +317,7 @@ type Config struct {
 // Config specifies loading options;
 // nil behaves the same as an empty Config.
 //
+<<<<<<< HEAD
 // The [Config.Mode] field is a set of bits that determine what kinds
 // of information should be computed and returned. Modes that require
 // more information tend to be slower. See [LoadMode] for details
@@ -256,6 +334,10 @@ type Config struct {
 //
 // If any of the patterns was invalid as defined by the
 // underlying build system, Load returns an error.
+=======
+// Load returns an error if any of the patterns was invalid
+// as defined by the underlying build system.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // It may return an empty list of packages without an error,
 // for instance for an empty expansion of a valid wildcard.
 // Errors associated with a particular package are recorded in the
@@ -264,6 +346,7 @@ type Config struct {
 // proceeding with further analysis. The PrintErrors function is
 // provided for convenient display of all errors.
 func Load(cfg *Config, patterns ...string) ([]*Package, error) {
+<<<<<<< HEAD
 	ld := newLoader(cfg)
 	response, external, err := defaultDriver(&ld.Config, patterns...)
 	if err != nil {
@@ -290,12 +373,22 @@ func Load(cfg *Config, patterns ...string) ([]*Package, error) {
 	}
 
 	return ld.refine(response)
+=======
+	l := newLoader(cfg)
+	response, err := defaultDriver(&l.Config, patterns...)
+	if err != nil {
+		return nil, err
+	}
+	l.sizes = response.Sizes
+	return l.refine(response)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 }
 
 // defaultDriver is a driver that implements go/packages' fallback behavior.
 // It will try to request to an external driver, if one exists. If there's
 // no external driver, or the driver returns a response with NotHandled set,
 // defaultDriver will fall back to the go list driver.
+<<<<<<< HEAD
 // The boolean result indicates that an external driver handled the request.
 func defaultDriver(cfg *Config, patterns ...string) (*DriverResponse, bool, error) {
 	const (
@@ -420,6 +513,23 @@ func mergeResponses(responses ...*DriverResponse) *DriverResponse {
 //
 // It also defines part of the JSON schema of [DriverResponse].
 // See the package documentation for an overview.
+=======
+func defaultDriver(cfg *Config, patterns ...string) (*driverResponse, error) {
+	driver := findExternalDriver(cfg)
+	if driver == nil {
+		driver = goListDriver
+	}
+	response, err := driver(cfg, patterns...)
+	if err != nil {
+		return response, err
+	} else if response.NotHandled {
+		return goListDriver(cfg, patterns...)
+	}
+	return response, nil
+}
+
+// A Package describes a loaded Go package.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 type Package struct {
 	// ID is a unique identifier for a package,
 	// in a syntax provided by the underlying build system.
@@ -443,9 +553,12 @@ type Package struct {
 	TypeErrors []types.Error
 
 	// GoFiles lists the absolute file paths of the package's Go source files.
+<<<<<<< HEAD
 	// It may include files that should not be compiled, for example because
 	// they contain non-matching build tags, are documentary pseudo-files such as
 	// unsafe/unsafe.go or builtin/builtin.go, or are subject to cgo preprocessing.
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	GoFiles []string
 
 	// CompiledGoFiles lists the absolute file paths of the package's source
@@ -478,6 +591,7 @@ type Package struct {
 	// to corresponding loaded Packages.
 	Imports map[string]*Package
 
+<<<<<<< HEAD
 	// Module is the module information for the package if it exists.
 	//
 	// Note: it may be missing for std and cmd; see Go issue #65816.
@@ -485,10 +599,13 @@ type Package struct {
 
 	// -- The following fields are not part of the driver JSON schema. --
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// Types provides type information for the package.
 	// The NeedTypes LoadMode bit sets this field for packages matching the
 	// patterns; type information for dependencies may be missing or incomplete,
 	// unless NeedDeps and NeedImports are also set.
+<<<<<<< HEAD
 	//
 	// Each call to [Load] returns a consistent set of type
 	// symbols, as defined by the comment at [types.Identical].
@@ -502,6 +619,17 @@ type Package struct {
 	// IllTyped indicates whether the package or any dependency contains errors.
 	// It is set only when Types is set.
 	IllTyped bool `json:"-"`
+=======
+	Types *types.Package
+
+	// Fset provides position information for Types, TypesInfo, and Syntax.
+	// It is set only when Types is set.
+	Fset *token.FileSet
+
+	// IllTyped indicates whether the package or any dependency contains errors.
+	// It is set only when Types is set.
+	IllTyped bool
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 	// Syntax is the package's syntax trees, for the files listed in CompiledGoFiles.
 	//
@@ -511,6 +639,7 @@ type Package struct {
 	//
 	// Syntax is kept in the same order as CompiledGoFiles, with the caveat that nils are
 	// removed.  If parsing returned nil, Syntax may be shorter than CompiledGoFiles.
+<<<<<<< HEAD
 	Syntax []*ast.File `json:"-"`
 
 	// TypesInfo provides type information about the package's syntax trees.
@@ -521,18 +650,37 @@ type Package struct {
 	TypesSizes types.Sizes `json:"-"`
 
 	// -- internal --
+=======
+	Syntax []*ast.File
+
+	// TypesInfo provides type information about the package's syntax trees.
+	// It is set only when Syntax is set.
+	TypesInfo *types.Info
+
+	// TypesSizes provides the effective size function for types in TypesInfo.
+	TypesSizes types.Sizes
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 	// forTest is the package under test, if any.
 	forTest string
 
 	// depsErrors is the DepsErrors field from the go list response, if any.
 	depsErrors []*packagesinternal.PackageError
+<<<<<<< HEAD
 }
 
 // Module provides module information for a package.
 //
 // It also defines part of the JSON schema of [DriverResponse].
 // See the package documentation for an overview.
+=======
+
+	// module is the module information for the package if it exists.
+	Module *Module
+}
+
+// Module provides module information for a package.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 type Module struct {
 	Path      string       // module path
 	Version   string       // module version
@@ -558,6 +706,15 @@ func init() {
 	packagesinternal.GetDepsErrors = func(p interface{}) []*packagesinternal.PackageError {
 		return p.(*Package).depsErrors
 	}
+<<<<<<< HEAD
+=======
+	packagesinternal.GetGoCmdRunner = func(config interface{}) *gocommand.Runner {
+		return config.(*Config).gocmdRunner
+	}
+	packagesinternal.SetGoCmdRunner = func(config interface{}, runner *gocommand.Runner) {
+		config.(*Config).gocmdRunner = runner
+	}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	packagesinternal.SetModFile = func(config interface{}, value string) {
 		config.(*Config).modFile = value
 	}
@@ -665,7 +822,10 @@ func (p *Package) UnmarshalJSON(b []byte) error {
 		OtherFiles:      flat.OtherFiles,
 		EmbedFiles:      flat.EmbedFiles,
 		EmbedPatterns:   flat.EmbedPatterns,
+<<<<<<< HEAD
 		IgnoredFiles:    flat.IgnoredFiles,
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		ExportFile:      flat.ExportFile,
 	}
 	if len(flat.Imports) > 0 {
@@ -695,7 +855,11 @@ type loaderPackage struct {
 type loader struct {
 	pkgs map[string]*loaderPackage
 	Config
+<<<<<<< HEAD
 	sizes        types.Sizes // non-nil if needed by mode
+=======
+	sizes        types.Sizes
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	parseCache   map[string]*parseValue
 	parseCacheMu sync.Mutex
 	exportMu     sync.Mutex // enforces mutual exclusion of exportdata operations
@@ -773,9 +937,15 @@ func newLoader(cfg *Config) *loader {
 	return ld
 }
 
+<<<<<<< HEAD
 // refine connects the supplied packages into a graph and then adds type
 // and syntax information as requested by the LoadMode.
 func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
+=======
+// refine connects the supplied packages into a graph and then adds type and
+// and syntax information as requested by the LoadMode.
+func (ld *loader) refine(response *driverResponse) ([]*Package, error) {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	roots := response.Roots
 	rootMap := make(map[string]int, len(roots))
 	for i, root := range roots {
@@ -820,6 +990,7 @@ func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
 		}
 	}
 
+<<<<<<< HEAD
 	if ld.Mode&NeedImports != 0 {
 		// Materialize the import graph.
 
@@ -852,6 +1023,41 @@ func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
 			lpkg.color = grey
 			stack = append(stack, lpkg) // push
 			stubs := lpkg.Imports       // the structure form has only stubs with the ID in the Imports
+=======
+	// Materialize the import graph.
+
+	const (
+		white = 0 // new
+		grey  = 1 // in progress
+		black = 2 // complete
+	)
+
+	// visit traverses the import graph, depth-first,
+	// and materializes the graph as Packages.Imports.
+	//
+	// Valid imports are saved in the Packages.Import map.
+	// Invalid imports (cycles and missing nodes) are saved in the importErrors map.
+	// Thus, even in the presence of both kinds of errors, the Import graph remains a DAG.
+	//
+	// visit returns whether the package needs src or has a transitive
+	// dependency on a package that does. These are the only packages
+	// for which we load source code.
+	var stack []*loaderPackage
+	var visit func(lpkg *loaderPackage) bool
+	var srcPkgs []*loaderPackage
+	visit = func(lpkg *loaderPackage) bool {
+		switch lpkg.color {
+		case black:
+			return lpkg.needsrc
+		case grey:
+			panic("internal error: grey node")
+		}
+		lpkg.color = grey
+		stack = append(stack, lpkg) // push
+		stubs := lpkg.Imports       // the structure form has only stubs with the ID in the Imports
+		// If NeedImports isn't set, the imports fields will all be zeroed out.
+		if ld.Mode&NeedImports != 0 {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			lpkg.Imports = make(map[string]*Package, len(stubs))
 			for importPath, ipkg := range stubs {
 				var importErr error
@@ -875,6 +1081,7 @@ func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
 				}
 				lpkg.Imports[importPath] = imp.Package
 			}
+<<<<<<< HEAD
 
 			// Complete type information is required for the
 			// immediate dependencies of each source package.
@@ -895,10 +1102,32 @@ func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
 			return lpkg.needsrc
 		}
 
+=======
+		}
+		if lpkg.needsrc {
+			srcPkgs = append(srcPkgs, lpkg)
+		}
+		if ld.Mode&NeedTypesSizes != 0 {
+			lpkg.TypesSizes = ld.sizes
+		}
+		stack = stack[:len(stack)-1] // pop
+		lpkg.color = black
+
+		return lpkg.needsrc
+	}
+
+	if ld.Mode&NeedImports == 0 {
+		// We do this to drop the stub import packages that we are not even going to try to resolve.
+		for _, lpkg := range initial {
+			lpkg.Imports = nil
+		}
+	} else {
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		// For each initial package, create its import DAG.
 		for _, lpkg := range initial {
 			visit(lpkg)
 		}
+<<<<<<< HEAD
 
 	} else {
 		// !NeedImports: drop the stub (ID-only) import packages
@@ -908,6 +1137,19 @@ func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
 		}
 	}
 
+=======
+	}
+	if ld.Mode&NeedImports != 0 && ld.Mode&NeedTypes != 0 {
+		for _, lpkg := range srcPkgs {
+			// Complete type information is required for the
+			// immediate dependencies of each source package.
+			for _, ipkg := range lpkg.Imports {
+				imp := ld.pkgs[ipkg.ID]
+				imp.needtypes = true
+			}
+		}
+	}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// Load type data and syntax if needed, starting at
 	// the initial packages (roots of the import DAG).
 	if ld.Mode&NeedTypes != 0 || ld.Mode&NeedSyntax != 0 {
@@ -922,12 +1164,15 @@ func (ld *loader) refine(response *DriverResponse) ([]*Package, error) {
 		wg.Wait()
 	}
 
+<<<<<<< HEAD
 	// If the context is done, return its error and
 	// throw out [likely] incomplete packages.
 	if err := ld.Context.Err(); err != nil {
 		return nil, err
 	}
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	result := make([]*Package, len(initial))
 	for i, lpkg := range initial {
 		result[i] = lpkg.Package
@@ -1023,6 +1268,7 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 	lpkg.Types = types.NewPackage(lpkg.PkgPath, lpkg.Name)
 	lpkg.Fset = ld.Fset
 
+<<<<<<< HEAD
 	// Start shutting down if the context is done and do not load
 	// source or export data files.
 	// Packages that import this one will have ld.Context.Err() != nil.
@@ -1031,6 +1277,8 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		return
 	}
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// Subtle: we populate all Types fields with an empty Package
 	// before loading export data so that export data processing
 	// never has to create a types.Package for an indirect dependency,
@@ -1150,6 +1398,7 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		return
 	}
 
+<<<<<<< HEAD
 	// Start shutting down if the context is done and do not type check.
 	// Packages that import this one will have ld.Context.Err() != nil.
 	// ld.Context.Err() will be returned later by refine.
@@ -1157,16 +1406,25 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		return
 	}
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	lpkg.TypesInfo = &types.Info{
 		Types:      make(map[ast.Expr]types.TypeAndValue),
 		Defs:       make(map[*ast.Ident]types.Object),
 		Uses:       make(map[*ast.Ident]types.Object),
 		Implicits:  make(map[ast.Node]types.Object),
+<<<<<<< HEAD
 		Instances:  make(map[*ast.Ident]types.Instance),
 		Scopes:     make(map[ast.Node]*types.Scope),
 		Selections: make(map[*ast.SelectorExpr]*types.Selection),
 	}
 	versions.InitFileVersions(lpkg.TypesInfo)
+=======
+		Scopes:     make(map[ast.Node]*types.Scope),
+		Selections: make(map[*ast.SelectorExpr]*types.Selection),
+	}
+	typeparams.InitInstanceInfo(lpkg.TypesInfo)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	lpkg.TypesSizes = ld.sizes
 
 	importer := importerFunc(func(path string) (*types.Package, error) {
@@ -1204,10 +1462,14 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		IgnoreFuncBodies: ld.Mode&NeedDeps == 0 && !lpkg.initial,
 
 		Error: appendError,
+<<<<<<< HEAD
 		Sizes: ld.sizes, // may be nil
 	}
 	if lpkg.Module != nil && lpkg.Module.GoVersion != "" {
 		tc.GoVersion = "go" + lpkg.Module.GoVersion
+=======
+		Sizes: ld.sizes,
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	if (ld.Mode & typecheckCgo) != 0 {
 		if !typesinternal.SetUsesCgo(tc) {
@@ -1218,6 +1480,7 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 			return
 		}
 	}
+<<<<<<< HEAD
 
 	typErr := types.NewChecker(tc, ld.Fset, lpkg.Types, lpkg.TypesInfo).Files(lpkg.Syntax)
 	lpkg.importErrors = nil // no longer needed
@@ -1236,6 +1499,12 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		}
 	}
 
+=======
+	types.NewChecker(tc, ld.Fset, lpkg.Types, lpkg.TypesInfo).Files(lpkg.Syntax)
+
+	lpkg.importErrors = nil // no longer needed
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// If !Cgo, the type-checker uses FakeImportC mode, so
 	// it doesn't invoke the importer for import "C",
 	// nor report an error for the import,
@@ -1257,12 +1526,15 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		}
 	}
 
+<<<<<<< HEAD
 	// If types.Checker.Files had an error that was unreported,
 	// make sure to report the unknown error so the package is illTyped.
 	if typErr != nil && len(lpkg.Errors) == 0 {
 		appendError(typErr)
 	}
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	// Record accumulated errors.
 	illTyped := len(lpkg.Errors) > 0
 	if !illTyped {
@@ -1308,7 +1580,11 @@ func (ld *loader) parseFile(filename string) (*ast.File, error) {
 		var err error
 		if src == nil {
 			ioLimit <- true // wait
+<<<<<<< HEAD
 			src, err = os.ReadFile(filename)
+=======
+			src, err = ioutil.ReadFile(filename)
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 			<-ioLimit // signal
 		}
 		if err != nil {
@@ -1334,6 +1610,14 @@ func (ld *loader) parseFiles(filenames []string) ([]*ast.File, []error) {
 	parsed := make([]*ast.File, n)
 	errors := make([]error, n)
 	for i, file := range filenames {
+<<<<<<< HEAD
+=======
+		if ld.Config.Context.Err() != nil {
+			parsed[i] = nil
+			errors[i] = ld.Config.Context.Err()
+			continue
+		}
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 		wg.Add(1)
 		go func(i int, filename string) {
 			parsed[i], errors[i] = ld.parseFile(filename)

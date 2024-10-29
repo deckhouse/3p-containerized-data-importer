@@ -203,12 +203,17 @@ type (
 	errLexInlineTableNL struct{}
 	errLexStringNL      struct{}
 	errParseRange       struct {
+<<<<<<< HEAD
 		i    any    // int or float
 		size string // "int64", "uint16", etc.
 	}
 	errUnsafeFloat struct {
 		i    interface{} // float32 or float64
 		size string      // "float32" or "float64"
+=======
+		i    interface{} // int or float
+		size string      // "int64", "uint16", etc.
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	}
 	errParseDuration struct{ d string }
 )
@@ -230,12 +235,17 @@ func (e errLexStringNL) Error() string      { return "strings cannot contain new
 func (e errLexStringNL) Usage() string      { return usageStringNewline }
 func (e errParseRange) Error() string       { return fmt.Sprintf("%v is out of range for %s", e.i, e.size) }
 func (e errParseRange) Usage() string       { return usageIntOverflow }
+<<<<<<< HEAD
 func (e errUnsafeFloat) Error() string {
 	return fmt.Sprintf("%v is out of the safe %s range", e.i, e.size)
 }
 func (e errUnsafeFloat) Usage() string   { return usageUnsafeFloat }
 func (e errParseDuration) Error() string { return fmt.Sprintf("invalid duration: %q", e.d) }
 func (e errParseDuration) Usage() string { return usageDuration }
+=======
+func (e errParseDuration) Error() string    { return fmt.Sprintf("invalid duration: %q", e.d) }
+func (e errParseDuration) Usage() string    { return usageDuration }
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 
 const usageEscape = `
 A '\' inside a "-delimited string is interpreted as an escape character.
@@ -292,19 +302,29 @@ bug in the program that uses too small of an integer.
 The maximum and minimum values are:
 
     size   │ lowest         │ highest
+<<<<<<< HEAD
     ───────┼────────────────┼──────────────
+=======
+    ───────┼────────────────┼──────────
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
     int8   │ -128           │ 127
     int16  │ -32,768        │ 32,767
     int32  │ -2,147,483,648 │ 2,147,483,647
     int64  │ -9.2 × 10¹⁷    │ 9.2 × 10¹⁷
     uint8  │ 0              │ 255
+<<<<<<< HEAD
     uint16 │ 0              │ 65,535
     uint32 │ 0              │ 4,294,967,295
+=======
+    uint16 │ 0              │ 65535
+    uint32 │ 0              │ 4294967295
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
     uint64 │ 0              │ 1.8 × 10¹⁸
 
 int refers to int32 on 32-bit systems and int64 on 64-bit systems.
 `
 
+<<<<<<< HEAD
 const usageUnsafeFloat = `
 This number is outside of the "safe" range for floating point numbers; whole
 (non-fractional) numbers outside the below range can not always be represented
@@ -321,6 +341,8 @@ Accuracy ranges:
 	float64 = 9,007,199,254,740,991
 `
 
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 const usageDuration = `
 A duration must be as "number<unit>", without any spaces. Valid units are:
 
@@ -334,6 +356,7 @@ A duration must be as "number<unit>", without any spaces. Valid units are:
 You can combine multiple units; for example "5m10s" for 5 minutes and 10
 seconds.
 `
+<<<<<<< HEAD
 
 const usageDate = `
 A TOML datetime must be in one of the following formats:
@@ -354,3 +377,5 @@ Seconds may optionally have a fraction, up to nanosecond precision:
 //     2006-01-02T15:04Z07:00
 //     2006-01-02T15:04
 //     15:04
+=======
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))

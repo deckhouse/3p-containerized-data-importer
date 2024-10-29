@@ -17,6 +17,7 @@ limitations under the License.
 package importer
 
 import (
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -48,7 +49,7 @@ type RegistryDataSource struct {
 	certDir     string
 	insecureTLS bool
 	imageDir    string
-	//The discovered image file in scratch space.
+	// The discovered image file in scratch space.
 	url *url.URL
 	//The discovered image info from the registry.
 	info *types.ImageInspectInfo
@@ -93,7 +94,7 @@ func (rd *RegistryDataSource) Transfer(path string) (ProcessingPhase, error) {
 		return ProcessingPhaseError, err
 	}
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 
@@ -216,4 +217,16 @@ func collectCerts(certDir, targetDir, targetPrefix string) error {
 		}
 	}
 	return nil
+}
+
+func (rd *RegistryDataSource) ReadCloser() (io.ReadCloser, error) {
+	panic("not implemented")
+}
+
+func (rd *RegistryDataSource) Length() (int, error) {
+	panic("not implemented")
+}
+
+func (rd *RegistryDataSource) Filename() (string, error) {
+	panic("not implemented")
 }

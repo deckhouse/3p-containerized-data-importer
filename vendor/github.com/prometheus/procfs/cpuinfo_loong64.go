@@ -14,6 +14,11 @@
 //go:build linux
 // +build linux
 
+<<<<<<< HEAD:vendor/github.com/prometheus/procfs/cpuinfo_loong64.go
 package procfs
 
 var parseCPUInfo = parseCPUInfoLoong
+=======
+// Version is the current tagged release of the library.
+const Version = "1.19.1"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1)):vendor/cloud.google.com/go/compute/internal/version.go

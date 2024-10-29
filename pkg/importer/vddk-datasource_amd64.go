@@ -26,7 +26,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+<<<<<<< HEAD
 	"math"
+=======
+	"io"
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 	"net/url"
 	"os"
 	"regexp"
@@ -1087,4 +1091,16 @@ func (vs *VDDKDataSource) TransferFile(fileName string) (ProcessingPhase, error)
 	}
 
 	return ProcessingPhaseResize, nil
+}
+
+func (vs *VDDKDataSource) ReadCloser() (io.ReadCloser, error) {
+	panic("not implemented")
+}
+
+func (vs *VDDKDataSource) Length() (int, error) {
+	panic("not implemented")
+}
+
+func (vs *VDDKDataSource) Filename() (string, error) {
+	panic("not implemented")
 }

@@ -70,7 +70,7 @@ func (ud *UploadDataSource) Transfer(path string) (ProcessingPhase, error) {
 			return ProcessingPhaseError, err
 		}
 		if size <= int64(0) {
-			//Path provided is invalid.
+			// Path provided is invalid.
 			return ProcessingPhaseError, ErrInvalidPath
 		}
 		err = streamDataToFile(ud.readers.TopReader(), file)
@@ -156,7 +156,7 @@ func (aud *AsyncUploadDataSource) Transfer(path string) (ProcessingPhase, error)
 		return ProcessingPhaseError, err
 	}
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 	err = streamDataToFile(aud.uploadDataSource.readers.TopReader(), file)
@@ -202,4 +202,30 @@ func (aud *AsyncUploadDataSource) GetTerminationMessage() *common.TerminationMes
 // GetResumePhase returns the next phase to process when resuming
 func (aud *AsyncUploadDataSource) GetResumePhase() ProcessingPhase {
 	return aud.ResumePhase
+}
+
+func (ud *UploadDataSource) ReadCloser() (io.ReadCloser, error) {
+	if ud.readers == nil {
+		var err error
+		// Hardcoded to only accept kubevirt content type.
+		ud.readers, err = NewFormatReaders(ud.stream, uint64(0))
+		if err != nil {
+			klog.Errorf("Error creating readers: %v", err)
+			return nil, err
+		}
+	}
+
+	return ud.readers.TopReader(), nil
+}
+
+func (aud *AsyncUploadDataSource) ReadCloser() (io.ReadCloser, error) {
+	panic("not implemented")
+}
+
+func (aud *AsyncUploadDataSource) Length() (int, error) {
+	panic("not implemented")
+}
+
+func (aud *AsyncUploadDataSource) Filename() (string, error) {
+	panic("not implemented")
 }

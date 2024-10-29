@@ -787,8 +787,13 @@ func lexRawString(lx *lexer) stateFn {
 	}
 }
 
+<<<<<<< HEAD
 // lexMultilineRawString consumes a raw string. Nothing can be escaped in such a
 // string. It assumes that the beginning triple-' has already been consumed and
+=======
+// lexMultilineRawString consumes a raw string. Nothing can be escaped in such
+// a string. It assumes that the beginning ''' has already been consumed and
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // ignored.
 func lexMultilineRawString(lx *lexer) stateFn {
 	r := lx.next()

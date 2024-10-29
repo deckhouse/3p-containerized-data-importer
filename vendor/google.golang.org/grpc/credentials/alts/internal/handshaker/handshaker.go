@@ -107,6 +107,13 @@ func DefaultServerHandshakerOptions() *ServerHandshakerOptions {
 	return &ServerHandshakerOptions{}
 }
 
+<<<<<<< HEAD
+=======
+// TODO: add support for future local and remote endpoint in both client options
+//       and server options (server options struct does not exist now. When
+//       caller can provide endpoints, it should be created.
+
+>>>>>>> b3ea800a0 (feat: add image exporter (#1))
 // altsHandshaker is used to complete an ALTS handshake between client and
 // server. This handshaker talks to the ALTS handshaker service in the metadata
 // server.
