@@ -289,6 +289,10 @@ func (s *Scratch) compress4X(src []byte) ([]byte, error) {
 			// We cannot store the size in the jump table
 			return nil, ErrIncompressible
 		}
+		if len(s.Out)-idx > math.MaxUint16 {
+			// We cannot store the size in the jump table
+			return nil, ErrIncompressible
+		}
 		// Write compressed length as little endian before block.
 		if i < 3 {
 			// Last length is not written.

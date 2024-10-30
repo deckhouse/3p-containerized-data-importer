@@ -95,7 +95,7 @@ func (sd *S3DataSource) Transfer(path string) (ProcessingPhase, error) {
 
 	size, _ := util.GetAvailableSpace(path)
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 

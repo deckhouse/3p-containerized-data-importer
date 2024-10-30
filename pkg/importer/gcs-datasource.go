@@ -121,7 +121,7 @@ func (sd *GCSDataSource) Transfer(path string) (ProcessingPhase, error) {
 	size, _ := util.GetAvailableSpace(path)
 
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		klog.V(3).Infoln("GCS Importer: Transfer Error: ", ErrInvalidPath)
 		return ProcessingPhaseError, ErrInvalidPath
 	}

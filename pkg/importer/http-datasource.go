@@ -20,7 +20,6 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -45,12 +44,10 @@ import (
 )
 
 const (
-	tempFile          = "tmpimage"
-	nbdkitPid         = "/tmp/nbdkit.pid"
-	nbdkitSocket      = "/tmp/nbdkit.sock"
-	defaultUserAgent  = "cdi-golang-importer"
-	httpContentType   = "Content-Type"
-	httpContentLength = "Content-Length"
+	tempFile         = "tmpimage"
+	nbdkitPid        = "/tmp/nbdkit.pid"
+	nbdkitSocket     = "/tmp/nbdkit.sock"
+	defaultUserAgent = "cdi-golang-importer"
 )
 
 // HTTPDataSource is the data provider for http(s) endpoints.
@@ -99,7 +96,7 @@ func NewHTTPDataSource(endpoint, accessKey, secKey, certDir string, contentType 
 		return nil, errors.Wrap(err, "Error getting extra headers for HTTP client")
 	}
 
-	httpReader, contentLength, brokenForQemuImg, err := createHTTPReader(ctx, ep, accessKey, secKey, certDir, extraHeaders, secretExtraHeaders, contentType)
+	httpReader, contentLength, brokenForQemuImg, err := createHTTPReader(ctx, ep, accessKey, secKey, certDir, extraHeaders, secretExtraHeaders)
 	if err != nil {
 		cancel()
 		return nil, err
@@ -115,11 +112,7 @@ func NewHTTPDataSource(endpoint, accessKey, secKey, certDir string, contentType 
 		brokenForQemuImg: brokenForQemuImg,
 		contentLength:    contentLength,
 	}
-	httpSource.n, err = createNbdkitCurl(nbdkitPid, accessKey, secKey, certDir, nbdkitSocket, extraHeaders, secretExtraHeaders)
-	if err != nil {
-		cancel()
-		return nil, err
-	}
+	httpSource.n = createNbdkitCurl(nbdkitPid, accessKey, secKey, certDir, nbdkitSocket, extraHeaders, secretExtraHeaders)
 	// We know this is a counting reader, so no need to check.
 	countingReader := httpReader.(*util.CountingReader)
 	go httpSource.pollProgress(countingReader, 10*time.Minute, time.Second)
@@ -137,14 +130,20 @@ func (hs *HTTPDataSource) Info() (ProcessingPhase, error) {
 	if hs.contentType == cdiv1.DataVolumeArchive {
 		return ProcessingPhaseTransferDataDir, nil
 	}
-	if pullMethod, _ := util.ParseEnvVar(common.ImporterPullMethod, false); pullMethod == string(cdiv1.RegistryPullNode) {
-		hs.url, _ = url.Parse(fmt.Sprintf("nbd+unix:///?socket=%s", nbdkitSocket))
-		if err = hs.n.StartNbdkit(hs.endpoint.String()); err != nil {
-			return ProcessingPhaseError, err
+	if hs.readers.Convert {
+		if hs.brokenForQemuImg || hs.readers.Archived || hs.customCA != "" {
+			return ProcessingPhaseTransferScratch, nil
 		}
-		return ProcessingPhaseConvert, nil
+	} else {
+		if hs.readers.Archived || hs.customCA != "" {
+			return ProcessingPhaseTransferDataFile, nil
+		}
 	}
-	return ProcessingPhaseTransferScratch, nil
+	hs.url, _ = url.Parse(fmt.Sprintf("nbd+unix:///?socket=%s", nbdkitSocket))
+	if err = hs.n.StartNbdkit(hs.endpoint.String()); err != nil {
+		return ProcessingPhaseError, err
+	}
+	return ProcessingPhaseConvert, nil
 }
 
 // Transfer is called to transfer the data from the source to a scratch location.
@@ -158,8 +157,7 @@ func (hs *HTTPDataSource) Transfer(path string) (ProcessingPhase, error) {
 		if err != nil || size <= 0 {
 			return ProcessingPhaseError, ErrInvalidPath
 		}
-		hs.readers.StartProgressUpdate()
-		err = streamDataToFile(hs.readers.TopReader(), file)
+		err = util.StreamDataToFile(hs.readers.TopReader(), file)
 		if err != nil {
 			return ProcessingPhaseError, err
 		}
@@ -182,7 +180,7 @@ func (hs *HTTPDataSource) TransferFile(fileName string) (ProcessingPhase, error)
 		return ProcessingPhaseError, err
 	}
 	hs.readers.StartProgressUpdate()
-	err := streamDataToFile(hs.readers.TopReader(), fileName)
+	err := util.StreamDataToFile(hs.readers.TopReader(), fileName)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}
@@ -192,23 +190,6 @@ func (hs *HTTPDataSource) TransferFile(fileName string) (ProcessingPhase, error)
 // GetURL returns the URI that the data processor can use when converting the data.
 func (hs *HTTPDataSource) GetURL() *url.URL {
 	return hs.url
-}
-
-// GetTerminationMessage returns data to be serialized and used as the termination message of the importer.
-func (hs *HTTPDataSource) GetTerminationMessage() *common.TerminationMessage {
-	if pullMethod, _ := util.ParseEnvVar(common.ImporterPullMethod, false); pullMethod != string(cdiv1.RegistryPullNode) {
-		return nil
-	}
-
-	info, err := getServerInfo(hs.ctx, fmt.Sprintf("%s://%s/info", hs.endpoint.Scheme, hs.endpoint.Host))
-	if err != nil {
-		klog.Errorf("%+v", err)
-		return nil
-	}
-
-	return &common.TerminationMessage{
-		Labels: envsToLabels(info.Env),
-	}
 }
 
 // Close all readers.
@@ -291,8 +272,7 @@ func createHTTPClient(certDir string) (*http.Client, error) {
 	// the default transport contains Proxy configurations to use environment variables and default timeouts
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.TLSClientConfig = &tls.Config{
-		RootCAs:    certPool,
-		MinVersion: tls.VersionTLS12,
+		RootCAs: certPool,
 	}
 	transport.GetProxyConnectHeader = func(ctx context.Context, proxyURL *url.URL, target string) (http.Header, error) {
 		h := http.Header{}
@@ -314,7 +294,7 @@ func addExtraheaders(req *http.Request, extraHeaders []string) {
 	req.Header.Add("User-Agent", defaultUserAgent)
 }
 
-func createHTTPReader(ctx context.Context, ep *url.URL, accessKey, secKey, certDir string, extraHeaders, secretExtraHeaders []string, contentType cdiv1.DataVolumeContentType) (io.ReadCloser, uint64, bool, error) {
+func createHTTPReader(ctx context.Context, ep *url.URL, accessKey, secKey, certDir string, extraHeaders, secretExtraHeaders []string) (io.ReadCloser, uint64, bool, error) {
 	var brokenForQemuImg bool
 	client, err := createHTTPClient(certDir)
 	if err != nil {
@@ -336,7 +316,7 @@ func createHTTPReader(ctx context.Context, ep *url.URL, accessKey, secKey, certD
 		brokenForQemuImg = true
 	}
 	// http.NewRequest can only return error on invalid METHOD, or invalid url. Here the METHOD is always GET, and the url is always valid, thus error cannot happen.
-	req, _ := http.NewRequest(http.MethodGet, ep.String(), nil)
+	req, _ := http.NewRequest("GET", ep.String(), nil)
 
 	addExtraheaders(req, allExtraHeaders)
 
@@ -349,19 +329,9 @@ func createHTTPReader(ctx context.Context, ep *url.URL, accessKey, secKey, certD
 	if err != nil {
 		return nil, uint64(0), true, errors.Wrap(err, "HTTP request errored")
 	}
-	if want := http.StatusOK; resp.StatusCode != want {
-		klog.Errorf("http: expected status code %d, got %d", want, resp.StatusCode)
-		return nil, uint64(0), true, errors.Errorf("expected status code %d, got %d. Status: %s", want, resp.StatusCode, resp.Status)
-	}
-
-	if contentType == cdiv1.DataVolumeKubeVirt {
-		// Check the content-type if we are expecting a KubeVirt img.
-		if val, ok := resp.Header[httpContentType]; ok {
-			if strings.HasPrefix(val[0], "text/") {
-				// We will continue with the import nonetheless, but content might be unexpected.
-				klog.Warningf("Unexpected content type '%s'. Content might not be a KubeVirt image.", val[0])
-			}
-		}
+	if resp.StatusCode != 200 {
+		klog.Errorf("http: expected status code 200, got %d", resp.StatusCode)
+		return nil, uint64(0), true, errors.Errorf("expected status code 200, got %d. Status: %s", resp.StatusCode, resp.Status)
 	}
 
 	acceptRanges, ok := resp.Header["Accept-Ranges"]
@@ -409,7 +379,7 @@ func (hs *HTTPDataSource) pollProgress(reader *util.CountingReader, idleTime, po
 }
 
 func getContentLength(client *http.Client, ep *url.URL, accessKey, secKey string, extraHeaders []string) (uint64, error) {
-	req, err := http.NewRequest(http.MethodHead, ep.String(), nil)
+	req, err := http.NewRequest("HEAD", ep.String(), nil)
 	if err != nil {
 		return uint64(0), errors.Wrap(err, "could not create HTTP request")
 	}
@@ -425,9 +395,9 @@ func getContentLength(client *http.Client, ep *url.URL, accessKey, secKey string
 		return uint64(0), errors.Wrap(err, "HTTP request errored")
 	}
 
-	if want := http.StatusOK; resp.StatusCode != want {
-		klog.Errorf("http: expected status code %d, got %d", want, resp.StatusCode)
-		return uint64(0), errors.Errorf("expected status code %d, got %d. Status: %s", want, resp.StatusCode, resp.Status)
+	if resp.StatusCode != 200 {
+		klog.Errorf("http: expected status code 200, got %d", resp.StatusCode)
+		return uint64(0), errors.Errorf("expected status code 200, got %d. Status: %s", resp.StatusCode, resp.Status)
 	}
 
 	for k, v := range resp.Header {
@@ -446,7 +416,7 @@ func getContentLength(client *http.Client, ep *url.URL, accessKey, secKey string
 func parseHTTPHeader(resp *http.Response) uint64 {
 	var err error
 	total := uint64(0)
-	if val, ok := resp.Header[httpContentLength]; ok {
+	if val, ok := resp.Header["Content-Length"]; ok {
 		total, err = strconv.ParseUint(val[0], 10, 64)
 		if err != nil {
 			klog.Errorf("could not convert content length, got %v", err)
@@ -516,32 +486,14 @@ func getExtraHeadersFromSecrets() ([]string, error) {
 	return secretExtraHeaders, err
 }
 
-func getServerInfo(ctx context.Context, infoURL string) (*common.ServerInfo, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, infoURL, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to construct request for containerimage-server info")
-	}
+func (hs *HTTPDataSource) ReadCloser() (io.ReadCloser, error) {
+	return hs.httpReader, nil
+}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed request containerimage-server info")
-	}
-	defer resp.Body.Close()
+func (hs *HTTPDataSource) Length() (int, error) {
+	return int(hs.contentLength), nil
+}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed request containerimage-server info: expected status code 200, got %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read body of containerimage-server info request")
-	}
-
-	info := &common.ServerInfo{}
-	if err := json.Unmarshal(body, info); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal body of containerimage-server info request")
-	}
-
-	return info, nil
+func (hs *HTTPDataSource) Filename() (string, error) {
+	return path.Base(hs.endpoint.Path), nil
 }

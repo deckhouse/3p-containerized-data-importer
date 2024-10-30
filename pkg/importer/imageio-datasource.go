@@ -133,7 +133,7 @@ func (is *ImageioDataSource) Transfer(path string) (ProcessingPhase, error) {
 	// we know that there won't be archives
 	size, _ := util.GetAvailableSpace(path)
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 	is.readers.StartProgressUpdate()

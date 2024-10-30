@@ -1,8 +1,6 @@
 package common
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	v1 "k8s.io/api/core/v1"
@@ -23,17 +21,6 @@ const (
 	CDIComponentLabel = "cdi.kubevirt.io"
 	// CDIControllerName is the CDI controller name
 	CDIControllerName = "cdi-controller"
-	// CDIOperatorName is the CDI operator name
-	CDIOperatorName = "cdi-operator"
-
-	// CDIControllerResourceName is the CDI controller resource name
-	CDIControllerResourceName = "cdi-deployment"
-	// CDIApiServerResourceName is the CDI apiserver resource name
-	CDIApiServerResourceName = "cdi-apiserver"
-	// CDIUploadProxyResourceName is the CDI uploadproxy resource name
-	CDIUploadProxyResourceName = "cdi-uploadproxy"
-	// CDICronJobResourceName is the CDI cronjob resource name
-	CDICronJobResourceName = "cdi-cronjob"
 
 	// AppKubernetesPartOfLabel is the Kubernetes recommended part-of label
 	AppKubernetesPartOfLabel = "app.kubernetes.io/part-of"
@@ -58,15 +45,10 @@ const (
 	// UploadTargetLabel has the UID of upload target PVC
 	UploadTargetLabel = CDIComponentLabel + "/uploadTarget"
 
-	// DataImportCronLabel has the name of the DataImportCron responsible for the labeled resource
+	// DataImportCronLabel has the name of the DataImportCron responsible for the labeled DataSource or DataVolume
 	DataImportCronLabel = CDIComponentLabel + "/dataImportCron"
-	// DataImportCronNsLabel has the namespace of the DataImportCron responsible for the labeled resource
-	DataImportCronNsLabel = CDIComponentLabel + "/dataImportCronNs"
 	// DataImportCronCleanupLabel tells whether to delete the resource when its DataImportCron is deleted
 	DataImportCronCleanupLabel = DataImportCronLabel + ".cleanup"
-
-	// PvcApplyStorageProfileLabel tells whether the PVC should be rendered by the mutating webhook based on StorageProfiles
-	PvcApplyStorageProfileLabel = CDIComponentLabel + "/applyStorageProfile"
 
 	// ImporterVolumePath provides a constant for the directory where the PV is mounted.
 	ImporterVolumePath = "/data"
@@ -125,8 +107,6 @@ const (
 	ImporterDiskID = "IMPORTER_DISK_ID"
 	// ImporterUUID provides a constant to capture our env variable "IMPORTER_UUID"
 	ImporterUUID = "IMPORTER_UUID"
-	// ImporterPullMethod provides a constant to capture our env variable "IMPORTER_PULL_METHOD"
-	ImporterPullMethod = "IMPORTER_PULL_METHOD"
 	// ImporterReadyFile provides a constant to capture our env variable "IMPORTER_READY_FILE"
 	ImporterReadyFile = "IMPORTER_READY_FILE"
 	// ImporterDoneFile provides a constant to capture our env variable "IMPORTER_DONE_FILE"
@@ -141,10 +121,6 @@ const (
 	ImporterPreviousCheckpoint = "IMPORTER_PREVIOUS_CHECKPOINT"
 	// ImporterFinalCheckpoint provides a constant to capture our env variable "IMPORTER_FINAL_CHECKPOINT"
 	ImporterFinalCheckpoint = "IMPORTER_FINAL_CHECKPOINT"
-	// CacheMode provides a constant to capture our env variable "CACHE_MODE"
-	CacheMode = "CACHE_MODE"
-	// CacheModeTryNone provides a constant to capture our env variable value for "CACHE_MODE" that tries O_DIRECT writing if target supports it
-	CacheModeTryNone = "TRYNONE"
 	// Preallocation provides a constant to capture out env variable "PREALLOCATION"
 	Preallocation = "PREALLOCATION"
 	// ImportProxyHTTP provides a constant to capture our env variable "http_proxy"
@@ -165,12 +141,10 @@ const (
 	ImporterSecretExtraHeadersDir = "/extraheaders"
 
 	// ImporterGoogleCredentialFileVar provides a constant to capture our env variable "GOOGLE_APPLICATION_CREDENTIALS"
-	//nolint:gosec // This is not a real credential
 	ImporterGoogleCredentialFileVar = "GOOGLE_APPLICATION_CREDENTIALS"
 	// ImporterGoogleCredentialDir provides a constant to capture our secret mount Dir
 	ImporterGoogleCredentialDir = "/google"
 	// ImporterGoogleCredentialFile provides a constant to capture our credentials.json file
-	//nolint:gosec // This is not the credential itself
 	ImporterGoogleCredentialFile = "/google/credentials.json"
 
 	// CloningLabelValue provides a constant to use as a label value for pod affinity (controller pkg only)
@@ -226,6 +200,9 @@ const (
 
 	// DefaultResyncPeriod sets a 10 minute resync period, used in the controller pkg and the controller cmd executable
 	DefaultResyncPeriod = 10 * time.Minute
+
+	// ScratchSpaceNeededExitCode is the exit code that indicates the importer pod requires scratch space to function properly.
+	ScratchSpaceNeededExitCode = 42
 
 	// ScratchNameSuffix (controller pkg only)
 	ScratchNameSuffix = "scratch"
@@ -285,9 +262,6 @@ const (
 	// PreallocationApplied is a string inserted into importer's/uploader's exit message
 	PreallocationApplied = "Preallocation applied"
 
-	// ScratchSpaceRequired is a string inserted into a pod exist message when scratch space is needed
-	ScratchSpaceRequired = "scratch space required and none found"
-
 	// SecretHeader is the key in a secret containing a sensitive extra header for HTTP data sources
 	SecretHeader = "secretHeader"
 
@@ -300,9 +274,20 @@ const (
 	// CDIControllerLeaderElectionHelperName is the name of the configmap that is used as a helper for controller leader election
 	CDIControllerLeaderElectionHelperName = "cdi-controller-leader-election-helper"
 
-	// ImagePullFailureText is the text of the ErrImagePullFailed error. We need it as a common constant because we're using
-	// both to create and to later check the error in the termination text of the importer pod.
-	ImagePullFailureText = "failed to pull image"
+	DestinationInsecureTLSVar = "DESTINATION_INSECURE_TLS"
+
+	ImporterSHA256Sum              = "IMPORTER_SHA256SUM"
+	ImporterMD5Sum                 = "IMPORTER_MD5SUM"
+	ImporterDestinationEndpoint    = "IMPORTER_DESTINATION_ENDPOINT"
+	ImporterDestinationAccessKeyID = "IMPORTER_DESTINATION_ACCESS_KEY_ID"
+	ImporterDestinationSecretKey   = "IMPORTER_DESTINATION_SECRET_KEY"
+	ImporterAuthConfig             = "IMPORTER_AUTH_CONFIG"
+	ImporterDestinationAuthConfig  = "IMPORTER_DESTINATION_AUTH_CONFIG"
+
+	UploaderDestinationEndpoint    = "UPLOADER_DESTINATION_ENDPOINT"
+	UploaderDestinationAccessKeyID = "UPLOADER_DESTINATION_ACCESS_KEY_ID"
+	UploaderDestinationSecretKey   = "UPLOADER_DESTINATION_SECRET_KEY"
+	UploaderDestinationAuthConfig  = "UPLOADER_DESTINATION_AUTH_CONFIG"
 )
 
 // ProxyPaths are all supported paths
@@ -339,39 +324,4 @@ var SyncUploadFormPaths = []string{
 var AsyncUploadFormPaths = []string{
 	UploadFormAsync,
 	"/v1alpha1/upload-form-async",
-}
-
-// VddkInfo holds VDDK version and connection information returned by an importer pod
-type VddkInfo struct {
-	Version string
-	Host    string
-}
-
-// TerminationMessage contains data to be serialized and used as the termination message of the importer.
-type TerminationMessage struct {
-	ScratchSpaceRequired *bool             `json:"scratchSpaceRequired,omitempty"`
-	PreallocationApplied *bool             `json:"preallocationApplied,omitempty"`
-	DeadlinePassed       *bool             `json:"deadlinePassed,omitempty"`
-	VddkInfo             *VddkInfo         `json:"vddkInfo,omitempty"`
-	Labels               map[string]string `json:"labels,omitempty"`
-	Message              *string           `json:"message,omitempty"`
-}
-
-func (it *TerminationMessage) String() (string, error) {
-	msg, err := json.Marshal(it)
-	if err != nil {
-		return "", err
-	}
-
-	// Messages longer than 4096 are truncated by kubelet
-	if length := len(msg); length > 4096 {
-		return "", fmt.Errorf("Termination message length %d exceeds maximum length of 4096 bytes", length)
-	}
-
-	return string(msg), nil
-}
-
-// ServerInfo contains data to be serialized and used as the body of responses to the info endpoint of the containerimage-server.
-type ServerInfo struct {
-	Env []string `json:"env,omitempty"`
 }

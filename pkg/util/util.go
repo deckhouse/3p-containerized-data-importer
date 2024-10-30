@@ -3,7 +3,7 @@ package util
 import (
 	"bufio"
 	"bytes"
-	"crypto/md5" //nolint:gosec // This is not a security-sensitive use case
+	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
 	"io"
@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,16 +37,26 @@ type CountingReader struct {
 	Done    bool
 }
 
+// VddkInfo holds VDDK version and connection information returned by an importer pod
+type VddkInfo struct {
+	Version string
+	Host    string
+}
+
+// RegistryImporterInfo holds complete import report returned by a registry importer pod
+type RegistryImporterInfo struct {
+	SourceImageSize        int    `json:"source-image-size"`
+	SourceImageVirtualSize int    `json:"source-image-virtual-size"`
+	SourceImageFormat      string `json:"source-image-format"`
+}
+
 // RandAlphaNum provides an implementation to generate a random alpha numeric string of the specified length
-// This generator is not cryptographically secure.
-//
-//nolint:gosec // This is not a security-sensitive use case
 func RandAlphaNum(n int) string {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	rand.Seed(time.Now().UnixNano())
+	letter := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letter[r.Intn(len(letter))]
+		b[i] = letter[rand.Intn(len(letter))]
 	}
 	return string(b)
 }
@@ -83,13 +92,19 @@ func ParseEnvVar(envVarName string, decode bool) (string, error) {
 func (r *CountingReader) Read(p []byte) (n int, err error) {
 	n, err = r.Reader.Read(p)
 	r.Current += uint64(n)
-	r.Done = errors.Is(err, io.EOF)
+	r.Done = err == io.EOF
 	return n, err
 }
 
 // Close closes the stream
 func (r *CountingReader) Close() error {
 	return r.Reader.Close()
+}
+
+type EmptyWriter struct{}
+
+func (w EmptyWriter) Write(p []byte) (int, error) {
+	return len(p), nil
 }
 
 // GetAvailableSpaceByVolumeMode calls another method based on the volumeMode parameter to get the amount of
@@ -108,6 +123,23 @@ func MinQuantity(availableSpace, imageSize *resource.Quantity) resource.Quantity
 	}
 	return *imageSize
 }
+
+// // StreamDataToFile provides a function to stream the specified io.Reader to the specified local file
+// func StreamDataToFile(r io.Reader, fileName string) error {
+// 	outFile, err := OpenFileOrBlockDevice(fileName)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer outFile.Close()
+// 	klog.V(1).Infof("Writing data...\n")
+// 	if _, err = io.Copy(outFile, r); err != nil {
+// 		klog.Errorf("Unable to write file from dataReader: %v\n", err)
+// 		os.Remove(outFile.Name())
+// 		return errors.Wrapf(err, "unable to write to file")
+// 	}
+// 	err = outFile.Sync()
+// 	return err
+// }
 
 // UnArchiveTar unarchives a tar file and streams its files
 // using the specified io.Reader to the specified destination.
@@ -143,15 +175,52 @@ func WriteTerminationMessageToFile(file, message string) error {
 	message = strings.ReplaceAll(message, "\n", " ")
 	// Only write the first line of the message.
 	scanner := bufio.NewScanner(strings.NewReader(message))
-
 	if scanner.Scan() {
-		err := os.WriteFile(file, scanner.Bytes(), 0600)
+		err := os.WriteFile(file, []byte(scanner.Text()), os.ModeAppend)
 		if err != nil {
 			return errors.Wrap(err, "could not create termination message file")
 		}
 	}
 	return nil
 }
+
+// // CopyDir copies a dir from one location to another.
+// func CopyDir(source string, dest string) (err error) {
+// 	// get properties of source dir
+// 	sourceinfo, err := os.Stat(source)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// create dest dir
+// 	err = os.MkdirAll(dest, sourceinfo.Mode())
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	directory, _ := os.Open(source)
+// 	objects, err := directory.Readdir(-1)
+
+// 	for _, obj := range objects {
+// 		src := filepath.Join(source, obj.Name())
+// 		dst := filepath.Join(dest, obj.Name())
+
+// 		if obj.IsDir() {
+// 			// create sub-directories - recursively
+// 			err = CopyDir(src, dst)
+// 			if err != nil {
+// 				fmt.Println(err)
+// 			}
+// 		} else {
+// 			// perform copy
+// 			err = CopyFile(src, dst)
+// 			if err != nil {
+// 				fmt.Println(err)
+// 			}
+// 		}
+// 	}
+// 	return
+// }
 
 // RoundDown returns the number rounded down to the nearest multiple.
 func RoundDown(number, multiple int64) int64 {
@@ -175,19 +244,6 @@ func MergeLabels(src, dest map[string]string) map[string]string {
 	}
 
 	return dest
-}
-
-// AppendLabels append dest labels to source (update if key has existed)
-func AppendLabels(src, dest map[string]string) map[string]string {
-	if src == nil {
-		src = map[string]string{}
-	}
-
-	for k, v := range dest {
-		src[k] = v
-	}
-
-	return src
 }
 
 // GetRecommendedInstallerLabelsFromCr returns the recommended labels to set on CDI resources
@@ -219,10 +275,7 @@ func SetRecommendedLabels(obj metav1.Object, installerLabels map[string]string, 
 	obj.SetLabels(mergedLabels)
 }
 
-// Md5sum calculates the md5sum of a given file.
-// Do not use this for security-sensitive use cases.
-//
-//nolint:gosec // This is not a security-sensitive use case
+// Md5sum calculates the md5sum of a given file
 func Md5sum(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -240,18 +293,64 @@ func Md5sum(filePath string) (string, error) {
 	return hex.EncodeToString(hashInBytes), nil
 }
 
-// GetUsableSpace calculates usable space to use taking file system overhead into account
+// Three functions for zeroing a range in the destination file:
+
+// AppendZeroWithTruncate resizes the file to append zeroes, meant only for newly-created (empty and zero-length) regular files.
+// func AppendZeroWithTruncate(outFile *os.File, start, length int64) error {
+// 	klog.Infof("Truncating %d-bytes from offset %d", length, start)
+// 	end, err := outFile.Seek(0, io.SeekEnd)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if start != end {
+// 		return errors.Errorf("starting offset %d does not match previous ending offset %d, cannot safely append zeroes to this file using truncate", start, end)
+// 	}
+// 	err = outFile.Truncate(start + length)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	_, err = outFile.Seek(0, io.SeekEnd)
+// 	return err
+// }
+
+// var zeroBuffer []byte
+
+// AppendZeroWithWrite just does normal file writes to the destination, a slow but reliable fallback option.
+// func AppendZeroWithWrite(outFile *os.File, start, length int64) error {
+// 	klog.Infof("Writing %d zero bytes at offset %d", length, start)
+// 	offset, err := outFile.Seek(0, io.SeekCurrent)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if start != offset {
+// 		return errors.Errorf("starting offset %d does not match previous ending offset %d, cannot safely append zeroes to this file using write", start, offset)
+// 	}
+// 	if zeroBuffer == nil { // No need to re-allocate this on every write
+// 		zeroBuffer = bytes.Repeat([]byte{0}, 32<<20)
+// 	}
+// 	count := int64(0)
+// 	for count < length {
+// 		blockSize := int64(len(zeroBuffer))
+// 		remaining := length - count
+// 		if remaining < blockSize {
+// 			blockSize = remaining
+// 		}
+// 		written, err := outFile.Write(zeroBuffer[:blockSize])
+// 		if err != nil {
+// 			return errors.Wrapf(err, "unable to write %d zeroes at offset %d: %v", length, start+count, err)
+// 		}
+// 		count += int64(written)
+// 	}
+// 	return nil
+// }
+
+// GetUsableSpace calculates space to use taking file system overhead into account
 func GetUsableSpace(filesystemOverhead float64, availableSpace int64) int64 {
 	// +1 always rounds up.
 	spaceWithOverhead := int64(math.Ceil((1 - filesystemOverhead) * float64(availableSpace)))
 	// qemu-img will round up, making us use more than the usable space.
 	// This later conflicts with image size validation.
 	return RoundDown(spaceWithOverhead, DefaultAlignBlockSize)
-}
-
-func CalculateOverheadSpace(filesystemOverhead float64, availableSpace int64) int64 {
-	spaceWithOverhead := int64(math.Ceil(float64(availableSpace) / (1 - filesystemOverhead)))
-	return RoundUp(spaceWithOverhead, DefaultAlignBlockSize)
 }
 
 // ResolveVolumeMode returns the volume mode if set, otherwise defaults to file system mode

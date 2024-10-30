@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 
 	"k8s.io/klog/v2"
@@ -29,13 +30,16 @@ type UploadDataSource struct {
 	url *url.URL
 	// contentType expected from the upload content
 	contentType cdiv1.DataVolumeContentType
+
+	contentLength int
 }
 
 // NewUploadDataSource creates a new instance of an UploadDataSource
-func NewUploadDataSource(stream io.ReadCloser, contentType cdiv1.DataVolumeContentType) *UploadDataSource {
+func NewUploadDataSource(stream io.ReadCloser, contentType cdiv1.DataVolumeContentType, contentLength int) *UploadDataSource {
 	return &UploadDataSource{
-		stream:      stream,
-		contentType: contentType,
+		stream:        stream,
+		contentType:   contentType,
+		contentLength: contentLength,
 	}
 }
 
@@ -70,7 +74,7 @@ func (ud *UploadDataSource) Transfer(path string) (ProcessingPhase, error) {
 			return ProcessingPhaseError, err
 		}
 		if size <= int64(0) {
-			//Path provided is invalid.
+			// Path provided is invalid.
 			return ProcessingPhaseError, ErrInvalidPath
 		}
 		err = streamDataToFile(ud.readers.TopReader(), file)
@@ -122,6 +126,18 @@ func (ud *UploadDataSource) Close() error {
 	return nil
 }
 
+func (ud *UploadDataSource) ReadCloser() (io.ReadCloser, error) {
+	return ud.stream, nil
+}
+
+func (ud *UploadDataSource) Length() (int, error) {
+	return ud.contentLength, nil
+}
+
+func (ud *UploadDataSource) Filename() (string, error) {
+	return "source-stream-" + uuid.New().String(), nil
+}
+
 // AsyncUploadDataSource is an asynchronouse version of an upload data source, that returns finished phase instead
 // of going to post upload processing phases.
 type AsyncUploadDataSource struct {
@@ -156,7 +172,7 @@ func (aud *AsyncUploadDataSource) Transfer(path string) (ProcessingPhase, error)
 		return ProcessingPhaseError, err
 	}
 	if size <= int64(0) {
-		//Path provided is invalid.
+		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 	err = streamDataToFile(aud.uploadDataSource.readers.TopReader(), file)

@@ -17,12 +17,10 @@ const (
 	TestImagesDir = "../../tests/images"
 )
 
-var (
-	fileDir, _ = filepath.Abs(TestImagesDir)
-)
+var fileDir, _ = filepath.Abs(TestImagesDir)
 
 var _ = Describe("All tests", func() {
-	var _ = Describe("Copy files", func() {
+	_ = Describe("Copy files", func() {
 		var destTmp string
 		var err error
 
@@ -58,7 +56,7 @@ var _ = Describe("All tests", func() {
 		})
 	})
 
-	var _ = Describe("Zero out ranges in files", func() {
+	_ = Describe("Zero out ranges in files", func() {
 		var testFile *os.File
 		var testData []byte
 		testData = append(testData, bytes.Repeat([]byte{0x55}, 1024)...)
