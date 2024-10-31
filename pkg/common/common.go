@@ -1,6 +1,8 @@
 package common
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	v1 "k8s.io/api/core/v1"
@@ -273,6 +275,9 @@ const (
 	// GenericError is a generic error string
 	GenericError = "Error"
 
+	// ImagePullFailureText is the text of the ErrImagePullFailed error. We need it as a common constant because we're usi…
+	ImagePullFailureText = "failed to pull image"
+
 	// CDIControllerLeaderElectionHelperName is the name of the configmap that is used as a helper for controller leader election
 	CDIControllerLeaderElectionHelperName = "cdi-controller-leader-election-helper"
 
@@ -326,4 +331,39 @@ var SyncUploadFormPaths = []string{
 var AsyncUploadFormPaths = []string{
 	UploadFormAsync,
 	"/v1alpha1/upload-form-async",
+}
+
+// VddkInfo holds VDDK version and connection information returned by an importer pod
+type VddkInfo struct {
+	Version string
+	Host    string
+}
+
+// TerminationMessage contains data to be serialized and used as the termination message of the importer.
+type TerminationMessage struct {
+	ScratchSpaceRequired *bool             `json:"scratchSpaceRequired,omitempty"`
+	PreallocationApplied *bool             `json:"preallocationApplied,omitempty"`
+	DeadlinePassed       *bool             `json:"deadlinePassed,omitempty"`
+	VddkInfo             *VddkInfo         `json:"vddkInfo,omitempty"`
+	Labels               map[string]string `json:"labels,omitempty"`
+	Message              *string           `json:"message,omitempty"`
+}
+
+func (it *TerminationMessage) String() (string, error) {
+	msg, err := json.Marshal(it)
+	if err != nil {
+		return "", err
+	}
+
+	// Messages longer than 4096 are truncated by kubelet
+	if length := len(msg); length > 4096 {
+		return "", fmt.Errorf("Termination message length %d exceeds maximum length of 4096 bytes", length)
+	}
+
+	return string(msg), nil
+}
+
+// ServerInfo contains data to be serialized and used as the body of responses to the info endpoint of the containerimage-server.
+type ServerInfo struct {
+	Env []string `json:"env,omitempty"`
 }
