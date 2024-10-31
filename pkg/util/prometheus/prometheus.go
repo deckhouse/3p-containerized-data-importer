@@ -10,6 +10,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	dto "github.com/prometheus/client_model/go"
 
 	"k8s.io/client-go/util/cert"
 	"k8s.io/klog/v2"
@@ -92,19 +93,40 @@ func (r *ProgressReader) updateProgress() bool {
 		if !finished && r.Current < r.total {
 			currentProgress = float64(r.Current) / float64(r.total) * 100.0
 		}
-		progress, err := r.metric.Get()
-		if err != nil {
+		metric := &dto.Metric{}
+		if err := r.progress.WithLabelValues(r.ownerUID).Write(metric); err != nil {
 			klog.Errorf("updateProgress: failed to read metric; %v", err)
 			return true // true ==> to try again // todo - how to avoid endless loop in case it's a constant error?
 		}
-		if currentProgress > progress {
-			r.metric.Add(currentProgress - progress)
+		if currentProgress > *metric.Counter.Value {
+			r.progress.WithLabelValues(r.ownerUID).Add(currentProgress - *metric.Counter.Value)
 		}
 		klog.V(1).Infoln(fmt.Sprintf("%.2f", currentProgress))
 		return !finished
 	}
 	return false
 }
+
+// func (r *ProgressReader) updateProgress() bool {
+// 	if r.total > 0 {
+// 		finished := r.final && r.Done
+// 		currentProgress := 100.0
+// 		if !finished && r.Current < r.total {
+// 			currentProgress = float64(r.Current) / float64(r.total) * 100.0
+// 		}
+// 		progress, err := r.metric.Get()
+// 		if err != nil {
+// 			klog.Errorf("updateProgress: failed to read metric; %v", err)
+// 			return true // true ==> to try again // todo - how to avoid endless loop in case it's a constant error?
+// 		}
+// 		if currentProgress > progress {
+// 			r.metric.Add(currentProgress - progress)
+// 		}
+// 		klog.V(1).Infoln(fmt.Sprintf("%.2f", currentProgress))
+// 		return !finished
+// 	}
+// 	return false
+// }
 
 // SetNextReader replaces the current counting reader with a new one,
 // for tracking progress over multiple readers.
