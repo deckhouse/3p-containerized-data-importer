@@ -142,6 +142,8 @@ const (
 
 	// ImporterGoogleCredentialFileVar provides a constant to capture our env variable "GOOGLE_APPLICATION_CREDENTIALS"
 	ImporterGoogleCredentialFileVar = "GOOGLE_APPLICATION_CREDENTIALS"
+	// CacheModeTryNone provides a constant to capture our env variable value for "CACHE_MODE" that tries O_DIRECT writing if target supports it
+	CacheModeTryNone = "TRYNONE"
 	// ImporterGoogleCredentialDir provides a constant to capture our secret mount Dir
 	ImporterGoogleCredentialDir = "/google"
 	// ImporterGoogleCredentialFile provides a constant to capture our credentials.json file
