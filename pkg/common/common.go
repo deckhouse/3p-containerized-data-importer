@@ -278,6 +278,9 @@ const (
 	// ImagePullFailureText is the text of the ErrImagePullFailed error. We need it as a common constant because we're usi…
 	ImagePullFailureText = "failed to pull image"
 
+	// ScratchSpaceRequired is a string inserted into a pod exist message when scratch space is needed
+	ScratchSpaceRequired = "scratch space required and none found"
+
 	// CDIControllerLeaderElectionHelperName is the name of the configmap that is used as a helper for controller leader election
 	CDIControllerLeaderElectionHelperName = "cdi-controller-leader-election-helper"
 

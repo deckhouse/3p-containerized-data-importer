@@ -8,6 +8,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"k8s.io/client-go/util/cert"
@@ -16,13 +17,13 @@ import (
 	"kubevirt.io/containerized-data-importer/pkg/util"
 )
 
-// ProgressReader is a counting reader that reports progress to prometheus.
-type ProgressReader struct {
-	util.CountingReader
-	metric ProgressMetric
-	total  uint64
-	final  bool
-}
+// // ProgressReader is a counting reader that reports progress to prometheus.
+// type ProgressReader struct {
+// 	util.CountingReader
+// 	metric ProgressMetric
+// 	total  uint64
+// 	final  bool
+// }
 
 type ProgressMetric interface {
 	Add(value float64)
@@ -30,20 +31,44 @@ type ProgressMetric interface {
 	Delete()
 }
 
+type ProgressReader struct {
+	util.CountingReader
+	total    uint64
+	progress *prometheus.CounterVec
+	ownerUID string
+	final    bool
+}
+
 // NewProgressReader creates a new instance of a prometheus updating progress reader.
-func NewProgressReader(r io.ReadCloser, metric ProgressMetric, total uint64) *ProgressReader {
+func NewProgressReader(r io.ReadCloser, total uint64, progress *prometheus.CounterVec, ownerUID string) *ProgressReader {
 	promReader := &ProgressReader{
 		CountingReader: util.CountingReader{
 			Reader:  r,
 			Current: 0,
 		},
-		metric: metric,
-		total:  total,
-		final:  true,
+		total:    total,
+		progress: progress,
+		ownerUID: ownerUID,
+		final:    true,
 	}
 
 	return promReader
 }
+
+// // NewProgressReader creates a new instance of a prometheus updating progress reader.
+// func NewProgressReader(r io.ReadCloser, metric ProgressMetric, total uint64) *ProgressReader {
+// 	promReader := &ProgressReader{
+// 		CountingReader: util.CountingReader{
+// 			Reader:  r,
+// 			Current: 0,
+// 		},
+// 		metric: metric,
+// 		total:  total,
+// 		final:  true,
+// 	}
+
+// 	return promReader
+// }
 
 // StartTimedUpdate starts the update timer to automatically update every second.
 func (r *ProgressReader) StartTimedUpdate() {
@@ -103,13 +128,13 @@ func StartPrometheusEndpoint(certsDirectory string) {
 	}
 
 	certFile := path.Join(certsDirectory, "tls.crt")
-	if err = os.WriteFile(certFile, certBytes, 0600); err != nil {
+	if err = os.WriteFile(certFile, certBytes, 0o600); err != nil {
 		klog.Error("Error writing cert file")
 		return
 	}
 
 	keyFile := path.Join(certsDirectory, "tls.key")
-	if err = os.WriteFile(keyFile, keyBytes, 0600); err != nil {
+	if err = os.WriteFile(keyFile, keyBytes, 0o600); err != nil {
 		klog.Error("Error writing key file")
 		return
 	}
