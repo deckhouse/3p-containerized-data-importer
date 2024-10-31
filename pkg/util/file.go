@@ -167,7 +167,7 @@ func PunchHole(outFile *os.File, start, length int64) error {
 	return err
 }
 
-// // PunchHole attempts to zero a range in a file with fallocate, for block devices and pre-allocated files.
+// PunchHole attempts to zero a range in a file with fallocate, for block devices and pre-allocated files.
 // func PunchHole(outFile *os.File, start, length int64) error {
 // 	klog.Infof("Punching %d-byte hole at offset %d", length, start)
 // 	flags := uint32(unix.FALLOC_FL_PUNCH_HOLE | unix.FALLOC_FL_KEEP_SIZE)
