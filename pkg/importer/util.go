@@ -86,8 +86,8 @@ func envToLabel(env string) string {
 	return strings.ToLower(label)
 }
 
-// streamDataToFile provides a function to stream the specified io.Reader to the specified local file
-func streamDataToFile(r io.Reader, fileName string) error {
+// StreamDataToFile provides a function to stream the specified io.Reader to the specified local file
+func StreamDataToFile(r io.Reader, fileName string) error {
 	outFile, err := util.OpenFileOrBlockDevice(fileName)
 	if err != nil {
 		return err

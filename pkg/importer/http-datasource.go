@@ -180,7 +180,7 @@ func (hs *HTTPDataSource) TransferFile(fileName string) (ProcessingPhase, error)
 		return ProcessingPhaseError, err
 	}
 	hs.readers.StartProgressUpdate()
-	err := util.StreamDataToFile(hs.readers.TopReader(), fileName)
+	err := StreamDataToFile(hs.readers.TopReader(), fileName)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}

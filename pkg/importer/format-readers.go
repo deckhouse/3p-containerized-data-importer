@@ -25,18 +25,27 @@ import (
 
 	"github.com/klauspost/compress/zstd"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/ulikunitz/xz"
 
 	"k8s.io/klog/v2"
 
 	"kubevirt.io/containerized-data-importer/pkg/common"
 	"kubevirt.io/containerized-data-importer/pkg/image"
+	"kubevirt.io/containerized-data-importer/pkg/monitoring"
 	metrics "kubevirt.io/containerized-data-importer/pkg/monitoring/metrics/cdi-importer"
 	"kubevirt.io/containerized-data-importer/pkg/util"
 	prometheusutil "kubevirt.io/containerized-data-importer/pkg/util/prometheus"
 )
 
 var (
+	progress = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: monitoring.MetricOptsList[monitoring.CloneProgress].Name,
+			Help: monitoring.MetricOptsList[monitoring.CloneProgress].Help,
+		},
+		[]string{"ownerUID"},
+	)
 	ownerUID string
 )
 
@@ -85,7 +94,7 @@ func NewFormatReaders(stream io.ReadCloser, total uint64) (*FormatReaders, error
 		buf: make([]byte, image.MaxExpectedHdrSize),
 	}
 	if total > uint64(0) {
-		readers.progressReader = prometheusutil.NewProgressReader(stream, metrics.Progress(ownerUID), total)
+		readers.progressReader = prometheusutil.NewProgressReader(stream, total, progress, ownerUID)
 		err = readers.constructReaders(readers.progressReader)
 	} else {
 		err = readers.constructReaders(stream)

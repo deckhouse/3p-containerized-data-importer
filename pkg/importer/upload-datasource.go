@@ -77,7 +77,7 @@ func (ud *UploadDataSource) Transfer(path string) (ProcessingPhase, error) {
 			// Path provided is invalid.
 			return ProcessingPhaseError, ErrInvalidPath
 		}
-		err = streamDataToFile(ud.readers.TopReader(), file)
+		err = StreamDataToFile(ud.readers.TopReader(), file)
 		if err != nil {
 			return ProcessingPhaseError, err
 		}
@@ -99,7 +99,7 @@ func (ud *UploadDataSource) TransferFile(fileName string) (ProcessingPhase, erro
 	if err := CleanAll(fileName); err != nil {
 		return ProcessingPhaseError, err
 	}
-	err := streamDataToFile(ud.readers.TopReader(), fileName)
+	err := StreamDataToFile(ud.readers.TopReader(), fileName)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}
@@ -175,7 +175,7 @@ func (aud *AsyncUploadDataSource) Transfer(path string) (ProcessingPhase, error)
 		// Path provided is invalid.
 		return ProcessingPhaseError, ErrInvalidPath
 	}
-	err = streamDataToFile(aud.uploadDataSource.readers.TopReader(), file)
+	err = StreamDataToFile(aud.uploadDataSource.readers.TopReader(), file)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}
@@ -190,7 +190,7 @@ func (aud *AsyncUploadDataSource) TransferFile(fileName string) (ProcessingPhase
 	if err := CleanAll(fileName); err != nil {
 		return ProcessingPhaseError, err
 	}
-	err := streamDataToFile(aud.uploadDataSource.readers.TopReader(), fileName)
+	err := StreamDataToFile(aud.uploadDataSource.readers.TopReader(), fileName)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}

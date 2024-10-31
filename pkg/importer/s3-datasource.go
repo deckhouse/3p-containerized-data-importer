@@ -99,7 +99,7 @@ func (sd *S3DataSource) Transfer(path string) (ProcessingPhase, error) {
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 
-	err := streamDataToFile(sd.readers.TopReader(), file)
+	err := StreamDataToFile(sd.readers.TopReader(), file)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}
@@ -114,7 +114,7 @@ func (sd *S3DataSource) TransferFile(fileName string) (ProcessingPhase, error) {
 		return ProcessingPhaseError, err
 	}
 
-	err := streamDataToFile(sd.readers.TopReader(), fileName)
+	err := StreamDataToFile(sd.readers.TopReader(), fileName)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}
@@ -171,7 +171,6 @@ func createS3Reader(ep *url.URL, accessKey, secKey string, certDir string) (io.R
 func getS3Client(endpoint, accessKey, secKey string, certDir string, urlScheme string) (S3Client, error) {
 	// Adding certs using CustomCABundle will overwrite the SystemCerts, so we opt by creating a custom HTTPClient
 	httpClient, err := createHTTPClient(certDir)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating http client for s3")
 	}

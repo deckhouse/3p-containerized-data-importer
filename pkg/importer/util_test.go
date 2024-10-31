@@ -14,8 +14,8 @@ import (
 )
 
 var _ = Describe("Parse endpoints", func() {
-	var envURL, _ = url.Parse("http://www.google.com")
-	var validURL, _ = url.Parse("http://www.bing.com")
+	envURL, _ := url.Parse("http://www.google.com")
+	validURL, _ := url.Parse("http://www.bing.com")
 
 	BeforeEach(func() {
 		os.Setenv(common.ImporterEndpoint, envURL.String())
@@ -45,7 +45,6 @@ var _ = Describe("Parse endpoints", func() {
 		Expect(err).To(HaveOccurred())
 		Expect(strings.Contains(err.Error(), "is missing or blank")).To(BeTrue())
 	})
-
 })
 
 var _ = Describe("Stream Data To File", func() {
@@ -68,7 +67,7 @@ var _ = Describe("Stream Data To File", func() {
 		if useTmpDir {
 			fileName = filepath.Join(tmpDir, fileName)
 		}
-		err = streamDataToFile(r, fileName)
+		err = StreamDataToFile(r, fileName)
 		if !wantErr {
 			Expect(err).NotTo(HaveOccurred())
 		} else {

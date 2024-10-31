@@ -137,7 +137,7 @@ func (is *ImageioDataSource) Transfer(path string) (ProcessingPhase, error) {
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 	is.readers.StartProgressUpdate()
-	err = streamDataToFile(is.readers.TopReader(), file)
+	err = StreamDataToFile(is.readers.TopReader(), file)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}
@@ -182,7 +182,7 @@ func (is *ImageioDataSource) TransferFile(fileName string) (ProcessingPhase, err
 			return ProcessingPhaseError, err
 		}
 	} else {
-		err := streamDataToFile(is.readers.TopReader(), fileName)
+		err := StreamDataToFile(is.readers.TopReader(), fileName)
 		if err != nil {
 			return ProcessingPhaseError, err
 		}
@@ -867,7 +867,7 @@ func getTransfer(conn ConnectionInterface, disk *ovirtsdk4.Disk, snapshot *ovirt
 
 	transfer := conn.SystemService().ImageTransfersService().Add()
 	transfer.ImageTransfer(imageTransfer)
-	var it = &ovirtsdk4.ImageTransfer{}
+	it := &ovirtsdk4.ImageTransfer{}
 	for {
 		response, err := transfer.Send()
 		if err != nil {
@@ -1066,8 +1066,7 @@ type ImageTransferServiceCancelRequestInterface interface {
 }
 
 // ImageTransferServiceCancelResponseInterface defines service methods
-type ImageTransferServiceCancelResponseInterface interface {
-}
+type ImageTransferServiceCancelResponseInterface interface{}
 
 // ImageTransferServiceExtendRequestInterface defines service methods
 type ImageTransferServiceExtendRequestInterface interface {
@@ -1075,8 +1074,7 @@ type ImageTransferServiceExtendRequestInterface interface {
 }
 
 // ImageTransferServiceExtendResponseInterface defines service methods
-type ImageTransferServiceExtendResponseInterface interface {
-}
+type ImageTransferServiceExtendResponseInterface interface{}
 
 // ImageTransferServiceFinalizeRequestInterface defines service methods
 type ImageTransferServiceFinalizeRequestInterface interface {
@@ -1084,8 +1082,7 @@ type ImageTransferServiceFinalizeRequestInterface interface {
 }
 
 // ImageTransferServiceFinalizeResponseInterface defines service methods
-type ImageTransferServiceFinalizeResponseInterface interface {
-}
+type ImageTransferServiceFinalizeResponseInterface interface{}
 
 // ImageTransferServiceGetRequestInterface defines service methods
 type ImageTransferServiceGetRequestInterface interface {
@@ -1450,6 +1447,7 @@ type extraSettings struct {
 func (e *extraSettings) Compression() bool {
 	return e.compression
 }
+
 func (e *extraSettings) ExtraHeaders() map[string]string {
 	return e.extraHeaders
 }

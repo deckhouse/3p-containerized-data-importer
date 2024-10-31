@@ -54,7 +54,6 @@ func NewGCSDataSource(endpoint, keyFile string) (*GCSDataSource, error) {
 
 	// Parsing Endpoint
 	ep, err := ParseEndpoint(endpoint)
-
 	if err != nil {
 		return nil, errors.Wrapf(err, fmt.Sprintf("GCS Importer: unable to parse endpoint %q", endpoint))
 	}
@@ -73,7 +72,6 @@ func NewGCSDataSource(endpoint, keyFile string) (*GCSDataSource, error) {
 
 	// Creating GCS Client
 	client, err := getGcsClient(ctx, keyFile, options...)
-
 	if err != nil {
 		klog.Errorf("GCS Importer: Error creating GCS Client")
 		return nil, err
@@ -126,8 +124,7 @@ func (sd *GCSDataSource) Transfer(path string) (ProcessingPhase, error) {
 		return ProcessingPhaseError, ErrInvalidPath
 	}
 
-	err := streamDataToFile(sd.readers.TopReader(), file)
-
+	err := StreamDataToFile(sd.readers.TopReader(), file)
 	if err != nil {
 		klog.V(3).Infoln("GCS Importer: Transfer Error: ", err)
 		return ProcessingPhaseError, err
@@ -143,7 +140,7 @@ func (sd *GCSDataSource) TransferFile(fileName string) (ProcessingPhase, error) 
 		return ProcessingPhaseError, err
 	}
 
-	err := streamDataToFile(sd.readers.TopReader(), fileName)
+	err := StreamDataToFile(sd.readers.TopReader(), fileName)
 	if err != nil {
 		return ProcessingPhaseError, err
 	}

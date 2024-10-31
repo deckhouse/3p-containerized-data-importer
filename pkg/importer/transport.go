@@ -123,7 +123,8 @@ func processLayer(ctx context.Context,
 	destDir string,
 	pathPrefix string,
 	cache types.BlobInfoCache,
-	stopAtFirst bool) (bool, error) {
+	stopAtFirst bool,
+) (bool, error) {
 	var reader io.ReadCloser
 	reader, _, err := src.GetBlob(ctx, layer, cache)
 	if err != nil {
@@ -161,7 +162,7 @@ func processLayer(ctx context.Context,
 				return false, errors.Wrap(err, "Error creating output file's directory")
 			}
 
-			if err := streamDataToFile(tarReader, destFile); err != nil {
+			if err := StreamDataToFile(tarReader, destFile); err != nil {
 				klog.Errorf("Error copying file: %v", err)
 				return false, errors.Wrap(err, "Error copying file")
 			}
