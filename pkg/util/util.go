@@ -124,23 +124,6 @@ func MinQuantity(availableSpace, imageSize *resource.Quantity) resource.Quantity
 	return *imageSize
 }
 
-// // StreamDataToFile provides a function to stream the specified io.Reader to the specified local file
-// func StreamDataToFile(r io.Reader, fileName string) error {
-// 	outFile, err := OpenFileOrBlockDevice(fileName)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer outFile.Close()
-// 	klog.V(1).Infof("Writing data...\n")
-// 	if _, err = io.Copy(outFile, r); err != nil {
-// 		klog.Errorf("Unable to write file from dataReader: %v\n", err)
-// 		os.Remove(outFile.Name())
-// 		return errors.Wrapf(err, "unable to write to file")
-// 	}
-// 	err = outFile.Sync()
-// 	return err
-// }
-
 // UnArchiveTar unarchives a tar file and streams its files
 // using the specified io.Reader to the specified destination.
 func UnArchiveTar(reader io.Reader, destDir string) error {
@@ -183,44 +166,6 @@ func WriteTerminationMessageToFile(file, message string) error {
 	}
 	return nil
 }
-
-// // CopyDir copies a dir from one location to another.
-// func CopyDir(source string, dest string) (err error) {
-// 	// get properties of source dir
-// 	sourceinfo, err := os.Stat(source)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	// create dest dir
-// 	err = os.MkdirAll(dest, sourceinfo.Mode())
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	directory, _ := os.Open(source)
-// 	objects, err := directory.Readdir(-1)
-
-// 	for _, obj := range objects {
-// 		src := filepath.Join(source, obj.Name())
-// 		dst := filepath.Join(dest, obj.Name())
-
-// 		if obj.IsDir() {
-// 			// create sub-directories - recursively
-// 			err = CopyDir(src, dst)
-// 			if err != nil {
-// 				fmt.Println(err)
-// 			}
-// 		} else {
-// 			// perform copy
-// 			err = CopyFile(src, dst)
-// 			if err != nil {
-// 				fmt.Println(err)
-// 			}
-// 		}
-// 	}
-// 	return
-// }
 
 // RoundDown returns the number rounded down to the nearest multiple.
 func RoundDown(number, multiple int64) int64 {
@@ -292,57 +237,6 @@ func Md5sum(filePath string) (string, error) {
 	hashInBytes := hash.Sum(nil)[:16]
 	return hex.EncodeToString(hashInBytes), nil
 }
-
-// Three functions for zeroing a range in the destination file:
-
-// AppendZeroWithTruncate resizes the file to append zeroes, meant only for newly-created (empty and zero-length) regular files.
-// func AppendZeroWithTruncate(outFile *os.File, start, length int64) error {
-// 	klog.Infof("Truncating %d-bytes from offset %d", length, start)
-// 	end, err := outFile.Seek(0, io.SeekEnd)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if start != end {
-// 		return errors.Errorf("starting offset %d does not match previous ending offset %d, cannot safely append zeroes to this file using truncate", start, end)
-// 	}
-// 	err = outFile.Truncate(start + length)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	_, err = outFile.Seek(0, io.SeekEnd)
-// 	return err
-// }
-
-// var zeroBuffer []byte
-
-// AppendZeroWithWrite just does normal file writes to the destination, a slow but reliable fallback option.
-// func AppendZeroWithWrite(outFile *os.File, start, length int64) error {
-// 	klog.Infof("Writing %d zero bytes at offset %d", length, start)
-// 	offset, err := outFile.Seek(0, io.SeekCurrent)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if start != offset {
-// 		return errors.Errorf("starting offset %d does not match previous ending offset %d, cannot safely append zeroes to this file using write", start, offset)
-// 	}
-// 	if zeroBuffer == nil { // No need to re-allocate this on every write
-// 		zeroBuffer = bytes.Repeat([]byte{0}, 32<<20)
-// 	}
-// 	count := int64(0)
-// 	for count < length {
-// 		blockSize := int64(len(zeroBuffer))
-// 		remaining := length - count
-// 		if remaining < blockSize {
-// 			blockSize = remaining
-// 		}
-// 		written, err := outFile.Write(zeroBuffer[:blockSize])
-// 		if err != nil {
-// 			return errors.Wrapf(err, "unable to write %d zeroes at offset %d: %v", length, start+count, err)
-// 		}
-// 		count += int64(written)
-// 	}
-// 	return nil
-// }
 
 // GetUsableSpace calculates space to use taking file system overhead into account
 func GetUsableSpace(filesystemOverhead float64, availableSpace int64) int64 {

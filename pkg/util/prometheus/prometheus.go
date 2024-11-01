@@ -56,21 +56,6 @@ func NewProgressReader(r io.ReadCloser, total uint64, progress *prometheus.Count
 	return promReader
 }
 
-// // NewProgressReader creates a new instance of a prometheus updating progress reader.
-// func NewProgressReader(r io.ReadCloser, metric ProgressMetric, total uint64) *ProgressReader {
-// 	promReader := &ProgressReader{
-// 		CountingReader: util.CountingReader{
-// 			Reader:  r,
-// 			Current: 0,
-// 		},
-// 		metric: metric,
-// 		total:  total,
-// 		final:  true,
-// 	}
-
-// 	return promReader
-// }
-
 // StartTimedUpdate starts the update timer to automatically update every second.
 func (r *ProgressReader) StartTimedUpdate() {
 	// Start the progress update thread.
@@ -106,27 +91,6 @@ func (r *ProgressReader) updateProgress() bool {
 	}
 	return false
 }
-
-// func (r *ProgressReader) updateProgress() bool {
-// 	if r.total > 0 {
-// 		finished := r.final && r.Done
-// 		currentProgress := 100.0
-// 		if !finished && r.Current < r.total {
-// 			currentProgress = float64(r.Current) / float64(r.total) * 100.0
-// 		}
-// 		progress, err := r.metric.Get()
-// 		if err != nil {
-// 			klog.Errorf("updateProgress: failed to read metric; %v", err)
-// 			return true // true ==> to try again // todo - how to avoid endless loop in case it's a constant error?
-// 		}
-// 		if currentProgress > progress {
-// 			r.metric.Add(currentProgress - progress)
-// 		}
-// 		klog.V(1).Infoln(fmt.Sprintf("%.2f", currentProgress))
-// 		return !finished
-// 	}
-// 	return false
-// }
 
 // SetNextReader replaces the current counting reader with a new one,
 // for tracking progress over multiple readers.
