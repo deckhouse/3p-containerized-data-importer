@@ -38,6 +38,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
+
 	cc "kubevirt.io/containerized-data-importer/pkg/controller/common"
 	"kubevirt.io/containerized-data-importer/pkg/controller/populators"
 	featuregates "kubevirt.io/containerized-data-importer/pkg/feature-gates"
@@ -342,6 +343,11 @@ func volumeImportSourceName(dv *cdiv1.DataVolume) string {
 
 func (r *ImportReconciler) reconcileVolumeImportSourceCR(syncState *dvSyncState) error {
 	dv := syncState.dvMutated
+
+	if dv == nil {
+		return errors.Errorf("syncState.dvMutated is nil")
+	}
+
 	importSource := &cdiv1.VolumeImportSource{}
 	importSourceName := volumeImportSourceName(dv)
 	isMultiStage := dv.Spec.Source != nil && len(dv.Spec.Checkpoints) > 0 &&
