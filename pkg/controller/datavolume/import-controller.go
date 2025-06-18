@@ -344,8 +344,8 @@ func volumeImportSourceName(dv *cdiv1.DataVolume) string {
 func (r *ImportReconciler) reconcileVolumeImportSourceCR(syncState *dvSyncState) error {
 	dv := syncState.dvMutated
 
-	if dv == nil {
-		return errors.New("syncState.dvMutated is nil")
+	if dv.Spec.Source == nil {
+		return errors.New("DataVolume source is nil")
 	}
 
 	importSource := &cdiv1.VolumeImportSource{}
