@@ -784,6 +784,8 @@ func GetWorkloadNodePlacement(ctx context.Context, c client.Client) (*sdkapi.Nod
 }
 
 // AdjustWorkloadNodePlacement adds tolerations specified in prime pvc annotation.
+// If the PVC is using populator, the target PVC is the same as the source PVC.
+// UsePopulator annotation is set to "false" to indicate that StorageClass does not have a CSI driver.
 func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlacement *sdkapi.NodePlacement, pvc *corev1.PersistentVolumeClaim) (*sdkapi.NodePlacement, error) {
 	var targetPVC corev1.PersistentVolumeClaim
 
