@@ -784,14 +784,14 @@ func GetWorkloadNodePlacement(ctx context.Context, c client.Client) (*sdkapi.Nod
 }
 
 // AdjustWorkloadNodePlacement adds tolerations specified in prime pvc annotation.
-func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlacement *sdkapi.NodePlacement, primePVC *corev1.PersistentVolumeClaim) (*sdkapi.NodePlacement, error) {
+func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlacement *sdkapi.NodePlacement, pvc *corev1.PersistentVolumeClaim) (*sdkapi.NodePlacement, error) {
 	var targetPVC corev1.PersistentVolumeClaim
 
-	if usePopulator, ok := primePVC.Annotations[AnnUsePopulator]; ok && usePopulator == "false" {
-		targetPVC = *primePVC
+	if usePopulator, ok := pvc.Annotations[AnnUsePopulator]; ok && usePopulator == "false" {
+		targetPVC = *pvc
 	} else {
 		targetPVCKey := types.NamespacedName{
-			Namespace: primePVC.Namespace,
+			Namespace: pvc.Namespace,
 		}
 
 		err := c.Get(ctx, targetPVCKey, &targetPVC)
@@ -799,7 +799,7 @@ func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlace
 			return nil, fmt.Errorf("failed to get target pvc %s: %w", targetPVCKey, err)
 		}
 
-		for _, ref := range primePVC.OwnerReferences {
+		for _, ref := range pvc.OwnerReferences {
 			if ref.Kind == "PersistentVolumeClaim" {
 				targetPVCKey.Name = ref.Name
 			}
