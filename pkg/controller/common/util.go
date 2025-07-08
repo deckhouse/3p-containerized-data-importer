@@ -789,7 +789,10 @@ func GetWorkloadNodePlacement(ctx context.Context, c client.Client) (*sdkapi.Nod
 func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlacement *sdkapi.NodePlacement, pvc *corev1.PersistentVolumeClaim) (*sdkapi.NodePlacement, error) {
 	var targetPVC corev1.PersistentVolumeClaim
 
-	if usePopulator, ok := pvc.Annotations[AnnUsePopulator]; ok && usePopulator == "false" {
+	usePopulator, hasPopulatorAnn := pvc.Annotations[AnnUsePopulator]
+	_, hasTolerationsAnn := pvc.Annotations[AnnProvisionerTolerations]
+
+	if (hasPopulatorAnn && usePopulator == "false") || hasTolerationsAnn {
 		targetPVC = *pvc
 	} else {
 		targetPVCKey := types.NamespacedName{
