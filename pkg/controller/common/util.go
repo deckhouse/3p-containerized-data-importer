@@ -799,15 +799,15 @@ func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlace
 			Namespace: pvc.Namespace,
 		}
 
-		err := c.Get(ctx, targetPVCKey, &targetPVC)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get target pvc %s: %w", targetPVCKey, err)
-		}
-
 		for _, ref := range pvc.OwnerReferences {
 			if ref.Kind == "PersistentVolumeClaim" {
 				targetPVCKey.Name = ref.Name
 			}
+		}
+
+		err := c.Get(ctx, targetPVCKey, &targetPVC)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get target pvc %s: %w", targetPVCKey, err)
 		}
 	}
 
