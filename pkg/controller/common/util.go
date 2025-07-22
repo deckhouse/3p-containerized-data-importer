@@ -62,12 +62,13 @@ import (
 
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 	cdiv1utils "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1/utils"
+	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
+
 	"kubevirt.io/containerized-data-importer/pkg/client/clientset/versioned/scheme"
 	"kubevirt.io/containerized-data-importer/pkg/common"
 	featuregates "kubevirt.io/containerized-data-importer/pkg/feature-gates"
 	"kubevirt.io/containerized-data-importer/pkg/token"
 	"kubevirt.io/containerized-data-importer/pkg/util"
-	sdkapi "kubevirt.io/controller-lifecycle-operator-sdk/api"
 )
 
 const (
@@ -1203,6 +1204,7 @@ func SetRestrictedSecurityContext(podSpec *corev1.PodSpec) {
 			container.SecurityContext.ReadOnlyRootFilesystem = ptr.To[bool](true)
 			container.SecurityContext.RunAsNonRoot = ptr.To[bool](true)
 			container.SecurityContext.RunAsUser = ptr.To[int64](common.QemuSubGid)
+			container.SecurityContext.RunAsGroup = ptr.To[int64](common.QemuSubGid)
 			if len(container.VolumeMounts) > 0 {
 				hasVolumeMounts = true
 			}
