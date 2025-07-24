@@ -58,6 +58,9 @@ var CapabilitiesByProvisionerKey = map[string][]StorageCapabilities{
 	"replicated.csi.storage.deckhouse.io":   createAllButRWXFileCapabilities(),
 	"local.csi.storage.deckhouse.io":        createTopoLVMCapabilities(),
 	"scsi-generic.csi.storage.deckhouse.io": createAllButRWXFileCapabilities(),
+	// These Deckhouse CDI drivers are PoC, uncomment and change when ready.
+	// "csi-s3: s3.csi.k8s.io": {{rwx, file}},
+	// "sds-elastic: rook-ceph.rbd.csi.ceph.com": createRbdCapabilities(),
 	// DELL Unity XT
 	"csi-unity.dellemc.com":     createAllButRWXFileCapabilities(),
 	"csi-unity.dellemc.com/nfs": createAllFSCapabilities(),
