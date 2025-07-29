@@ -16,6 +16,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
+
 	"kubevirt.io/containerized-data-importer/pkg/util"
 )
 
@@ -54,8 +55,12 @@ var CapabilitiesByProvisionerKey = map[string][]StorageCapabilities{
 	// LINSTOR
 	"linstor.csi.linbit.com": createAllButRWXFileCapabilities(),
 	// Deckhouse
-	"replicated.csi.storage.deckhouse.io": createAllButRWXFileCapabilities(),
-	"local.csi.storage.deckhouse.io":      createTopoLVMCapabilities(),
+	"replicated.csi.storage.deckhouse.io":   createAllButRWXFileCapabilities(),
+	"local.csi.storage.deckhouse.io":        createTopoLVMCapabilities(),
+	"scsi-generic.csi.storage.deckhouse.io": createAllButRWXFileCapabilities(),
+	// These Deckhouse CDI drivers are PoC, uncomment and change when ready.
+	// "csi-s3: s3.csi.k8s.io": {{rwx, file}},
+	// "sds-elastic: rook-ceph.rbd.csi.ceph.com": createRbdCapabilities(),
 	// DELL Unity XT
 	"csi-unity.dellemc.com":     createAllButRWXFileCapabilities(),
 	"csi-unity.dellemc.com/nfs": createAllFSCapabilities(),
@@ -106,6 +111,9 @@ var CapabilitiesByProvisionerKey = map[string][]StorageCapabilities{
 	// Trident
 	"csi.trident.netapp.io/ontap-nas": {{rwx, file}, {rwo, file}},
 	"csi.trident.netapp.io/ontap-san": {{rwx, block}},
+	// Deckhouse Netapp
+	"csi.Netapp.com/ontap-nas": {{rwx, file}, {rwo, file}},
+	"csi.Netapp.com/ontap-san": {{rwx, block}},
 	// topolvm
 	"topolvm.cybozu.com": createTopoLVMCapabilities(),
 	"topolvm.io":         createTopoLVMCapabilities(),
@@ -129,6 +137,8 @@ var CapabilitiesByProvisionerKey = map[string][]StorageCapabilities{
 	// Longhorn
 	"driver.longhorn.io":            {{rwo, block}},
 	"driver.longhorn.io/migratable": {{rwx, block}, {rwo, block}},
+	// Yadro Tatlin
+	"csi-tatlinunified.yadro.com": createAllButRWXFileCapabilities(),
 }
 
 // SourceFormatsByProvisionerKey defines the advised data import cron source format
@@ -138,13 +148,15 @@ var SourceFormatsByProvisionerKey = map[string]cdiv1.DataImportCronSourceFormat{
 	"openshift-storage.rbd.csi.ceph.com": cdiv1.DataImportCronSourceFormatSnapshot,
 	"csi.trident.netapp.io/ontap-nas":    cdiv1.DataImportCronSourceFormatSnapshot,
 	"csi.trident.netapp.io/ontap-san":    cdiv1.DataImportCronSourceFormatSnapshot,
+	"csi.Netapp.com/ontap-nas":           cdiv1.DataImportCronSourceFormatSnapshot,
+	"csi.Netapp.com/ontap-san":           cdiv1.DataImportCronSourceFormatSnapshot,
 }
 
 type CloneStrategyOverrider func(context.Context, client.Client, *storagev1.StorageClass) (cdiv1.CDICloneStrategy, error)
 
 var CloneStrategyOverriderByProvisionerKey = map[string]CloneStrategyOverrider{
 	"replicated.csi.storage.deckhouse.io": replicatedSCICloneStrategyOverrider,
-	"local.csi.storage.deckhouse.io": localSCICloneStrategyOverrider,
+	"local.csi.storage.deckhouse.io":      localSCICloneStrategyOverrider,
 }
 
 // CloneStrategyByProvisionerKey defines the advised clone strategy for a provisioner
@@ -171,7 +183,10 @@ var CloneStrategyByProvisionerKey = map[string]cdiv1.CDICloneStrategy{
 	"infinibox-csi-driver/nfs":                 cdiv1.CloneStrategyCsiClone,
 	"csi.trident.netapp.io/ontap-nas":          cdiv1.CloneStrategySnapshot,
 	"csi.trident.netapp.io/ontap-san":          cdiv1.CloneStrategySnapshot,
+	"csi.Netapp.com/ontap-nas":                 cdiv1.CloneStrategySnapshot,
+	"csi.Netapp.com/ontap-san":                 cdiv1.CloneStrategySnapshot,
 	"kubesan.gitlab.io":                        cdiv1.CloneStrategyCsiClone,
+	"csi-tatlinunified.yadro.com":              cdiv1.CloneStrategySnapshot,
 }
 
 const (
@@ -229,7 +244,7 @@ func replicatedSCICloneStrategyOverrider(ctx context.Context, c client.Client, s
 	var rsc rcsiv1.ReplicatedStorageClass
 	err := c.Get(ctx, types.NamespacedName{Name: sc.Name}, &rsc)
 	if err != nil {
-		return "", fmt.Errorf("failed to get replicated storage class %q: %w", sc.Name,err)
+		return "", fmt.Errorf("failed to get replicated storage class %q: %w", sc.Name, err)
 	}
 
 	var rsp rcsiv1.ReplicatedStoragePool
@@ -327,6 +342,17 @@ var storageClassToProvisionerKeyMapper = map[string]func(sc *storagev1.StorageCl
 		}
 		if strings.HasPrefix(val, "ontap-san") {
 			return "csi.trident.netapp.io/ontap-san"
+		}
+		return "UNKNOWN"
+	},
+	"csi.Netapp.com": func(sc *storagev1.StorageClass) string {
+		// https://netapp-trident.readthedocs.io/en/stable-v20.04/kubernetes/concepts/objects.html#kubernetes-storageclass-objects
+		val := sc.Parameters["backendType"]
+		if strings.HasPrefix(val, "ontap-nas") {
+			return "csi.Netapp.com/ontap-nas"
+		}
+		if strings.HasPrefix(val, "ontap-san") {
+			return "csi.Netapp.com/ontap-san"
 		}
 		return "UNKNOWN"
 	},
