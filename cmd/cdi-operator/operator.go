@@ -34,6 +34,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -100,9 +101,12 @@ func main() {
 		LeaderElectionNamespace:    namespace,
 		LeaderElectionID:           "cdi-operator-leader-election-helper",
 		LeaderElectionResourceLock: "leases",
-		Metrics:                    metricsserver.Options{
+		Metrics: metricsserver.Options{
 			BindAddress: metricsBindAddress,
 		},
+		HealthProbeBindAddress: ":8081",
+		LivenessEndpointName:   "/healthz",
+		ReadinessEndpointName:  "/healthz",
 	}
 
 	// Create a new Manager to provide shared dependencies and start components
@@ -147,6 +151,11 @@ func main() {
 	// Setup the controller
 	if err := controller.Add(mgr); err != nil {
 		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		log.Error(err, "failed to add healthz check")
 		os.Exit(1)
 	}
 
