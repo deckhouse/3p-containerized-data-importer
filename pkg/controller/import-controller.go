@@ -760,6 +760,14 @@ func (r *ImportReconciler) createScratchPvcForPod(pvc *corev1.PersistentVolumeCl
 					return innerErr
 				}
 			}
+			innerErr := patchedDV.UpdateDVQuotaNotExceededConditionByPVC(r.client, pvc, corev1.ConditionTrue, "", patchedDV.QuotaNotExceededReason)
+			if innerErr != nil {
+				return innerErr
+			}
+			return err
+		}
+		err := patchedDV.UpdateDVQuotaNotExceededConditionByPVC(r.client, pvc, corev1.ConditionTrue, "", patchedDV.QuotaNotExceededReason)
+		if err != nil {
 			return err
 		}
 		anno[cc.AnnBoundCondition] = "false"
