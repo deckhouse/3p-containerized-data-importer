@@ -312,6 +312,18 @@ func getNamespacedPolicyRules() []rbacv1.PolicyRule {
 				"update",
 			},
 		},
+		{
+			APIGroups: []string{
+				"",
+			},
+			Resources: []string{
+				"resourcequotas",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+			},
+		},
 	}
 	rules = append(rules, cdinamespaced.GetRolePolicyRules()...)
 	return rules

@@ -297,6 +297,18 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 				"watch",
 			},
 		},
+		{
+			APIGroups: []string{
+				"",
+			},
+			Resources: []string{
+				"resourcequotas",
+			},
+			Verbs: []string{
+				"list",
+				"watch",
+			},
+		},
 	}
 }
 
