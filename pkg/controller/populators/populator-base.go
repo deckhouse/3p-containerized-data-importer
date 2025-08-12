@@ -39,6 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 	"kubevirt.io/containerized-data-importer/pkg/common"
 	cc "kubevirt.io/containerized-data-importer/pkg/controller/common"
 	featuregates "kubevirt.io/containerized-data-importer/pkg/feature-gates"
@@ -157,6 +158,28 @@ func addCommonPopulatorsWatches(mgr manager.Manager, c controller.Controller, lo
 		return err
 	}
 
+	// When the resourceQuota is updated, it is necessary to trigger reconciliation for all populators that are waiting for quota expansion or removal.
+	if err := c.Watch(source.Kind(mgr.GetCache(), &corev1.ResourceQuota{}, handler.TypedEnqueueRequestsFromMapFunc[*corev1.ResourceQuota](
+		func(ctx context.Context, obj *corev1.ResourceQuota) []reconcile.Request {
+			dvList := &cdiv1.DataVolumeList{}
+			if err := mgr.GetClient().List(ctx, dvList, &client.ListOptions{Namespace: obj.Namespace}); err != nil {
+				return nil
+			}
+			var reqs []reconcile.Request
+			for _, dv := range dvList.Items {
+				for _, condition := range dv.Status.Conditions {
+					if condition.Type == patchedDV.QoutaNotExceededConditionType && condition.Status == corev1.ConditionFalse {
+						reqs = append(reqs, reconcile.Request{NamespacedName: types.NamespacedName{Name: dv.Name, Namespace: dv.Namespace}})
+					}
+				}
+			}
+			return reqs
+		},
+	),
+	)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -225,7 +248,16 @@ func (r *ReconcilerBase) createPVCPrime(pvc *corev1.PersistentVolumeClaim, sourc
 			if innerErr != nil {
 				return nil, innerErr
 			}
+		} else {
+			innerErr := patchedDV.UpdateDVQuotaNotExceededConditionByPVC(r.client, pvc, corev1.ConditionTrue, "", patchedDV.QuotaNotExceededReason)
+			if innerErr != nil {
+				return nil, innerErr
+			}
 		}
+		return nil, err
+	}
+	err := patchedDV.UpdateDVQuotaNotExceededConditionByPVC(r.client, pvc, corev1.ConditionTrue, "", patchedDV.QuotaNotExceededReason)
+	if err != nil {
 		return nil, err
 	}
 	r.recorder.Eventf(pvc, corev1.EventTypeNormal, createdPVCPrimeSuccessfully, messageCreatedPVCPrimeSuccessfully)

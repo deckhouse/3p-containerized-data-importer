@@ -480,6 +480,14 @@ func (r *UploadReconciler) getOrCreateScratchPvc(pvc *corev1.PersistentVolumeCla
 					return nil, innerErr
 				}
 			}
+			innerErr := patchedDV.UpdateDVQuotaNotExceededConditionByPVC(r.client, pvc, corev1.ConditionTrue, "", patchedDV.QuotaNotExceededReason)
+			if innerErr != nil {
+				return nil, innerErr
+			}
+			return nil, err
+		}
+		err := patchedDV.UpdateDVQuotaNotExceededConditionByPVC(r.client, pvc, corev1.ConditionTrue, "", patchedDV.QuotaNotExceededReason)
+		if err != nil {
 			return nil, err
 		}
 	} else {
