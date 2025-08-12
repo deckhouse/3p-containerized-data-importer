@@ -34,6 +34,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -47,6 +48,7 @@ import (
 
 var log = logf.Log.WithName("cmd")
 var metricsBindAddress string
+var healthProbeBindAddress string
 
 func printVersion() {
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
@@ -55,6 +57,7 @@ func printVersion() {
 
 func main() {
 	flag.StringVar(&metricsBindAddress, "metrics_address", ":8080", "(Optional) URL address of a metrics server.")
+	flag.StringVar(&healthProbeBindAddress, "health_address", ":8081", "(Optional) URL address for health probes.")
 	flag.Parse()
 
 	defVerbose := fmt.Sprintf("%d", 1) // note flag values are strings
@@ -100,9 +103,10 @@ func main() {
 		LeaderElectionNamespace:    namespace,
 		LeaderElectionID:           "cdi-operator-leader-election-helper",
 		LeaderElectionResourceLock: "leases",
-		Metrics:                    metricsserver.Options{
+		Metrics: metricsserver.Options{
 			BindAddress: metricsBindAddress,
 		},
+		HealthProbeBindAddress: healthProbeBindAddress,
 	}
 
 	// Create a new Manager to provide shared dependencies and start components
@@ -147,6 +151,15 @@ func main() {
 	// Setup the controller
 	if err := controller.Add(mgr); err != nil {
 		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up health check")
+		os.Exit(1)
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
