@@ -305,6 +305,7 @@ func getControllerClusterPolicyRules() []rbacv1.PolicyRule {
 				"resourcequotas",
 			},
 			Verbs: []string{
+				"get",
 				"list",
 				"watch",
 			},

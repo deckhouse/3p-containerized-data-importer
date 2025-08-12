@@ -320,6 +320,7 @@ func getNamespacedPolicyRules() []rbacv1.PolicyRule {
 				"resourcequotas",
 			},
 			Verbs: []string{
+				"get",
 				"list",
 				"watch",
 			},
