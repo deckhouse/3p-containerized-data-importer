@@ -48,6 +48,7 @@ import (
 
 var log = logf.Log.WithName("cmd")
 var metricsBindAddress string
+var healthProbeBindAddress string
 
 func printVersion() {
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
@@ -56,6 +57,7 @@ func printVersion() {
 
 func main() {
 	flag.StringVar(&metricsBindAddress, "metrics_address", ":8080", "(Optional) URL address of a metrics server.")
+	flag.StringVar(&healthProbeBindAddress, "health_address", ":8081", "(Optional) URL address for health probes.")
 	flag.Parse()
 
 	defVerbose := fmt.Sprintf("%d", 1) // note flag values are strings
@@ -104,7 +106,7 @@ func main() {
 		Metrics: metricsserver.Options{
 			BindAddress: metricsBindAddress,
 		},
-		HealthProbeBindAddress: ":8081",
+		HealthProbeBindAddress: healthProbeBindAddress,
 		LivenessEndpointName:   "/healthz",
 		ReadinessEndpointName:  "/healthz",
 	}
