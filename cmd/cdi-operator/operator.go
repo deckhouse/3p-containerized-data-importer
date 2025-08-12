@@ -107,8 +107,6 @@ func main() {
 			BindAddress: metricsBindAddress,
 		},
 		HealthProbeBindAddress: healthProbeBindAddress,
-		LivenessEndpointName:   "/healthz",
-		ReadinessEndpointName:  "/healthz",
 	}
 
 	// Create a new Manager to provide shared dependencies and start components
@@ -157,7 +155,11 @@ func main() {
 	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-		log.Error(err, "failed to add healthz check")
+		log.Error(err, "unable to set up health check")
+		os.Exit(1)
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 
