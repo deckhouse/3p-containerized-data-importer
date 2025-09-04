@@ -572,7 +572,7 @@ func MakeCloneSourcePodSpec(sourceVolumeMode corev1.PersistentVolumeMode, image,
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:            common.ClonerSourcePodName,
+					Name:            "d8v-cdi-clone-source",
 					Image:           image,
 					ImagePullPolicy: corev1.PullPolicy(pullPolicy),
 					Env: []corev1.EnvVar{

@@ -1343,7 +1343,7 @@ func CreateImporterTestPod(pvc *corev1.PersistentVolumeClaim, dvname string, scr
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:            common.ImporterPodName,
+					Name:            "d8v-cdi-importer",
 					Image:           "test/myimage",
 					ImagePullPolicy: corev1.PullPolicy("Always"),
 					Args:            []string{"-v=5"},

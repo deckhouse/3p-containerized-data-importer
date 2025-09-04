@@ -970,7 +970,7 @@ func makeImporterPodSpec(args *importerPodArgs) *corev1.Pod {
 func makeImporterContainerSpec(args *importerPodArgs) []corev1.Container {
 	containers := []corev1.Container{
 		{
-			Name:            common.ImporterPodName,
+			Name:            "d8v-cdi-importer",
 			Image:           args.image,
 			ImagePullPolicy: corev1.PullPolicy(args.pullPolicy),
 			Args:            []string{"-v=" + args.verbose},
@@ -991,7 +991,7 @@ func makeImporterContainerSpec(args *importerPodArgs) []corev1.Container {
 	}
 	if isRegistryNodeImport(args) {
 		containers = append(containers, corev1.Container{
-			Name:            "server",
+			Name:            "d8v-cdi-registrynode-server",
 			Image:           args.importImage,
 			ImagePullPolicy: corev1.PullPolicy(args.pullPolicy),
 			Command:         []string{"/shared/server", "-p", "8100", "-image-dir", "/disk", "-ready-file", "/shared/ready", "-done-file", "/shared/done"},
@@ -1124,7 +1124,7 @@ func makeImporterInitContainersSpec(args *importerPodArgs) []corev1.Container {
 	var initContainers []corev1.Container
 	if isRegistryNodeImport(args) {
 		initContainers = append(initContainers, corev1.Container{
-			Name:            "init",
+			Name:            "d8v-cdi-init",
 			Image:           args.image,
 			ImagePullPolicy: corev1.PullPolicy(args.pullPolicy),
 			Command:         []string{"sh", "-c", "cp /usr/bin/cdi-containerimage-server /shared/server"},

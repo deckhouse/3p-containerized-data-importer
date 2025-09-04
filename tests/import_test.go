@@ -349,7 +349,7 @@ var _ = Describe("[Istio] Namespace sidecar injection", Serial, func() {
 				Pods(importer.Namespace).
 				GetLogs(importer.Name, &v1.PodLogOptions{
 					SinceTime: &metav1.Time{Time: CurrentSpecReport().StartTime},
-					Container: "importer",
+					Container: "d8v-cdi-importer",
 				}).
 				DoRaw(context.Background())
 			return string(out), err
