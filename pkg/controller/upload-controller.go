@@ -30,7 +30,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	runtime "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -825,7 +825,7 @@ func (r *UploadReconciler) makeUploadPodContainers(args UploadPodArgs, resourceR
 	requestImageSize, _ := cc.GetRequestedImageSize(args.PVC)
 	containers := []corev1.Container{
 		{
-			Name:            common.UploadServerPodname,
+			Name:            "d8v-cdi-upload-server",
 			Image:           r.image,
 			ImagePullPolicy: corev1.PullPolicy(r.pullPolicy),
 			Env: []corev1.EnvVar{
