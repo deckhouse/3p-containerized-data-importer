@@ -1,6 +1,8 @@
 module kubevirt.io/containerized-data-importer
 
-go 1.22.3
+go 1.23.0
+
+toolchain go1.24.8
 
 require (
 	cloud.google.com/go/storage v1.36.0
@@ -12,7 +14,7 @@ require (
 	github.com/emicklei/go-restful/v3 v3.11.0
 	github.com/evanphx/json-patch/v5 v5.9.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-jose/go-jose/v3 v3.0.3
+	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/go-logr/logr v1.4.1
 	github.com/golang/snappy v0.0.4
 	github.com/google/uuid v1.6.0
@@ -43,7 +45,7 @@ require (
 	github.com/ulikunitz/xz v0.5.12
 	github.com/vmware/govmomi v0.23.1
 	go.uber.org/zap v1.26.0
-	golang.org/x/sys v0.22.0
+	golang.org/x/sys v0.33.0
 	google.golang.org/api v0.155.0
 	gopkg.in/fsnotify.v1 v1.4.7
 	k8s.io/api v0.30.2
@@ -141,14 +143,14 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/mod v0.18.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
-	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/term v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/oauth2 v0.27.0 // indirect
+	golang.org/x/sync v0.14.0 // indirect
+	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.22.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
