@@ -10,6 +10,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.302
 	github.com/containers/image/v5 v5.32.0
 	github.com/coreos/go-semver v0.3.1
+	github.com/deckhouse/sds-replicated-volume/api v0.0.0-20241206095502-b096856636cd
 	github.com/docker/go-units v0.5.0
 	github.com/emicklei/go-restful/v3 v3.11.0
 	github.com/evanphx/json-patch/v5 v5.9.0
@@ -42,7 +43,7 @@ require (
 	github.com/prometheus/client_model v0.6.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/rs/cors v1.7.0
-	github.com/ulikunitz/xz v0.5.12
+	github.com/ulikunitz/xz v0.5.15
 	github.com/vmware/govmomi v0.23.1
 	go.uber.org/zap v1.26.0
 	golang.org/x/sys v0.33.0
@@ -81,10 +82,9 @@ require (
 	github.com/containers/ocicrypt v1.2.0 // indirect
 	github.com/containers/storage v1.55.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/deckhouse/sds-replicated-volume/api v0.0.0-20241206095502-b096856636cd // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
-	github.com/docker/docker v27.1.1+incompatible // indirect
+	github.com/docker/docker v28.0.0+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
