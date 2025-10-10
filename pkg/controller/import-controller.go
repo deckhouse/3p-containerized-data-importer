@@ -170,7 +170,8 @@ func addImportControllerWatches(mgr manager.Manager, importController controller
 }
 
 func (r *ImportReconciler) shouldReconcilePVC(pvc *corev1.PersistentVolumeClaim,
-	log logr.Logger) (bool, error) {
+	log logr.Logger,
+) (bool, error) {
 	_, pvcUsesExternalPopulator := pvc.Annotations[cc.AnnExternalPopulation]
 	if pvcUsesExternalPopulator {
 		return false, nil
@@ -571,7 +572,7 @@ func (r *ImportReconciler) createImportEnvVar(pvc *corev1.PersistentVolumeClaim)
 		if podEnvVar.secretName == "" {
 			r.log.V(2).Info("no secret will be supplied to endpoint", "endPoint", podEnvVar.ep)
 		}
-		//get the CDIConfig to extract the proxy configuration to be used to import an image
+		// get the CDIConfig to extract the proxy configuration to be used to import an image
 		cdiConfig := &cdiv1.CDIConfig{}
 		err = r.client.Get(context.TODO(), types.NamespacedName{Name: common.ConfigName}, cdiConfig)
 		if err != nil {
@@ -631,7 +632,7 @@ func (r *ImportReconciler) createImportEnvVar(pvc *corev1.PersistentVolumeClaim)
 		podEnvVar.preallocation = preallocation
 	} // else use the default "false"
 
-	//get the requested image size.
+	// get the requested image size.
 	podEnvVar.imageSize, err = cc.GetRequestedImageSize(pvc)
 	if err != nil {
 		return nil, err
@@ -913,7 +914,9 @@ func makeImporterPodSpec(args *importerPodArgs) *corev1.Pod {
 			Name:      podName,
 			Namespace: args.pvc.Namespace,
 			Annotations: map[string]string{
-				cc.AnnCreatedBy: "yes",
+				cc.AnnCreatedBy:                   "yes",
+				"kubernetes.io/ingress-bandwidth": "5M",
+				"kubernetes.io/egress-bandwidth":  "5M",
 			},
 			Labels: map[string]string{
 				common.CDILabelKey:        common.CDILabelValue,
