@@ -768,7 +768,7 @@ func createUploadClonePod(pvc *corev1.PersistentVolumeClaim, clientName string) 
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:            "cdi-upload-server",
+					Name:            "d8v-cdi-upload-server",
 					Image:           "test/myimage",
 					ImagePullPolicy: corev1.PullPolicy("Always"),
 					VolumeMounts: []corev1.VolumeMount{
