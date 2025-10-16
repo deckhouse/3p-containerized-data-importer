@@ -757,7 +757,7 @@ func makeSizeDetectionObjectMeta(sourcePvc *corev1.PersistentVolumeClaim) *metav
 // makeSizeDetectionContainerSpec creates and returns the size-detection pod's Container spec
 func (r *PvcCloneReconciler) makeSizeDetectionContainerSpec(volName string) *corev1.Container {
 	container := corev1.Container{
-		Name:            "size-detection-volume",
+		Name:            "d8v-size-detection-volume",
 		Image:           r.importerImage,
 		ImagePullPolicy: corev1.PullPolicy(r.pullPolicy),
 		Command:         []string{"/usr/bin/cdi-image-size-detection"},

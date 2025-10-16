@@ -159,7 +159,7 @@ func (p *PrepClaimPhase) createPod(ctx context.Context, name string, pvc *corev1
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:            "dummy",
+					Name:            "d8v-dummy",
 					Image:           p.Image,
 					ImagePullPolicy: p.PullPolicy,
 					Command:         []string{"/bin/hello"},
