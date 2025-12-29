@@ -198,6 +198,7 @@ func (r *ReconcilerBase) getPVCPrime(pvc *corev1.PersistentVolumeClaim) (*corev1
 func (r *ReconcilerBase) createPVCPrime(pvc *corev1.PersistentVolumeClaim, source client.Object, waitForFirstConsumer bool, updatePVCForPopulation pvcModifierFunc) (*corev1.PersistentVolumeClaim, error) {
 	labels := make(map[string]string)
 	labels[common.CDILabelKey] = common.CDILabelValue
+	labels[common.QuotaExcludeLabel] = common.QuotaExcludeValue
 	annotations := make(map[string]string)
 	annotations[cc.AnnImmediateBinding] = ""
 	if waitForFirstConsumer {

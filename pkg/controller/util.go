@@ -129,6 +129,7 @@ func checkIfLabelExists(pvc *corev1.PersistentVolumeClaim, lbl string, val strin
 func newScratchPersistentVolumeClaimSpec(pvc *corev1.PersistentVolumeClaim, pod *corev1.Pod, name, storageClassName string) *corev1.PersistentVolumeClaim {
 	labels := map[string]string{
 		"app": "containerized-data-importer",
+		common.QuotaExcludeLabel: common.QuotaExcludeValue,
 	}
 
 	annotations := make(map[string]string)

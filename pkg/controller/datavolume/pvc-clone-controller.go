@@ -750,6 +750,7 @@ func makeSizeDetectionObjectMeta(sourcePvc *corev1.PersistentVolumeClaim) *metav
 		Labels: map[string]string{
 			common.CDILabelKey:       common.CDILabelValue,
 			common.CDIComponentLabel: common.ImporterPodName,
+			common.QuotaExcludeLabel: common.QuotaExcludeValue,
 		},
 	}
 }
