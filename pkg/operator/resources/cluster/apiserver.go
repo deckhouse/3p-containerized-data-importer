@@ -706,7 +706,7 @@ func GetAPIServerCABundle(namespace string, c client.Client, l logr.Logger) []by
 	return nil
 }
 
-const apiServerWrapName = "cdi-internal-virtualization-apiserver"
+const apiServerWrapName = "d8-cdi-internal-virtualization-apiserver"
 
 func createAPIServerClusterRoleBinding(namespace string) *rbacv1.ClusterRoleBinding {
 	return utils.ResourceBuilder.CreateClusterRoleBinding(apiServerWrapName, apiServerWrapName, common.CDIApiServerResourceName, namespace)
