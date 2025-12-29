@@ -48,7 +48,7 @@ func getUploadProxyClusterPolicyRules() []rbacv1.PolicyRule {
 	}
 }
 
-const uploadProxyWrapName = "d8-cdi-internal-virtualization-uploadproxy"
+const uploadProxyWrapName = "cdi-internal-virtualization-uploadproxy"
 
 func createUploadProxyClusterRoleBinding(namespace string) *rbacv1.ClusterRoleBinding {
 	return utils.ResourceBuilder.CreateClusterRoleBinding(uploadProxyWrapName, uploadProxyWrapName, common.CDIUploadProxyResourceName, namespace)

@@ -40,8 +40,8 @@ import (
 )
 
 const (
-	serviceAccountName = "d8-cdi-operator"
-	roleName           = "d8-cdi-operator"
+	serviceAccountName = "cdi-operator"
+	roleName           = "cdi-operator"
 	clusterRoleName    = roleName + "-cluster"
 )
 

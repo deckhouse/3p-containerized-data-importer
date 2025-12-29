@@ -60,7 +60,7 @@ func GetOrCreatePrivateKey(client kubernetes.Interface, namespace, secretName st
 		if err != nil {
 			return nil, errors.Wrap(err, "Error creating prvate key secret")
 		}
-		util.SetRecommendedLabels(secret, installerLabels, "d8-cdi-apiserver")
+		util.SetRecommendedLabels(secret, installerLabels, "cdi-apiserver")
 
 		secret, err = client.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
 		if err != nil {
