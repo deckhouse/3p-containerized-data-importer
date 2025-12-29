@@ -27,13 +27,13 @@ const (
 	CDIOperatorName = "cdi-operator"
 
 	// CDIControllerResourceName is the CDI controller resource name
-	CDIControllerResourceName = "cdi-deployment"
+	CDIControllerResourceName = "d8-cdi-deployment"
 	// CDIApiServerResourceName is the CDI apiserver resource name
-	CDIApiServerResourceName = "cdi-apiserver"
+	CDIApiServerResourceName = "d8-cdi-apiserver"
 	// CDIUploadProxyResourceName is the CDI uploadproxy resource name
-	CDIUploadProxyResourceName = "cdi-uploadproxy"
+	CDIUploadProxyResourceName = "d8-cdi-uploadproxy"
 	// CDICronJobResourceName is the CDI cronjob resource name
-	CDICronJobResourceName = "cdi-cronjob"
+	CDICronJobResourceName = "d8-cdi-cronjob"
 
 	// AppKubernetesPartOfLabel is the Kubernetes recommended part-of label
 	AppKubernetesPartOfLabel = "app.kubernetes.io/part-of"
@@ -49,7 +49,7 @@ const (
 	// PrometheusLabelValue provides the label value which shouldn't be empty to avoid a prometheus WIP issue.
 	PrometheusLabelValue = "true"
 	// PrometheusServiceName is the name of the prometheus service created by the operator.
-	PrometheusServiceName = "cdi-prometheus-metrics"
+	PrometheusServiceName = "d8-cdi-prometheus-metrics"
 	// KubePersistentVolumeFillingUpSuppressLabelKey is the label name that helps suppress this alert for our PVCs
 	KubePersistentVolumeFillingUpSuppressLabelKey = "alerts.k8s.io/KubePersistentVolumeFillingUp"
 	// KubePersistentVolumeFillingUpSuppressLabelValue is the label value that helps suppress this alert for our PVCs
@@ -196,9 +196,9 @@ const (
 	CloneFromSnapshotFallbackPVCCDILabel = "cdi-clone-from-snapshot-source-host-assisted-fallback-pvc"
 
 	// UploadPodName (controller pkg only)
-	UploadPodName = "cdi-upload"
+	UploadPodName = "d8-cdi-upload"
 	// UploadServerCDILabel is the label applied to upload server resources
-	UploadServerCDILabel = "cdi-upload-server"
+	UploadServerCDILabel = "d8-cdi-upload-server"
 	// UploadServerPodname is name of the upload server pod container
 	UploadServerPodname = UploadServerCDILabel
 	// UploadServerDataDir is the destination directoryfor uploads
@@ -243,10 +243,10 @@ const (
 	QemuSubGid = int64(107)
 
 	// ControllerServiceAccountName is the name of the CDI controller service account
-	ControllerServiceAccountName = "cdi-sa"
+	ControllerServiceAccountName = "d8-cdi-sa"
 
 	// CronJobServiceAccountName is the name of the CDI cron job service account
-	CronJobServiceAccountName = "cdi-cronjob"
+	CronJobServiceAccountName = "d8-cdi-cronjob"
 
 	// VddkConfigMap is the name of the ConfigMap with a reference to the VDDK image
 	VddkConfigMap = "v2v-vmware"

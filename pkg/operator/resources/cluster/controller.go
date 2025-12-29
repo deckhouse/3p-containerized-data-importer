@@ -25,11 +25,11 @@ import (
 )
 
 const (
-	controllerServiceAccountName = "cdi-sa"
+	controllerServiceAccountName = "d8-cdi-sa"
 	controlerClusterRoleName     = "cdi"
 
-	wrapServiceAccountName = "cdi-internal-virtualization-sa"
-	wrapClusterRoleName    = "cdi-internal-virtualization"
+	wrapServiceAccountName = "d8-cdi-internal-virtualization-sa"
+	wrapClusterRoleName    = "d8-cdi-internal-virtualization"
 )
 
 func createControllerResources(args *FactoryArgs) []client.Object {

@@ -64,7 +64,7 @@ func addReconcileCallbacks(r *ReconcileCDI) {
 }
 
 func isControllerDeployment(d *appsv1.Deployment) bool {
-	return d.Name == "cdi-deployment"
+	return d.Name == "d8-cdi-deployment"
 }
 
 func reconcileDeleteControllerDeployment(args *callbacks.ReconcileCallbackArgs) error {
