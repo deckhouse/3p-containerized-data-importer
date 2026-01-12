@@ -1,6 +1,6 @@
 module kubevirt.io/containerized-data-importer
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.8
 
@@ -46,7 +46,7 @@ require (
 	github.com/ulikunitz/xz v0.5.15
 	github.com/vmware/govmomi v0.23.1
 	go.uber.org/zap v1.26.0
-	golang.org/x/sys v0.33.0
+	golang.org/x/sys v0.38.0
 	google.golang.org/api v0.155.0
 	gopkg.in/fsnotify.v1 v1.4.7
 	k8s.io/api v0.30.2
@@ -143,16 +143,17 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
-	golang.org/x/mod v0.18.0 // indirect
-	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/mod v0.29.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
-	golang.org/x/sync v0.14.0 // indirect
-	golang.org/x/term v0.32.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.22.0 // indirect
+	golang.org/x/tools v0.38.0 // indirect
+	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240318140521-94a12d6c2237 // indirect
