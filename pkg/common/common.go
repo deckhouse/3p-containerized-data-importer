@@ -303,6 +303,11 @@ const (
 	// ImagePullFailureText is the text of the ErrImagePullFailed error. We need it as a common constant because we're using
 	// both to create and to later check the error in the termination text of the importer pod.
 	ImagePullFailureText = "failed to pull image"
+
+	// QuotaExcludeValue provides a constant  for exclude quota value.
+	QuotaExcludeValue = "true"
+	// QuotaExcludeLabel provides a constant  for exclude quota label.
+	QuotaExcludeLabel = "resource-quota-overrides.deckhouse.io/ignore"
 )
 
 // ProxyPaths are all supported paths

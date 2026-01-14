@@ -919,6 +919,7 @@ func makeImporterPodSpec(args *importerPodArgs) *corev1.Pod {
 				common.CDILabelKey:        common.CDILabelValue,
 				common.CDIComponentLabel:  common.ImporterPodName,
 				common.PrometheusLabelKey: common.PrometheusLabelValue,
+				common.QuotaExcludeLabel:  common.QuotaExcludeValue,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				{

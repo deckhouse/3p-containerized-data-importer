@@ -797,6 +797,7 @@ func (r *UploadReconciler) makeUploadPodSpec(args UploadPodArgs, resourceRequire
 				common.CDIComponentLabel:        common.UploadServerCDILabel,
 				common.UploadServerServiceLabel: naming.GetServiceNameFromResourceName(args.Name),
 				common.UploadTargetLabel:        string(args.PVC.UID),
+				common.QuotaExcludeLabel:        common.QuotaExcludeValue,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				MakePVCOwnerReference(args.PVC),
