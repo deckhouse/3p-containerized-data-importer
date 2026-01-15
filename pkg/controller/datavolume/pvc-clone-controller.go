@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"kubevirt.io/containerized-data-importer/pkg/util"
 
 	corev1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -662,6 +663,7 @@ func (r *PvcCloneReconciler) getOrCreateSizeDetectionPod(
 		if pod == nil {
 			return nil, errors.Errorf("Size-detection pod spec could not be generated")
 		}
+		util.SetRecommendedLabels(pod, r.installerLabels, "pvc-clone-controller")
 		// Create the pod
 		if err := r.client.Create(context.TODO(), pod); err != nil {
 			if !k8serrors.IsAlreadyExists(err) {
