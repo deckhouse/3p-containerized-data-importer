@@ -308,6 +308,11 @@ const (
 	QuotaExcludeValue = "true"
 	// QuotaExcludeLabel provides a constant  for exclude quota label.
 	QuotaExcludeLabel = "resource-quota-overrides.deckhouse.io/ignore"
+
+	// HeritageLabel is a label that apply deckhouse policies on system Pods in user namespaces:
+	// forbid deletion, exec, connect for non-system users.
+	HeritageLabel     string = "heritage"
+	HeritageDeckhouse string = "deckhouse"
 )
 
 // ProxyPaths are all supported paths
