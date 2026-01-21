@@ -209,7 +209,7 @@ func SetRecommendedLabels(obj metav1.Object, installerLabels map[string]string, 
 	staticLabels := map[string]string{
 		common.AppKubernetesManagedByLabel: controllerName,
 		common.AppKubernetesComponentLabel: "storage",
-		common.HeritageLabel:               common.HeritageDeckhouse,
+		common.HeritageLabel:               common.HeritageValue,
 	}
 
 	// Merge static & existing labels

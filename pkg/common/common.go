@@ -311,8 +311,8 @@ const (
 
 	// HeritageLabel is a label that apply deckhouse policies on system Pods in user namespaces:
 	// forbid deletion, exec, connect for non-system users.
-	HeritageLabel     string = "heritage"
-	HeritageDeckhouse string = "deckhouse"
+	HeritageLabel string = "heritage"
+	HeritageValue string = "deckhouse"
 )
 
 // ProxyPaths are all supported paths
