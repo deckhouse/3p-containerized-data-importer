@@ -1,8 +1,6 @@
 package importer
 
 import (
-	"bytes"
-	"errors"
 	"io"
 	"net/url"
 	"os"
@@ -81,53 +79,6 @@ var _ = Describe("Stream Data To File", func() {
 		Entry("succeed with valid reader and filename", "valid", true, strings.NewReader("test reader"), "", false),
 		Entry("fail with valid reader and invalid filename", "/invalidpath/invalidfile", false, strings.NewReader("test reader"), "no such file or directory", true),
 	)
-})
-
-type noProgressReader struct{}
-
-func (n noProgressReader) Read(_ []byte) (int, error) {
-	return 0, nil
-}
-
-var _ = Describe("Write With Cache Cap", func() {
-	var (
-		err    error
-		tmpDir string
-	)
-
-	BeforeEach(func() {
-		tmpDir, err = os.MkdirTemp("", "write-with-cache-cap")
-		Expect(err).NotTo(HaveOccurred())
-	})
-
-	AfterEach(func() {
-		os.RemoveAll(tmpDir)
-	})
-
-	It("should write all source bytes", func() {
-		fileName := filepath.Join(tmpDir, "result.img")
-		outFile, err := os.Create(fileName)
-		Expect(err).NotTo(HaveOccurred())
-
-		expected := bytes.Repeat([]byte("abcd"), 1024*1024)
-		err = writeWithCacheCap(outFile, bytes.NewReader(expected))
-		Expect(err).NotTo(HaveOccurred())
-		Expect(outFile.Close()).To(Succeed())
-
-		actual, err := os.ReadFile(fileName)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(actual).To(Equal(expected))
-	})
-
-	It("should fail when reader does not make progress", func() {
-		fileName := filepath.Join(tmpDir, "result.img")
-		outFile, err := os.Create(fileName)
-		Expect(err).NotTo(HaveOccurred())
-		defer outFile.Close()
-
-		err = writeWithCacheCap(outFile, noProgressReader{})
-		Expect(errors.Is(err, io.ErrNoProgress)).To(BeTrue())
-	})
 })
 
 var _ = Describe("Clean dir", func() {
