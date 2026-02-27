@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/pkg/errors"
+	"golang.org/x/sys/unix"
 
 	"k8s.io/klog/v2"
 
@@ -94,7 +96,8 @@ func streamDataToFile(r io.Reader, fileName string) error {
 	}
 	defer outFile.Close()
 	klog.V(1).Infof("Writing data...\n")
-	if _, err = io.Copy(outFile, r); err != nil {
+	klog.V(1).Infof("[OLOPOPL] PATCH V5...\n")
+	if err = writeWithCacheCap(outFile, r); err != nil {
 		klog.Errorf("Unable to write file from dataReader: %v\n", err)
 		os.Remove(outFile.Name())
 		if strings.Contains(err.Error(), "no space left on device") {
@@ -102,6 +105,78 @@ func streamDataToFile(r io.Reader, fileName string) error {
 		}
 		return NewImagePullFailedError(err)
 	}
-	err = outFile.Sync()
-	return err
+	return nil
+}
+
+const (
+	cacheCapChunkSize  int64 = 256 << 20 // 256 MiB
+	cacheCapBufferSize       = 1 << 20   // 1 MiB
+)
+
+func writeWithCacheCap(out *os.File, r io.Reader) error {
+	fd := int(out.Fd())
+	buf := make([]byte, cacheCapBufferSize)
+	var written int64
+	var flushed int64
+
+	flushAndDrop := func(start, length int64) error {
+		if err := out.Sync(); err != nil {
+			return fmt.Errorf("sync: %w", err)
+		}
+		if length <= 0 {
+			return nil
+		}
+		if err := unix.Fadvise(fd, start, length, unix.FADV_DONTNEED); err != nil {
+			return fmt.Errorf("fadvise DONTNEED failed at offset=%d length=%d: %w", start, length, err)
+		}
+		return nil
+	}
+
+	for {
+		nr, er := r.Read(buf)
+		if nr > 0 {
+			totalWritten := 0
+			for totalWritten < nr {
+				nw, ew := out.Write(buf[totalWritten:nr])
+				if nw > 0 {
+					totalWritten += nw
+					written += int64(nw)
+				}
+				if ew != nil {
+					return fmt.Errorf("write: %w", ew)
+				}
+				if nw == 0 {
+					return io.ErrShortWrite
+				}
+			}
+
+			for written-flushed >= cacheCapChunkSize {
+				if err := flushAndDrop(flushed, cacheCapChunkSize); err != nil {
+					return err
+				}
+				flushed += cacheCapChunkSize
+			}
+		}
+		if er == io.EOF {
+			break
+		}
+		if er != nil {
+			return er
+		}
+		if nr == 0 {
+			return io.ErrNoProgress
+		}
+	}
+
+	if written > flushed {
+		if err := flushAndDrop(flushed, written-flushed); err != nil {
+			return err
+		}
+	}
+	if written == 0 {
+		if err := out.Sync(); err != nil {
+			return fmt.Errorf("sync: %w", err)
+		}
+	}
+	return nil
 }
