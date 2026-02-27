@@ -94,6 +94,7 @@ func streamDataToFile(r io.Reader, fileName string) error {
 	}
 	defer outFile.Close()
 	klog.V(1).Infof("Writing data...\n")
+	klog.V(1).Infof("DIRECT OLOPLOP\n")
 	if _, err = io.Copy(outFile, r); err != nil {
 		klog.Errorf("Unable to write file from dataReader: %v\n", err)
 		os.Remove(outFile.Name())
