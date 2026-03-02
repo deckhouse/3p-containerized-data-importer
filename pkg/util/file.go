@@ -26,10 +26,10 @@ func OpenFileOrBlockDevice(fileName string) (*os.File, error) {
 	}
 	if blockSize >= 0 {
 		// Block device found and size determined.
-		outFile, err = os.OpenFile(fileName, os.O_EXCL|os.O_WRONLY|syscall.O_DIRECT, os.ModePerm)
+		outFile, err = os.OpenFile(fileName, os.O_EXCL|os.O_WRONLY, os.ModePerm)
 	} else {
 		// Attempt to create the file with name filePath.  If it exists, fail.
-		outFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|syscall.O_DIRECT, os.ModePerm)
+		outFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY, os.ModePerm)
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not open file %q", fileName)
