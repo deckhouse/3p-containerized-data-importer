@@ -129,7 +129,7 @@ func convertToRaw(src, dest string, preallocate bool, cacheMode string) error {
 }
 
 func getCacheMode(path string, cacheMode string) (string, error) {
-	return "none", "nil"
+	return "none", nil
 
 	// if cacheMode != common.CacheModeTryNone {
 	// 	return "writeback", nil
