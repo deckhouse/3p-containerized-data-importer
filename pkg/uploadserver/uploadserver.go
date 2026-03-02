@@ -38,6 +38,7 @@ import (
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
+	v1 "k8s.io/api/core/v1"
 
 	"k8s.io/klog/v2"
 
@@ -482,13 +483,21 @@ func (app *uploadServerApp) uploadArchiveHandler(irc imageReadCloser) http.Handl
 	}
 }
 
+func getVolumeMode(dest string) v1.PersistentVolumeMode {
+	if dest == common.WriteBlockPath {
+		return v1.PersistentVolumeBlock
+	}
+	return v1.PersistentVolumeFilesystem
+}
+
 func newAsyncUploadStreamProcessor(stream io.ReadCloser, dest, imageSize string, filesystemOverhead float64, preallocation bool, sourceContentType string) (*importer.DataProcessor, error) {
 	if isCloneTarget(sourceContentType) {
 		return nil, fmt.Errorf("async clone not supported")
 	}
 
 	uds := importer.NewAsyncUploadDataSource(newContentReader(stream, sourceContentType))
-	processor := importer.NewDataProcessor(uds, dest, common.ImporterVolumePath, common.ScratchDataDir, imageSize, filesystemOverhead, preallocation, "")
+	volumeMode := getVolumeMode(dest)
+	processor := importer.NewDataProcessor(uds, dest, common.ImporterVolumePath, common.ScratchDataDir, imageSize, filesystemOverhead, preallocation, "", volumeMode)
 	return processor, processor.ProcessDataWithPause()
 }
 
@@ -500,7 +509,8 @@ func newUploadStreamProcessor(stream io.ReadCloser, dest, imageSize string, file
 
 	// Clone block device to block device or file system
 	uds := importer.NewUploadDataSource(stream, dvContentType)
-	processor := importer.NewDataProcessor(uds, dest, common.ImporterVolumePath, common.ScratchDataDir, imageSize, filesystemOverhead, preallocation, "")
+	volumeMode := getVolumeMode(dest)
+	processor := importer.NewDataProcessor(uds, dest, common.ImporterVolumePath, common.ScratchDataDir, imageSize, filesystemOverhead, preallocation, "", volumeMode)
 	err := processor.ProcessData()
 	return processor.PreallocationApplied(), err
 }
@@ -548,7 +558,11 @@ func cloneProcessor(stream io.ReadCloser, contentType, dest, imageSize string, p
 		return false, fmt.Errorf("failed to get format: %w", err)
 	}
 
-	err = image.NewQEMUOperations().ConvertToFormatStream(parsedScratchPath, format, dest, false)
+	useDirectIOCache := false
+	if isDevice, err := util.IsDevice(dest); err == nil && !isDevice {
+		useDirectIOCache = true
+	}
+	err = image.NewQEMUOperations().ConvertToFormatStream(parsedScratchPath, format, dest, false, useDirectIOCache)
 	if err != nil {
 		return false, fmt.Errorf("failed to convert: %w", err)
 	}

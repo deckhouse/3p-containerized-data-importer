@@ -11,14 +11,18 @@ import (
 	"kubevirt.io/containerized-data-importer/pkg/common"
 )
 
-func convertTo(format, src, dest string, preallocate bool) error {
+func convertTo(format, src, dest string, preallocate bool, useDirectIOCache bool) error {
 	switch format {
 	case "qcow2", "raw":
 		// Do nothing.
 	default:
 		return errors.Errorf("unknown format: %s", format)
 	}
-	args := []string{"convert", "-t", "writeback", "-p", "-O", format, src, dest}
+	cacheArgs := []string{"-t", "writeback"}
+	if useDirectIOCache {
+		cacheArgs = []string{"-t", "none", "-T", "none"}
+	}
+	args := append([]string{"convert"}, append(cacheArgs, "-p", "-O", format, src, dest)...)
 	var err error
 
 	if preallocate {
@@ -41,9 +45,9 @@ func convertTo(format, src, dest string, preallocate bool) error {
 	return nil
 }
 
-func (o *qemuOperations) ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool) error {
+func (o *qemuOperations) ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool, useDirectIOCache bool) error {
 	if len(url.Scheme) > 0 && url.Scheme != "nbd+unix" {
 		return fmt.Errorf("not valid schema %s", url.Scheme)
 	}
-	return convertTo(format, url.String(), dest, preallocate)
+	return convertTo(format, url.String(), dest, preallocate, useDirectIOCache)
 }
