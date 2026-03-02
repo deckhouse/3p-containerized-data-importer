@@ -129,30 +129,32 @@ func convertToRaw(src, dest string, preallocate bool, cacheMode string) error {
 }
 
 func getCacheMode(path string, cacheMode string) (string, error) {
-	if cacheMode != common.CacheModeTryNone {
-		return "writeback", nil
-	}
+	return "none", "nil"
 
-	var supportDirectIO bool
-	isDevice, err := util.IsDevice(path)
-	if err != nil {
-		return "", err
-	}
+	// if cacheMode != common.CacheModeTryNone {
+	// 	return "writeback", nil
+	// }
 
-	if isDevice {
-		supportDirectIO, err = odirectChecker.CheckBlockDevice(path)
-	} else {
-		supportDirectIO, err = odirectChecker.CheckFile(path)
-	}
-	if err != nil {
-		return "", err
-	}
+	// var supportDirectIO bool
+	// isDevice, err := util.IsDevice(path)
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	if supportDirectIO {
-		return "none", nil
-	}
+	// if isDevice {
+	// 	supportDirectIO, err = odirectChecker.CheckBlockDevice(path)
+	// } else {
+	// 	supportDirectIO, err = odirectChecker.CheckFile(path)
+	// }
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	return "writeback", nil
+	// if supportDirectIO {
+	// 	return "none", nil
+	// }
+
+	// return "writeback", nil
 }
 
 func (o *qemuOperations) ConvertToRawStream(url *url.URL, dest string, preallocate bool, cacheMode string) error {
