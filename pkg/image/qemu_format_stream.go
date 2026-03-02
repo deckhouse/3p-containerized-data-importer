@@ -18,7 +18,7 @@ func convertTo(format, src, dest string, preallocate bool) error {
 	default:
 		return errors.Errorf("unknown format: %s", format)
 	}
-	args := []string{"convert", "-t", "writeback", "-p", "-O", format, src, dest}
+	args := []string{"convert", "-t", "none", "-p", "-O", format, src, dest}
 	var err error
 
 	if preallocate {
