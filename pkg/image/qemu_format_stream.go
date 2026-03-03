@@ -39,7 +39,7 @@ func convertTo(format, src, dest string, preallocate bool, useDirectIOCache bool
 	if useDirectIOCache {
 		err := tryWithCache("none", "none")
 		if err != nil {
-			klog.V(2).Infof("qemu-img convert with cache=none failed, retrying with writeback: %v", err)
+			klog.V(1).Infof("qemu-img convert with cache=none failed, retrying with writeback: %v", err)
 			_ = os.Remove(dest)
 			useDirectIOCache = false
 		} else {

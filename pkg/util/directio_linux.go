@@ -39,7 +39,7 @@ func OpenFileOrBlockDeviceWithDirectIO(fileName string) (*os.File, error) {
 		var pathErr *os.PathError
 		if errors.As(err, &pathErr) && errors.Is(pathErr.Err, syscall.EINVAL) {
 			// EINVAL means filesystem doesn't support O_DIRECT (e.g. tmpfs), fall back to regular
-			klog.V(2).Info("O_DIRECT not supported for destination, using page cache")
+			klog.V(1).Info("O_DIRECT not supported for destination, using page cache")
 			f, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
 			if err != nil {
 				return nil, errors.Wrapf(err, "could not open file %q", fileName)
@@ -48,7 +48,7 @@ func OpenFileOrBlockDeviceWithDirectIO(fileName string) (*os.File, error) {
 		}
 		return nil, errors.Wrapf(err, "could not open file %q", fileName)
 	}
-	klog.V(2).Info("Using O_DIRECT for filesystem destination")
+	klog.V(1).Info("Using O_DIRECT for filesystem destination")
 	return f, nil
 }
 
