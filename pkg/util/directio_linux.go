@@ -8,6 +8,7 @@ import (
 	"unsafe"
 
 	"github.com/pkg/errors"
+	"golang.org/x/sys/unix"
 
 	"k8s.io/klog/v2"
 )
