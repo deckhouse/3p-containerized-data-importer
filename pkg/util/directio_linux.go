@@ -8,7 +8,6 @@ import (
 	"unsafe"
 
 	"github.com/pkg/errors"
-	"golang.org/x/sys/unix"
 
 	"k8s.io/klog/v2"
 )
@@ -33,7 +32,8 @@ func OpenFileOrBlockDeviceWithDirectIO(fileName string) (*os.File, error) {
 		return outFile, nil
 	}
 	// Regular file - try O_DIRECT first; on failure fall back to page cache (same pattern as qemu_format_stream).
-	// f, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|unix.O_DIRECT, 0600)
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|unix.O_DIRECT, 0600)
+	f.Close()
 	err = errors.New("whatever")
 	if err != nil {
 		klog.V(2).Infof("O_DIRECT open failed, using page cache: %v", err)
