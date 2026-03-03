@@ -33,9 +33,7 @@ func OpenFileOrBlockDeviceWithDirectIO(fileName string) (*os.File, error) {
 		return outFile, nil
 	}
 	// Regular file - try O_DIRECT first; on failure fall back to page cache (same pattern as qemu_format_stream).
-	f, err := os.OpenFile("whatever", os.O_CREATE|os.O_EXCL|os.O_WRONLY|unix.O_DIRECT, 0600)
-	f.Close()
-	err = errors.New("whatever")
+	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|unix.O_DIRECT, 0600)
 	if err != nil {
 		klog.V(2).Infof("O_DIRECT open failed, using page cache: %v", err)
 		f, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
