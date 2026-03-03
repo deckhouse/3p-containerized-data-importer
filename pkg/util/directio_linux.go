@@ -5,7 +5,6 @@ package util
 import (
 	"io"
 	"os"
-	"syscall"
 	"unsafe"
 
 	"github.com/pkg/errors"
@@ -33,20 +32,16 @@ func OpenFileOrBlockDeviceWithDirectIO(fileName string) (*os.File, error) {
 		}
 		return outFile, nil
 	}
-	// Regular file - try O_DIRECT first
-	f, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|unix.O_DIRECT, 0600)
+	// Regular file - try O_DIRECT first; on failure fall back to page cache (same pattern as qemu_format_stream).
+	// f, err := os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|unix.O_DIRECT, 0600)
+	err = errors.New("whatever")
 	if err != nil {
-		var pathErr *os.PathError
-		if errors.As(err, &pathErr) && errors.Is(pathErr.Err, syscall.EINVAL) {
-			// EINVAL means filesystem doesn't support O_DIRECT (e.g. tmpfs), fall back to regular
-			klog.V(1).Info("O_DIRECT not supported for destination, using page cache")
-			f, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
-			if err != nil {
-				return nil, errors.Wrapf(err, "could not open file %q", fileName)
-			}
-			return f, nil
+		klog.V(2).Infof("O_DIRECT open failed, using page cache: %v", err)
+		f, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+		if err != nil {
+			return nil, errors.Wrapf(err, "could not open file %q", fileName)
 		}
-		return nil, errors.Wrapf(err, "could not open file %q", fileName)
+		return f, nil
 	}
 	klog.V(1).Info("Using O_DIRECT for filesystem destination")
 	return f, nil
