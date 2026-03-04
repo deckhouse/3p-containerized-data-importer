@@ -22,7 +22,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/klog/v2"
 
@@ -115,12 +114,10 @@ type DataProcessor struct {
 	// cacheMode is the mode in which we choose the qemu-img cache mode:
 	// TRY_NONE = bypass page cache if the target supports it, otherwise, fall back to using page cache
 	cacheMode string
-	// volumeMode indicates whether the PVC is Filesystem or Block
-	volumeMode v1.PersistentVolumeMode
 }
 
 // NewDataProcessor create a new instance of a data processor using the passed in data provider.
-func NewDataProcessor(dataSource DataSourceInterface, dataFile, dataDir, scratchDataDir, requestImageSize string, filesystemOverhead float64, preallocation bool, cacheMode string, volumeMode v1.PersistentVolumeMode) *DataProcessor {
+func NewDataProcessor(dataSource DataSourceInterface, dataFile, dataDir, scratchDataDir, requestImageSize string, filesystemOverhead float64, preallocation bool, cacheMode string) *DataProcessor {
 	dp := &DataProcessor{
 		currentPhase:       ProcessingPhaseInfo,
 		source:             dataSource,
@@ -131,7 +128,6 @@ func NewDataProcessor(dataSource DataSourceInterface, dataFile, dataDir, scratch
 		filesystemOverhead: filesystemOverhead,
 		preallocation:      preallocation,
 		cacheMode:          cacheMode,
-		volumeMode:         volumeMode,
 	}
 	// Calculate available space before doing anything.
 	dp.availableSpace = dp.calculateTargetSize()
@@ -278,8 +274,7 @@ func (dp *DataProcessor) convert(url *url.URL) (ProcessingPhase, error) {
 		return ProcessingPhaseError, errors.Wrap(err, "Unable to get format")
 	}
 	klog.V(3).Infof("Converting to %s", format)
-	useDirectIO := dp.volumeMode == v1.PersistentVolumeFilesystem
-	err = qemuOperations.ConvertToFormatStream(url, format, dp.dataFile, dp.preallocation, useDirectIO)
+	err = qemuOperations.ConvertToFormatStream(url, format, dp.dataFile, dp.preallocation)
 	if err != nil {
 		return ProcessingPhaseError, errors.Wrapf(err, "Conversion to %s failed", format)
 	}

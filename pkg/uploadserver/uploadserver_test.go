@@ -36,7 +36,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	corev1 "k8s.io/api/core/v1"
 
 	cdiv1 "kubevirt.io/containerized-data-importer-api/pkg/apis/core/v1beta1"
 	"kubevirt.io/containerized-data-importer/pkg/common"
@@ -188,11 +187,11 @@ func (amd *AsyncMockDataSource) GetResumePhase() importer.ProcessingPhase {
 }
 
 func saveAsyncProcessorSuccess(stream io.ReadCloser, dest, imageSize string, filesystemOverhead float64, preallocation bool, contentType string) (*importer.DataProcessor, error) {
-	return importer.NewDataProcessor(&AsyncMockDataSource{}, "", "", "", "", 0.055, false, "", corev1.PersistentVolumeFilesystem), nil
+	return importer.NewDataProcessor(&AsyncMockDataSource{}, "", "", "", "", 0.055, false, ""), nil
 }
 
 func saveAsyncProcessorFailure(stream io.ReadCloser, dest, imageSize string, filesystemOverhead float64, preallocation bool, contentType string) (*importer.DataProcessor, error) {
-	return importer.NewDataProcessor(&AsyncMockDataSource{}, "", "", "", "", 0.055, false, "", corev1.PersistentVolumeFilesystem), fmt.Errorf("Error using datastream")
+	return importer.NewDataProcessor(&AsyncMockDataSource{}, "", "", "", "", 0.055, false, ""), fmt.Errorf("Error using datastream")
 }
 
 func withAsyncProcessorSuccess(f func()) {

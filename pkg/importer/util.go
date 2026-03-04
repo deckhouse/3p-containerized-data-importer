@@ -86,16 +86,15 @@ func envToLabel(env string) string {
 	return strings.ToLower(label)
 }
 
-// streamDataToFile provides a function to stream the specified io.Reader to the specified local file.
-// When the destination is a filesystem file (not a block device), it uses O_DIRECT to bypass the page cache.
+// streamDataToFile provides a function to stream the specified io.Reader to the specified local file
 func streamDataToFile(r io.Reader, fileName string) error {
-	outFile, err := util.OpenFileOrBlockDeviceWithDirectIO(fileName)
+	outFile, err := util.OpenFileOrBlockDevice(fileName)
 	if err != nil {
 		return err
 	}
 	defer outFile.Close()
 	klog.V(1).Infof("Writing data...\n")
-	if _, err = util.CopyWithDirectIO(outFile, r); err != nil {
+	if _, err = io.Copy(outFile, r); err != nil {
 		klog.Errorf("Unable to write file from dataReader: %v\n", err)
 		os.Remove(outFile.Name())
 		if strings.Contains(err.Error(), "no space left on device") {
