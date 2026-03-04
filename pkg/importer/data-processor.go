@@ -274,7 +274,8 @@ func (dp *DataProcessor) convert(url *url.URL) (ProcessingPhase, error) {
 		return ProcessingPhaseError, errors.Wrap(err, "Unable to get format")
 	}
 	klog.V(3).Infof("Converting to %s", format)
-	err = qemuOperations.ConvertToFormatStream(url, format, dp.dataFile, dp.preallocation)
+	useDirectIO, _ := util.IsPathOnNFS(dp.dataFile)
+	err = qemuOperations.ConvertToFormatStream(url, format, dp.dataFile, dp.preallocation, useDirectIO)
 	if err != nil {
 		return ProcessingPhaseError, errors.Wrapf(err, "Conversion to %s failed", format)
 	}

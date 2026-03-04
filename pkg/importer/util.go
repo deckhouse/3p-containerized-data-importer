@@ -86,8 +86,36 @@ func envToLabel(env string) string {
 	return strings.ToLower(label)
 }
 
-// streamDataToFile provides a function to stream the specified io.Reader to the specified local file
+// streamDataToFile provides a function to stream the specified io.Reader to the specified local file.
+// When the destination is on NFS (NFS_SUPER_MAGIC), it first tries O_DIRECT + io.Copy; only if O_DIRECT open fails it falls back to normal write.
 func streamDataToFile(r io.Reader, fileName string) error {
+	isNFS, nfsErr := util.IsPathOnNFS(fileName)
+	if nfsErr != nil {
+		klog.V(1).Infof("NFS check for %q: %v, using normal write", fileName, nfsErr)
+		isNFS = false
+	}
+	if isNFS {
+		klog.V(1).Infof("Destination is on NFS, attempting write with O_DIRECT")
+		outFile, err := util.OpenFileOrBlockDeviceWithDirectIO(fileName)
+		if err != nil {
+			klog.V(1).Infof("O_DIRECT open failed: %v, falling back to normal write", err)
+		} else {
+			defer outFile.Close()
+			if _, err = io.Copy(outFile, r); err != nil {
+				klog.V(1).Infof("O_DIRECT io.Copy failed: %v", err)
+				os.Remove(fileName)
+				if strings.Contains(err.Error(), "no space left on device") {
+					return errors.Wrapf(err, "unable to write to file")
+				}
+				return NewImagePullFailedError(err)
+			}
+			if err = outFile.Sync(); err != nil {
+				klog.V(1).Infof("O_DIRECT sync failed: %v", err)
+			}
+			return err
+		}
+	}
+	// Normal path or fallback after O_DIRECT open failed
 	outFile, err := util.OpenFileOrBlockDevice(fileName)
 	if err != nil {
 		return err

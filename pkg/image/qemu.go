@@ -59,7 +59,7 @@ type ImgInfo struct {
 // QEMUOperations defines the interface for executing qemu subprocesses
 type QEMUOperations interface {
 	ConvertToRawStream(*url.URL, string, bool, string) error
-	ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool) error
+	ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool, useDirectIO bool) error
 	Resize(string, resource.Quantity, bool) error
 	Info(url *url.URL) (*ImgInfo, error)
 	Validate(*url.URL, int64) error

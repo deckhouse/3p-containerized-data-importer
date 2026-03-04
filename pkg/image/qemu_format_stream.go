@@ -11,14 +11,15 @@ import (
 	"kubevirt.io/containerized-data-importer/pkg/common"
 )
 
-func convertTo(format, src, dest string, preallocate bool) error {
+func convertTo(format, src, dest string, preallocate bool, cacheMode string) error {
 	switch format {
 	case "qcow2", "raw":
 		// Do nothing.
 	default:
 		return errors.Errorf("unknown format: %s", format)
 	}
-	args := []string{"convert", "-t", "writeback", "-p", "-O", format, src, dest}
+	// -t = source cache, -T = target cache; "none" bypasses page cache (for NFS etc.)
+	args := []string{"convert", "-t", cacheMode, "-T", cacheMode, "-p", "-O", format, src, dest}
 	var err error
 
 	if preallocate {
@@ -41,9 +42,22 @@ func convertTo(format, src, dest string, preallocate bool) error {
 	return nil
 }
 
-func (o *qemuOperations) ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool) error {
+// ConvertToFormatStream runs qemu-img convert. When useDirectIO is true (e.g. dest on NFS),
+// uses -t none -T none first and falls back to -t writeback -T writeback on failure.
+func (o *qemuOperations) ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool, useDirectIO bool) error {
 	if len(url.Scheme) > 0 && url.Scheme != "nbd+unix" {
 		return fmt.Errorf("not valid schema %s", url.Scheme)
 	}
-	return convertTo(format, url.String(), dest, preallocate)
+	cacheMode := "writeback"
+	if useDirectIO {
+		cacheMode = "none"
+		klog.V(1).Infof("Destination on NFS, running qemu-img convert with -t none -T none")
+	}
+	err := convertTo(format, url.String(), dest, preallocate, cacheMode)
+	if err != nil && useDirectIO {
+		klog.V(1).Infof("qemu-img convert with -t none -T none failed: %v, falling back to writeback", err)
+		cacheMode = "writeback"
+		err = convertTo(format, url.String(), dest, preallocate, cacheMode)
+	}
+	return err
 }

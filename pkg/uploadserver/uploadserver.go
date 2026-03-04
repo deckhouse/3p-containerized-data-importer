@@ -548,7 +548,8 @@ func cloneProcessor(stream io.ReadCloser, contentType, dest, imageSize string, p
 		return false, fmt.Errorf("failed to get format: %w", err)
 	}
 
-	err = image.NewQEMUOperations().ConvertToFormatStream(parsedScratchPath, format, dest, false)
+	useDirectIO, _ := util.IsPathOnNFS(dest)
+	err = image.NewQEMUOperations().ConvertToFormatStream(parsedScratchPath, format, dest, false, useDirectIO)
 	if err != nil {
 		return false, fmt.Errorf("failed to convert: %w", err)
 	}
