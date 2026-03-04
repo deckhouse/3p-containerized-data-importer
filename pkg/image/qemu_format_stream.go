@@ -11,7 +11,19 @@ import (
 	"kubevirt.io/containerized-data-importer/pkg/common"
 )
 
-func convertTo(format, src, dest string, preallocate bool, useDirectIOCache bool) error {
+func getQemuConversionArgs(format, src, dest string, oDirect bool) []string {
+	args := []string{"convert"}
+	if oDirect {
+		args = append(args, "-t", "none", "-T", "none")
+	} else {
+		args = append(args, "-t", "writeback")
+	}
+	args = append(args, "-p", "-O", format, src, dest)
+	return args
+}
+
+// convertTo - when useDirectIO, try cache=none first; on failure fall back to writeback.
+func convertTo(format, src, dest string, preallocate bool, useDirectIO bool) error {
 	switch format {
 	case "qcow2", "raw":
 		// Do nothing.
@@ -19,12 +31,7 @@ func convertTo(format, src, dest string, preallocate bool, useDirectIOCache bool
 		return errors.Errorf("unknown format: %s", format)
 	}
 
-	tryWithCache := func(tCache, TCache string) error {
-		cacheArgs := []string{"-t", tCache}
-		if TCache != "writeback" {
-			cacheArgs = append(cacheArgs, "-T", TCache)
-		}
-		args := append(append([]string{"convert"}, cacheArgs...), "-p", "-O", format, src, dest)
+	tryWithArgs := func(args []string) error {
 		if preallocate {
 			return addPreallocation(args, convertPreallocationMethods, func(args []string) ([]byte, error) {
 				return qemuExecFunction(nil, reportProgress, "qemu-img", args...)
@@ -35,33 +42,36 @@ func convertTo(format, src, dest string, preallocate bool, useDirectIOCache bool
 		return err
 	}
 
-	// When useDirectIOCache, try cache=none first; on failure fall back to writeback.
-	if useDirectIOCache {
-		err := tryWithCache("none", "none")
-		if err != nil {
-			klog.V(1).Infof("qemu-img convert with cache=none failed, retrying with writeback: %v", err)
-			_ = os.Remove(dest)
-			useDirectIOCache = false
-		} else {
-			return nil
-		}
-	}
+	args := getQemuConversionArgs(format, src, dest, useDirectIO)
+	err := tryWithArgs(args)
+	switch {
+	case err == nil: // Successfully converted.
+		return nil
 
-	err := tryWithCache("writeback", "writeback")
-	if err != nil {
-		os.Remove(dest)
+	case useDirectIO: // Cannot convert: fall back and try again without O_DIRECT.
+		klog.V(1).Infof("qemu-img convert with cache=none failed, retrying with writeback: %v", err)
+		err = os.Remove(dest)
+		if err != nil {
+			klog.Errorf("cannot remove destination file: %v", err)
+		}
+		return convertTo(format, src, dest, preallocate, false)
+
+	default: // Conversion failed.
+		err = os.Remove(dest)
+		if err != nil {
+			klog.Errorf("cannot remove destination file: %v", err)
+		}
 		errorMsg := fmt.Sprintf("could not convert image to %s", format)
-		if nbdkitLog, readErr := os.ReadFile(common.NbdkitLogPath); readErr == nil {
+		if nbdkitLog, err := os.ReadFile(common.NbdkitLogPath); err == nil {
 			errorMsg += " " + string(nbdkitLog)
 		}
 		return errors.Wrap(err, errorMsg)
 	}
-	return nil
 }
 
-func (o *qemuOperations) ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool, useDirectIOCache bool) error {
+func (o *qemuOperations) ConvertToFormatStream(url *url.URL, format, dest string, preallocate bool, useDirectIO bool) error {
 	if len(url.Scheme) > 0 && url.Scheme != "nbd+unix" {
 		return fmt.Errorf("not valid schema %s", url.Scheme)
 	}
-	return convertTo(format, url.String(), dest, preallocate, useDirectIOCache)
+	return convertTo(format, url.String(), dest, preallocate, useDirectIO)
 }

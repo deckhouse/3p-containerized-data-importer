@@ -37,8 +37,8 @@ import (
 
 	"github.com/golang/snappy"
 	"github.com/pkg/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 
 	"k8s.io/klog/v2"
 
@@ -558,11 +558,16 @@ func cloneProcessor(stream io.ReadCloser, contentType, dest, imageSize string, p
 		return false, fmt.Errorf("failed to get format: %w", err)
 	}
 
-	useDirectIOCache := false
-	if isDevice, err := util.IsDevice(dest); err == nil && !isDevice {
-		useDirectIOCache = true
+	useDirectIO := false
+	isDevice, err := util.IsDevice(dest)
+	switch {
+	case err != nil:
+		klog.Errorf("Cannot determine destination %s type: %v", dest, err)
+	case !isDevice:
+		useDirectIO = true
 	}
-	err = image.NewQEMUOperations().ConvertToFormatStream(parsedScratchPath, format, dest, false, useDirectIOCache)
+
+	err = image.NewQEMUOperations().ConvertToFormatStream(parsedScratchPath, format, dest, false, useDirectIO)
 	if err != nil {
 		return false, fmt.Errorf("failed to convert: %w", err)
 	}

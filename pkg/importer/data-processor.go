@@ -22,9 +22,9 @@ import (
 
 	"github.com/pkg/errors"
 
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/klog/v2"
-	v1 "k8s.io/api/core/v1"
 
 	"kubevirt.io/containerized-data-importer/pkg/common"
 	"kubevirt.io/containerized-data-importer/pkg/image"
@@ -278,8 +278,8 @@ func (dp *DataProcessor) convert(url *url.URL) (ProcessingPhase, error) {
 		return ProcessingPhaseError, errors.Wrap(err, "Unable to get format")
 	}
 	klog.V(3).Infof("Converting to %s", format)
-	useDirectIOCache := dp.volumeMode == v1.PersistentVolumeFilesystem
-	err = qemuOperations.ConvertToFormatStream(url, format, dp.dataFile, dp.preallocation, useDirectIOCache)
+	useDirectIO := dp.volumeMode == v1.PersistentVolumeFilesystem
+	err = qemuOperations.ConvertToFormatStream(url, format, dp.dataFile, dp.preallocation, useDirectIO)
 	if err != nil {
 		return ProcessingPhaseError, errors.Wrapf(err, "Conversion to %s failed", format)
 	}
