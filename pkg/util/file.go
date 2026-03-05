@@ -37,6 +37,27 @@ func OpenFileOrBlockDevice(fileName string) (*os.File, error) {
 	return outFile, nil
 }
 
+// OpenFileOrBlockDeviceWithDirectIO opens the destination with O_DIRECT for bypassing page cache (e.g. on NFS).
+// Same semantics as OpenFileOrBlockDevice but adds syscall.O_DIRECT to the open flags.
+func OpenFileOrBlockDeviceWithDirectIO(fileName string) (*os.File, error) {
+	var outFile *os.File
+	blockSize, err := GetAvailableSpaceBlock(fileName)
+	if err != nil {
+		return nil, errors.Wrapf(err, "error determining if block device exists")
+	}
+	if blockSize >= 0 {
+		// Block device found and size determined.
+		outFile, err = os.OpenFile(fileName, os.O_EXCL|os.O_WRONLY|syscall.O_DIRECT, os.ModePerm)
+	} else {
+		// Attempt to create the file with name filePath.  If it exists, fail.
+		outFile, err = os.OpenFile(fileName, os.O_CREATE|os.O_EXCL|os.O_WRONLY|syscall.O_DIRECT, os.ModePerm)
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not open file %q", fileName)
+	}
+	return outFile, nil
+}
+
 // CopyFile copies a file from one location to another.
 func CopyFile(src, dst string) error {
 	in, err := os.Open(src)

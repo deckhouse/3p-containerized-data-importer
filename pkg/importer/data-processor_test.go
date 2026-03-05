@@ -569,6 +569,10 @@ func (o *fakeQEMUOperations) ConvertToRawStream(*url.URL, string, bool, string) 
 	return o.e2
 }
 
+func (o *fakeQEMUOperations) ConvertToFormatStream(_ *url.URL, _, _ string, _ bool, _ bool) error {
+	return o.e2
+}
+
 func (o *fakeQEMUOperations) Validate(*url.URL, int64) error {
 	return o.e5
 }
