@@ -1,6 +1,7 @@
 package util
 
 import (
+	"filepath"
 	"golang.org/x/sys/unix"
 )
 
@@ -8,7 +9,7 @@ import (
 // Uses NFS_SUPER_MAGIC from statfs.
 func IsPathOnNFS(path string) (bool, error) {
 	var stat unix.Statfs_t
-	err := unix.Statfs(path, &stat)
+	err := unix.Statfs(filepath.Dir(path), &stat)
 	if err != nil {
 		return false, err
 	}
