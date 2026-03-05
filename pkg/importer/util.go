@@ -1,6 +1,7 @@
 package importer
 
 import (
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -89,38 +90,51 @@ func envToLabel(env string) string {
 // streamDataToFile provides a function to stream the specified io.Reader to the specified local file.
 // When the destination is on NFS (NFS_SUPER_MAGIC), it first tries O_DIRECT + io.Copy; only if O_DIRECT open fails it falls back to normal write.
 func streamDataToFile(r io.Reader, fileName string) error {
-	isNFS, nfsErr := util.IsPathOnNFS(fileName)
-	if nfsErr != nil {
-		klog.V(1).Infof("NFS check for %q: %v, using normal write", fileName, nfsErr)
-		isNFS = false
-	}
-	if isNFS {
-		klog.V(1).Infof("Destination is on NFS, attempting write with O_DIRECT")
-		outFile, err := util.OpenFileOrBlockDeviceWithDirectIO(fileName)
-		if err != nil {
-			klog.V(1).Infof("O_DIRECT open failed: %v, falling back to normal write", err)
-		} else {
-			defer outFile.Close()
-			if _, err = io.Copy(outFile, r); err != nil {
-				klog.V(1).Infof("O_DIRECT io.Copy failed: %v", err)
-				os.Remove(fileName)
-				if strings.Contains(err.Error(), "no space left on device") {
-					return errors.Wrapf(err, "unable to write to file")
-				}
-				return NewImagePullFailedError(err)
-			}
-			if err = outFile.Sync(); err != nil {
-				klog.V(1).Infof("O_DIRECT sync failed: %v", err)
-			}
-			return err
-		}
-	}
-	// Normal path or fallback after O_DIRECT open failed
-	outFile, err := util.OpenFileOrBlockDevice(fileName)
+	useDirectIO, err := util.IsPathOnNFS(fileName)
 	if err != nil {
-		return err
+		klog.V(1).Infof("NFS is not determined %s: %v", fileName, err)
 	}
+
+	if useDirectIO {
+		klog.V(1).Infof("NFS is determined: use O_DIRECT")
+	}
+
+	err = stream(r, fileName, useDirectIO)
+	switch {
+	case err == nil: // OK.
+		return nil
+
+	case useDirectIO: // Fall back.
+		klog.V(1).Infof("O_DIRECT stream failed: %v, falling back to writeback cache", err)
+		err = os.Remove(fileName)
+		if err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("could not remove file %q: %v", fileName, err)
+		}
+		err = stream(r, fileName, false)
+		if err != nil {
+			return fmt.Errorf("stream data to file: %s: %v", fileName, err)
+		}
+		return nil
+
+	default:
+		return fmt.Errorf("stream data to file: %s: %v", fileName, err)
+	}
+}
+
+func stream(r io.Reader, fileName string, useDirectIO bool) error {
+	var outFile *os.File
+	var err error
+	if useDirectIO {
+		outFile, err = util.OpenFileOrBlockDeviceWithDirectIO(fileName)
+	} else {
+		outFile, err = util.OpenFileOrBlockDevice(fileName)
+	}
+	if err != nil {
+		return fmt.Errorf("open file: %w", err)
+	}
+
 	defer outFile.Close()
+
 	klog.V(1).Infof("Writing data...\n")
 	if _, err = io.Copy(outFile, r); err != nil {
 		klog.Errorf("Unable to write file from dataReader: %v\n", err)
