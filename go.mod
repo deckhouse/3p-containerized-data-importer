@@ -217,4 +217,5 @@ replace (
 
 replace golang.org/x/crypto => golang.org/x/crypto v0.45.0 // CVE-2024-45337,CVE-2025-22869,CVE-2025-47914
 
+// Use reduced github.com/docker/docker module: only compare is needed for CDI.
 replace github.com/docker/docker => ./staging/src/github.com/docker/docker // CVE-2026-34040,CVE-2026-33997
