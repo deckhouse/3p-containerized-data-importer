@@ -98,9 +98,9 @@ const (
 	AnnExternalPopulation = AnnAPIGroup + "/externalPopulation"
 
 	// AnnProvisionerTolerations annotation specifies tolerations to use for provisioners.
-	AnnProvisionerTolerations = "virt.deckhouse.io/provisioner-tolerations"
+	AnnProvisionerTolerations = "internal.virtualization.deckhouse.io/provisioner-tolerations"
 	// AnnProvisionerName provides a name of data volume provisioner.
-	AnnProvisionerName = "virt.deckhouse.io/provisioner-name"
+	AnnProvisionerName = "internal.virtualization.deckhouse.io/provisioner-name"
 
 	// AnnDeleteAfterCompletion is PVC annotation for deleting DV after completion
 	AnnDeleteAfterCompletion = AnnAPIGroup + "/storage.deleteAfterCompletion"
