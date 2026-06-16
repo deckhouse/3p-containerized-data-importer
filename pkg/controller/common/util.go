@@ -98,9 +98,13 @@ const (
 	AnnExternalPopulation = AnnAPIGroup + "/externalPopulation"
 
 	// AnnProvisionerTolerations annotation specifies tolerations to use for provisioners.
-	AnnProvisionerTolerations = "virt.deckhouse.io/provisioner-tolerations"
+	AnnProvisionerTolerations = "internal.virtualization.deckhouse.io/provisioner-tolerations"
+	// AnnProvisionerTolerationsLegacy is the legacy annotation for provisioner tolerations.
+	AnnProvisionerTolerationsLegacy = "virt.deckhouse.io/provisioner-tolerations"
 	// AnnProvisionerName provides a name of data volume provisioner.
-	AnnProvisionerName = "virt.deckhouse.io/provisioner-name"
+	AnnProvisionerName = "internal.virtualization.deckhouse.io/provisioner-name"
+	// AnnProvisionerNameLegacy is the legacy annotation for the data volume provisioner name.
+	AnnProvisionerNameLegacy = "virt.deckhouse.io/provisioner-name"
 
 	// AnnDeleteAfterCompletion is PVC annotation for deleting DV after completion
 	AnnDeleteAfterCompletion = AnnAPIGroup + "/storage.deleteAfterCompletion"
@@ -821,6 +825,10 @@ func AdjustWorkloadNodePlacement(ctx context.Context, c client.Client, nodePlace
 
 func ExtractProvisionerTolerations(obj client.Object) ([]corev1.Toleration, error) {
 	rawTolerations := obj.GetAnnotations()[AnnProvisionerTolerations]
+
+	if rawTolerations == "" {
+		rawTolerations = obj.GetAnnotations()[AnnProvisionerTolerationsLegacy]
+	}
 
 	if rawTolerations == "" {
 		return nil, nil

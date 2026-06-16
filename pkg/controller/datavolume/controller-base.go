@@ -1172,8 +1172,11 @@ func (r *ReconcilerBase) newPersistentVolumeClaim(dataVolume *cdiv1.DataVolume, 
 	}
 	annotations[cc.AnnPodRestarts] = "0"
 
-	if dataVolume.Annotations[cc.AnnProvisionerTolerations] != "" {
+	switch {
+	case dataVolume.Annotations[cc.AnnProvisionerTolerations] != "":
 		annotations[cc.AnnProvisionerTolerations] = dataVolume.Annotations[cc.AnnProvisionerTolerations]
+	case dataVolume.Annotations[cc.AnnProvisionerTolerationsLegacy] != "":
+		annotations[cc.AnnProvisionerTolerations] = dataVolume.Annotations[cc.AnnProvisionerTolerationsLegacy]
 	}
 
 	annotations[cc.AnnContentType] = string(cc.GetContentType(dataVolume.Spec.ContentType))
