@@ -40,6 +40,15 @@ import (
 
 const (
 	whFilePrefix = ".wh."
+
+	// serviceAccountTokenUsername is a sentinel accessKeyId that switches registry
+	// authentication to the Pod's projected ServiceAccount token. It is set by the
+	// Deckhouse Virtualization controller in the registry auth Secret when
+	// per-namespace DVCR authorization is enabled. Must match the constant on the
+	// controller side (pkg/controller/supplements/copier).
+	serviceAccountTokenUsername = "dvcr-serviceaccount-token-auth"
+	// serviceAccountTokenPath is the standard in-cluster projected SA token path.
+	serviceAccountTokenPath = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 )
 
 func commandTimeoutContext() (context.Context, context.CancelFunc) {
@@ -48,7 +57,19 @@ func commandTimeoutContext() (context.Context, context.CancelFunc) {
 
 func buildSourceContext(accessKey, secKey, certDir string, insecureRegistry bool) *types.SystemContext {
 	ctx := &types.SystemContext{}
-	if accessKey != "" && secKey != "" {
+	if accessKey == serviceAccountTokenUsername {
+		// Per-namespace DVCR authorization: authenticate with the Pod's projected
+		// ServiceAccount token. Read fresh on every call (buildSourceContext runs
+		// per registry operation) so kubelet rotation of the token file does not
+		// break long-running imports. On read error, proceed unauthenticated and
+		// let the registry return 401.
+		if token, err := os.ReadFile(serviceAccountTokenPath); err == nil {
+			ctx.DockerAuthConfig = &types.DockerAuthConfig{
+				Username: "sa",
+				Password: strings.TrimSpace(string(token)),
+			}
+		}
+	} else if accessKey != "" && secKey != "" {
 		ctx.DockerAuthConfig = &types.DockerAuthConfig{
 			Username: accessKey,
 			Password: secKey,
