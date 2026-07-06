@@ -1,8 +1,6 @@
 module kubevirt.io/containerized-data-importer
 
-go 1.24.0
-
-toolchain go1.24.8
+go 1.25.0
 
 require (
 	cloud.google.com/go/storage v1.36.0
@@ -46,7 +44,7 @@ require (
 	github.com/ulikunitz/xz v0.5.15
 	github.com/vmware/govmomi v0.23.1
 	go.uber.org/zap v1.26.0
-	golang.org/x/sys v0.39.0
+	golang.org/x/sys v0.45.0
 	google.golang.org/api v0.155.0
 	gopkg.in/fsnotify.v1 v1.4.7
 	k8s.io/api v0.30.2
@@ -144,16 +142,16 @@ require (
 	go.opentelemetry.io/otel/metric v1.41.0 // indirect
 	go.opentelemetry.io/otel/trace v1.41.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
+	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
-	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/mod v0.35.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	golang.org/x/tools v0.44.0 // indirect
 	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
@@ -213,6 +211,13 @@ replace (
 	kubevirt.io/containerized-data-importer-api => ./staging/src/kubevirt.io/containerized-data-importer-api
 	kubevirt.io/controller-lifecycle-operator-sdk/api => kubevirt.io/controller-lifecycle-operator-sdk/api v0.0.0-20220329064328-f3cc58c6ed90
 	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.18.4
+)
+
+// CVE Replaces
+replace (
+	golang.org/x/crypto => golang.org/x/crypto v0.52.0 // CVE-2024-45337,CVE-2025-22869,CVE-2025-47914,+2026 high CVEs
+	golang.org/x/net => golang.org/x/net v0.55.0
+	golang.org/x/oauth2 => golang.org/x/oauth2 v0.34.0
 )
 
 // Use reduced github.com/docker/docker module: only compare is needed for CDI.
