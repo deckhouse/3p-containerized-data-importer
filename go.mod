@@ -215,9 +215,12 @@ replace (
 
 // CVE Replaces
 replace (
-	golang.org/x/crypto => golang.org/x/crypto v0.52.0 // CVE-2024-45337,CVE-2025-22869,CVE-2025-47914,+2026 high CVEs
-	golang.org/x/net => golang.org/x/net v0.55.0
+	golang.org/x/crypto => golang.org/x/crypto v0.53.0 // +2026 high CVEs; v0.53.0 required by x/net v0.56.0
+	golang.org/x/net => golang.org/x/net v0.56.0 // CVE-2026-46600 (dns/dnsmessage panic)
 	golang.org/x/oauth2 => golang.org/x/oauth2 v0.34.0
+	golang.org/x/sys => golang.org/x/sys v0.46.0 // required by x/net v0.56.0
+	golang.org/x/text => golang.org/x/text v0.39.0 // CVE-2026-56852 (infinite loop on invalid input)
+	google.golang.org/grpc => google.golang.org/grpc v1.82.1 // GHSA-hrxh-6v49-42gf (xDS RBAC / HTTP/2)
 )
 
 // Use reduced github.com/docker/docker module: only compare is needed for CDI.
